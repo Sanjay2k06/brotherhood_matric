@@ -31,7 +31,7 @@ interface Teacher {
 function TeachersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("All");
-  const [activeTeacher, setActiveTeacher] = useState<Teacher | null>(null);
+  const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
   const [teachersList, setTeachersList] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -435,70 +435,14 @@ function TeachersPage() {
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <AnimatePresence mode="popLayout">
-            {filteredTeachers.map((teacher) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            {filteredTeachers.map((teacher, idx) => (
+              <FlipCard 
                 key={teacher.name}
-                onClick={() => setActiveTeacher(teacher)}
-                className="bg-card/80 backdrop-blur-lg border border-border rounded-3xl p-6 shadow-sm hover:border-gold/60 cursor-pointer transition-all duration-300 hover:shadow-elegant group hover:-translate-y-1.5 relative overflow-hidden"
-              >
-              {/* Premium Top Border Hover Effect */}
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-
-              <div className="flex items-center gap-4 mb-6">
-                {/* Profile Avatar or Uploaded Image */}
-                {teacher.image ? (
-                  <img 
-                    src={teacher.image} 
-                    alt={teacher.name} 
-                    className="h-16 w-16 rounded-full object-cover border border-gold/25 shadow-sm"
-                  />
-                ) : (
-                  <div className={`h-16 w-16 rounded-full flex items-center justify-center font-display text-2xl font-bold border border-gold/10 shadow-sm ${teacher.avatarBg}`}>
-                    {teacher.name.split(" ").map(n => n[0]).join("")}
-                  </div>
-                )}
-                <div>
-                  <h3 className="font-display text-xl text-primary font-bold transition-colors group-hover:text-gold">{teacher.name}</h3>
-                  <p className="text-xs text-muted-foreground font-medium">{teacher.role}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-xs text-muted-foreground leading-relaxed border-t border-border pt-4">
-                <div><strong className="text-foreground">Subject:</strong> {teacher.subject}</div>
-                <div><strong className="text-foreground">Qualifications:</strong> {teacher.qualifications}</div>
-                <div><strong className="text-foreground">Experience:</strong> {teacher.experience}</div>
-              </div>
-
-              {/* Social icons reveal and profile link */}
-              <div className="flex justify-between items-center border-t border-border mt-6 pt-4">
-                <span className="text-[10px] uppercase tracking-wider text-gold font-bold group-hover:opacity-100 opacity-60 transition duration-200">
-                  View Profile Preview →
-                </span>
-                <div className="flex gap-2">
-                  <a
-                    href={`mailto:${teacher.email}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="h-8 w-8 rounded-full border border-border bg-background hover:bg-primary/5 flex items-center justify-center text-muted-foreground hover:text-primary transition duration-150"
-                  >
-                    <Mail className="h-3.5 w-3.5" />
-                  </a>
-                  <a
-                    href="https://linkedin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="h-8 w-8 rounded-full border border-border bg-background hover:bg-primary/5 flex items-center justify-center text-muted-foreground hover:text-primary transition duration-150"
-                  >
-                    <Linkedin className="h-3.5 w-3.5" />
-                  </a>
-                </div>
-              </div>
-              </motion.div>
+                teacher={teacher}
+                idx={idx}
+                isFlipped={flippedIndex === idx}
+                onFlip={() => setFlippedIndex(flippedIndex === idx ? null : idx)}
+              />
             ))}
           </AnimatePresence>
         </motion.div>
@@ -509,94 +453,110 @@ function TeachersPage() {
           </div>
         )}
       </section>
+    </>
+  );
+}
 
-      {/* Teacher Profile Preview Modal */}
-      <AnimatePresence>
-        {activeTeacher && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-navy-deep/80 backdrop-blur-md p-4"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-card/95 backdrop-blur-xl border border-gold/30 rounded-[2.5rem] shadow-elegant max-w-lg w-full overflow-hidden relative"
-            >
-              <button
-                onClick={() => setActiveTeacher(null)}
-                className="absolute top-5 right-5 h-9 w-9 rounded-full border border-border bg-background/50 hover:bg-muted flex items-center justify-center text-primary active:scale-95 transition-all z-10"
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-            <div className="p-8 space-y-6">
-              {/* Header */}
-              <div className="flex items-center gap-4">
-                {activeTeacher.image ? (
-                  <img 
-                    src={activeTeacher.image} 
-                    alt={activeTeacher.name} 
-                    className="h-16 w-16 rounded-full object-cover border border-gold/25 shadow-sm"
-                  />
-                ) : (
-                  <div className={`h-16 w-16 rounded-full flex items-center justify-center font-display text-2xl font-bold ${activeTeacher.avatarBg}`}>
-                    {activeTeacher.name.split(" ").map(n => n[0]).join("")}
-                  </div>
-                )}
-                <div>
-                  <h3 className="font-display text-2xl text-primary font-bold">{activeTeacher.name}</h3>
-                  <p className="text-sm text-gold font-semibold uppercase tracking-wider">{activeTeacher.role}</p>
-                </div>
+function FlipCard({ teacher, idx, isFlipped, onFlip }: { teacher: Teacher, idx: number, isFlipped: boolean, onFlip: () => void }) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: 20 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="relative w-full h-[400px] cursor-pointer perspective-[1000px] group"
+      onClick={onFlip}
+    >
+      <motion.div
+        className="w-full h-full relative [transform-style:preserve-3d] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+      >
+        {/* Front Side */}
+        <div className="absolute inset-0 [backface-visibility:hidden] bg-card/80 backdrop-blur-lg border border-border rounded-3xl p-6 shadow-sm hover:border-gold/60 flex flex-col hover:shadow-elegant overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+          
+          <div className="flex items-center gap-4 mb-6">
+            {teacher.image ? (
+              <img 
+                src={teacher.image} 
+                alt={teacher.name} 
+                className="h-16 w-16 rounded-full object-cover border border-gold/25 shadow-sm"
+              />
+            ) : (
+              <div className={`h-16 w-16 rounded-full flex items-center justify-center font-display text-2xl font-bold border border-gold/10 shadow-sm ${teacher.avatarBg}`}>
+                {teacher.name.split(" ").map(n => n[0]).join("")}
               </div>
+            )}
+            <div>
+              <h3 className="font-display text-xl text-primary font-bold transition-colors group-hover:text-gold">{teacher.name}</h3>
+              <p className="text-xs text-muted-foreground font-medium">{teacher.role}</p>
+            </div>
+          </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 border-y border-border py-4 text-xs">
-                <div>
-                  <div className="text-muted-foreground uppercase tracking-widest font-semibold mb-1">Teaching Subject</div>
-                  <div className="font-bold text-foreground">{activeTeacher.subject}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground uppercase tracking-widest font-semibold mb-1">Experience</div>
-                  <div className="font-bold text-foreground">{activeTeacher.experience}</div>
-                </div>
-              </div>
+          <div className="space-y-2 text-xs text-muted-foreground leading-relaxed border-t border-border pt-4">
+            <div><strong className="text-foreground">Subject:</strong> {teacher.subject}</div>
+            <div><strong className="text-foreground">Qualifications:</strong> {teacher.qualifications}</div>
+            <div><strong className="text-foreground">Experience:</strong> {teacher.experience}</div>
+          </div>
 
-              {/* Bio and Philosophy */}
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-xs uppercase tracking-widest text-gold font-bold mb-1.5 flex items-center gap-1">
-                    <Sparkles className="h-3.5 w-3.5" /> Biography
-                  </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{activeTeacher.bio}</p>
-                </div>
-
-                <div>
-                  <h4 className="text-xs uppercase tracking-widest text-gold font-bold mb-1.5 flex items-center gap-1">
-                    <GraduationCap className="h-3.5 w-3.5" /> Educational Philosophy
-                  </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed italic">
-                    "{activeTeacher.philosophy}"
-                  </p>
-                </div>
-              </div>
-
-              {/* CTA button */}
+          <div className="mt-auto flex justify-between items-center border-t border-border pt-4">
+            <span className="text-[10px] uppercase tracking-wider text-gold font-bold group-hover:opacity-100 opacity-60 transition duration-200">
+              Click to flip →
+            </span>
+            <div className="flex gap-2">
               <a
-                href={`mailto:${activeTeacher.email}`}
-                className="w-full py-3.5 rounded-full bg-gradient-gold text-navy-deep hover:opacity-95 shadow-gold font-semibold transition duration-300 text-center flex items-center justify-center gap-2"
+                href={`mailto:${teacher.email}`}
+                onClick={(e) => e.stopPropagation()}
+                className="h-8 w-8 rounded-full border border-border bg-background hover:bg-primary/5 flex items-center justify-center text-muted-foreground hover:text-primary transition duration-150"
               >
-                <Mail className="h-4 w-4" /> Contact via Email
+                <Mail className="h-3.5 w-3.5" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="h-8 w-8 rounded-full border border-border bg-background hover:bg-primary/5 flex items-center justify-center text-muted-foreground hover:text-primary transition duration-150"
+              >
+                <Linkedin className="h-3.5 w-3.5" />
               </a>
             </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+          </div>
+        </div>
+
+        {/* Back Side */}
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-navy-deep rounded-3xl p-6 flex flex-col shadow-2xl border border-gold/30 overflow-hidden text-white/90">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gold rounded-full blur-[60px] opacity-[0.15] pointer-events-none"></div>
+          
+          <h3 className="font-display text-xl text-gold font-bold mb-1">{teacher.name}</h3>
+          <p className="text-xs text-white/60 mb-4">{teacher.role}</p>
+          
+          <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
+            <div>
+              <h4 className="text-[10px] uppercase tracking-widest text-gold font-bold mb-1.5 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" /> Biography
+              </h4>
+              <p className="text-xs text-white/80 leading-relaxed">{teacher.bio}</p>
+            </div>
+
+            <div>
+              <h4 className="text-[10px] uppercase tracking-widest text-gold font-bold mb-1.5 flex items-center gap-1">
+                <GraduationCap className="h-3 w-3" /> Philosophy
+              </h4>
+              <p className="text-xs text-white/80 leading-relaxed italic">
+                "{teacher.philosophy}"
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-auto border-t border-white/10 pt-4 flex justify-between items-center">
+             <span className="text-[10px] uppercase tracking-wider text-white/50 hover:text-white transition duration-200">
+              ← Flip back
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
