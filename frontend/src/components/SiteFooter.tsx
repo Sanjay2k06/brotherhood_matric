@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin, Phone, Mail, GraduationCap, Facebook, Instagram, Youtube } from "lucide-react";
+import { motion } from "motion/react";
 import logoImg from "../images/brotherhoodtitle.jpg";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-navy-deep text-primary-foreground mt-24">
+    <footer className="bg-navy-deep text-primary-foreground">
       <div className="max-w-7xl mx-auto px-6 py-16 grid gap-12 md:grid-cols-4">
         <div className="md:col-span-1">
           <div className="flex items-center gap-2.5 mb-4">
@@ -18,9 +19,9 @@ export function SiteFooter() {
             Character Formation Through Quality Education — shaping future leaders for over three decades.
           </p>
           <div className="flex gap-3 mt-5">
-            <a className="h-9 w-9 rounded-full bg-white/10 hover:bg-gold hover:text-navy-deep grid place-items-center transition" href="#"><Facebook className="h-4 w-4" /></a>
-            <a className="h-9 w-9 rounded-full bg-white/10 hover:bg-gold hover:text-navy-deep grid place-items-center transition" href="#"><Instagram className="h-4 w-4" /></a>
-            <a className="h-9 w-9 rounded-full bg-white/10 hover:bg-gold hover:text-navy-deep grid place-items-center transition" href="#"><Youtube className="h-4 w-4" /></a>
+            <motion.a whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.9 }} className="h-9 w-9 rounded-full bg-white/10 hover:bg-gold hover:text-navy-deep grid place-items-center transition-colors duration-300" href="#"><Facebook className="h-4 w-4" /></motion.a>
+            <motion.a whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.9 }} className="h-9 w-9 rounded-full bg-white/10 hover:bg-gold hover:text-navy-deep grid place-items-center transition-colors duration-300" href="#"><Instagram className="h-4 w-4" /></motion.a>
+            <motion.a whileHover={{ scale: 1.1, y: -2 }} whileTap={{ scale: 0.9 }} className="h-9 w-9 rounded-full bg-white/10 hover:bg-gold hover:text-navy-deep grid place-items-center transition-colors duration-300" href="#"><Youtube className="h-4 w-4" /></motion.a>
           </div>
         </div>
         <div>

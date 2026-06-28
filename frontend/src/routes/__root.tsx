@@ -7,8 +7,11 @@ import {
   HeadContent,
   Scripts,
   useNavigate,
+  useLocation,
 } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { pageTransitionVariants } from "../lib/motion";
 import {
   GraduationCap,
   Sparkles,
@@ -142,6 +145,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Initialize global Lenis smooth scroll
   useEffect(() => {
@@ -169,164 +173,140 @@ function RootComponent() {
     };
   }, []);
 
-  // State to control Splash Screen display
+  // Premium Fast Splash Screen State
   const [showSplash, setShowSplash] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-
-  const handleEnter = (targetPath?: string) => {
-    setFadeOut(true);
-    setTimeout(() => {
-      sessionStorage.setItem("hasEntered", "true");
-      setShowSplash(false);
-      if (targetPath) {
-        navigate({ to: targetPath });
-      }
-    }, 600); // matches the transition-all duration-500
-  };
 
   useEffect(() => {
-    // Check if user has already entered in this session
-    const entered = sessionStorage.getItem("hasEntered") === "true";
-    if (entered) {
-      setShowSplash(false);
-      return;
-    }
+    // Disabled sessionStorage check temporarily for development so you can see it on every refresh!
+    // const entered = sessionStorage.getItem("hasEntered") === "true";
+    // if (entered) {
+    //   setShowSplash(false);
+    //   return;
+    // }
 
-    // Progress bar animation: 0 to 100 in 6.4 seconds (to finish just before auto-dismiss)
-    const duration = 6400; // 6.4 seconds
-    const intervalTime = 30; // update every 30ms
-    const step = 100 / (duration / intervalTime);
-
-    const interval = setInterval(() => {
-      setLoadingProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + step;
-      });
-    }, intervalTime);
-
-    // Automatically enter after 7 seconds
+    // High-class fast splash screen
     const enterTimer = setTimeout(() => {
-      handleEnter();
-    }, 7000);
+      setFadeOut(true);
+      setTimeout(() => {
+        sessionStorage.setItem("hasEntered", "true");
+        setShowSplash(false);
+      }, 800); // 800ms ultra-smooth fade out
+    }, 1800); // 1.8 seconds initial display
 
-    return () => {
-      clearInterval(interval);
-      clearTimeout(enterTimer);
-    };
+    return () => clearTimeout(enterTimer);
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       {showSplash ? (
         <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-navy-deep text-white transition-all duration-700 ease-in-out ${
-            fadeOut ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-[#05140b] text-white transition-all duration-[800ms] ease-in-out ${
+            fadeOut ? "opacity-0 scale-105 pointer-events-none" : "opacity-100 scale-100"
           }`}
         >
-          {/* Animated Campus Image Background */}
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            <img
-              src={bgImg}
-              alt="School Campus Background"
-              className="absolute inset-0 w-full h-full object-cover scale-105 animate-kenburns"
-            />
-            {/* Dark green overlay to blend with branding and ensure high contrast */}
-            <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/80 via-navy-deep/85 to-navy-deep/95 backdrop-blur-[2px]" />
-            {/* Ambient gold glow elements */}
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gold/10 blur-[120px] animate-pulse" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-primary/20 blur-[120px]" />
-          </div>
+          {/* Subtle atmospheric gold glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#d4af37]/5 blur-[120px] pointer-events-none" />
 
           <div className="relative z-10 w-full max-w-4xl px-6 text-center flex flex-col items-center">
-            {/* School Logo Badge */}
-            <div className="mb-8 flex items-center justify-center p-4 sm:p-5 rounded-2xl bg-white shadow-elegant border border-gold/30 animate-float max-w-[280px] sm:max-w-[340px]">
-              <img
-                src={logoImg}
-                className="h-12 sm:h-16 w-auto object-contain"
-                alt="Brotherhood School Logo"
-              />
-            </div>
+            {/* Elegant Logo Reveal */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-8"
+            >
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-white/5 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 shadow-2xl p-4">
+                <img src={logoImg} className="w-full h-full object-contain drop-shadow-xl" alt="Brotherhood School" />
+              </div>
+            </motion.div>
 
-            {/* School Name and Tagline */}
-            <h1 className="font-display text-4xl sm:text-6xl font-bold tracking-tight text-white mb-2 leading-tight drop-shadow-md">
+            {/* Minimalist Cinematic Typography */}
+            <motion.h1 
+              initial={{ opacity: 0, letterSpacing: "0.05em" }}
+              animate={{ opacity: 1, letterSpacing: "0.2em" }}
+              transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
+              className="font-serif text-3xl md:text-5xl font-light tracking-[0.2em] text-white mb-3 uppercase"
+            >
               Brotherhood
-            </h1>
-            <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-gold font-semibold mb-3">
-              Matriculation Higher Secondary School
-            </p>
-            <p className="italic text-base sm:text-lg text-white/70 max-w-lg mb-8 font-light">
-              "Shaping Future Leaders Since 1991"
-            </p>
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 1 }}
+              className="text-xs uppercase tracking-[0.3em] text-[#d4af37]/80 font-medium"
+            >
+              Since 1991
+            </motion.p>
 
-            {/* Loading progress bar */}
-            <div className="w-64 mb-12 animate-fade-in">
-              <div className="flex justify-between items-center text-xs text-white/50 mb-2">
-                <span>Preparing Excellence...</span>
-                <span>{Math.round(loadingProgress)}%</span>
-              </div>
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-gold transition-all duration-100 ease-out"
-                  style={{ width: `${loadingProgress}%` }}
-                />
-              </div>
-            </div>
+            {/* Elegant loading accent */}
+            <motion.div 
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "120px", opacity: 1 }}
+              transition={{ delay: 0.6, duration: 1.2, ease: "circOut" }}
+              className="h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/60 to-transparent mt-8"
+            />
           </div>
         </div>
       ) : null}
-      <div className={`${showSplash ? "opacity-0 pointer-events-none" : "opacity-100 transition-opacity duration-700"}`}>
+      
+      {/* Main Content Wrapper - Animates in as splash fades out */}
+      <div 
+        className={`relative z-0 bg-[#05140b] transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          !showSplash || fadeOut 
+            ? "blur-0 translate-y-0 scale-100" 
+            : "blur-md translate-y-12 scale-105 pointer-events-none"
+        }`}
+      >
         <SiteHeader />
-        <main className="min-h-screen pt-16 page-reveal">
+        <main key={location.pathname} className="min-h-screen page-reveal">
           <Outlet />
         </main>
         <SiteFooter />
 
-        {/* Global Floating Action Buttons (Enquiry, Call, WhatsApp) */}
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3.5 items-end">
+        {/* Global Floating Action Buttons */}
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-4 items-end">
           {/* Floating Enquiry Button */}
-          <Link
-            to="/admissions/enquiry-form"
-            className="flex items-center gap-3 bg-navy-deep/75 hover:bg-navy-deep border border-white/20 text-white pl-5 pr-2 py-1.5 rounded-full shadow-elegant backdrop-blur-md transition-all hover:-translate-y-0.5"
-          >
-            <span className="text-xs font-bold text-white tracking-wide text-shadow-premium">
-              Enquire Now
-            </span>
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center border border-gold/40 shadow-sm">
-              <FileEdit className="h-4.5 w-4.5 text-gold" />
-            </div>
-          </Link>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              to="/admissions/enquiry-form"
+              className="group flex items-center bg-white border border-gray-200 shadow-xl rounded-full p-1 hover:bg-[#0a2b18] hover:border-[#0a2b18] transition-all duration-500 ease-in-out hover:-translate-y-1"
+            >
+              <div className="h-10 w-10 bg-[#f7faf8] group-hover:bg-white/10 rounded-full flex items-center justify-center shrink-0 transition-colors">
+                <FileEdit className="h-4 w-4 text-[#1b4d32] group-hover:text-white transition-colors" />
+              </div>
+              <span className="text-sm font-medium text-[#0a2b18] group-hover:text-white transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">Enquire Now</span>
+            </Link>
+          </motion.div>
 
           {/* Floating Call Button */}
-          <a
-            href="tel:0442440133"
-            className="flex items-center gap-3 bg-navy-deep/75 hover:bg-navy-deep border border-white/20 text-white pl-5 pr-2 py-1.5 rounded-full shadow-elegant backdrop-blur-md transition-all hover:-translate-y-0.5"
-          >
-            <span className="text-xs font-bold text-white tracking-wide text-shadow-premium">
-              Call Us
-            </span>
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center border border-white/20 shadow-sm">
-              <Phone className="h-4.5 w-4.5 text-gold" />
-            </div>
-          </a>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <a
+              href="tel:0442440133"
+              className="group flex items-center bg-white border border-gray-200 shadow-xl rounded-full p-1 hover:bg-[#0a2b18] hover:border-[#0a2b18] transition-all duration-500 ease-in-out hover:-translate-y-1"
+            >
+              <div className="h-10 w-10 bg-[#f7faf8] group-hover:bg-white/10 rounded-full flex items-center justify-center shrink-0 transition-colors">
+                <Phone className="h-4 w-4 text-[#1b4d32] group-hover:text-white transition-colors" />
+              </div>
+              <span className="text-sm font-medium text-[#0a2b18] group-hover:text-white transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">Call Us</span>
+            </a>
+          </motion.div>
 
           {/* Floating WhatsApp Button */}
-          <a
-            href="https://wa.me/919884204848"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 bg-navy-deep/75 hover:bg-navy-deep border border-white/20 text-white pl-5 pr-2 py-1.5 rounded-full shadow-elegant backdrop-blur-md transition-all hover:-translate-y-0.5"
-          >
-            <span className="text-xs font-bold text-white tracking-wide text-shadow-premium">
-              WhatsApp
-            </span>
-            <div className="h-9 w-9 rounded-full bg-[#25D366] flex items-center justify-center border border-white/20 shadow-sm hover:bg-[#20ba5a] transition-colors">
-              <MessageCircle className="h-4.5 w-4.5 fill-white text-[#25D366]" />
-            </div>
-          </a>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <a
+              href="https://wa.me/919884204848"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center bg-[#25D366] border border-[#25D366] shadow-[0_8px_16px_rgba(37,211,102,0.3)] rounded-full p-1 hover:bg-[#20ba5a] hover:border-[#20ba5a] transition-all duration-500 ease-in-out hover:-translate-y-1"
+            >
+              <div className="h-10 w-10 bg-white/20 rounded-full flex items-center justify-center shrink-0 transition-colors">
+                <MessageCircle className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-sm font-medium text-white tracking-wide transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">WhatsApp</span>
+            </a>
+          </motion.div>
         </div>
       </div>
     </QueryClientProvider>
