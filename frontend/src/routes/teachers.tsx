@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Search, Mail, Linkedin, GraduationCap, X, Sparkles, Filter } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { fadeUp, staggerContainer } from "../lib/motion";
 
 export const Route = createFileRoute("/teachers")({
   head: () => ({
@@ -425,13 +427,25 @@ function TeachersPage() {
         )}
 
         {/* Teachers Cards Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredTeachers.map((teacher) => (
-            <div
-              key={teacher.name}
-              onClick={() => setActiveTeacher(teacher)}
-              className="bg-card border border-border rounded-3xl p-6 shadow-sm hover:border-gold/60 cursor-pointer transition-all duration-300 hover:shadow-elegant group hover:-translate-y-1.5 relative overflow-hidden"
-            >
+        <motion.div 
+          layout
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredTeachers.map((teacher) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                key={teacher.name}
+                onClick={() => setActiveTeacher(teacher)}
+                className="bg-card/80 backdrop-blur-lg border border-border rounded-3xl p-6 shadow-sm hover:border-gold/60 cursor-pointer transition-all duration-300 hover:shadow-elegant group hover:-translate-y-1.5 relative overflow-hidden"
+              >
               {/* Premium Top Border Hover Effect */}
               <div className="absolute top-0 inset-x-0 h-1 bg-gradient-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
 
@@ -484,9 +498,10 @@ function TeachersPage() {
                   </a>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {!loading && filteredTeachers.length === 0 && (
           <div className="text-center py-16 bg-muted/20 border border-border rounded-3xl text-muted-foreground">
@@ -496,15 +511,28 @@ function TeachersPage() {
       </section>
 
       {/* Teacher Profile Preview Modal */}
-      {activeTeacher && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-deep/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-card border border-gold/30 rounded-3xl shadow-elegant max-w-lg w-full overflow-hidden relative animate-scale-up">
-            <button
-              onClick={() => setActiveTeacher(null)}
-              className="absolute top-4 right-4 h-9 w-9 rounded-full border border-border bg-background hover:bg-muted flex items-center justify-center text-primary active:scale-95 transition-all"
+      <AnimatePresence>
+        {activeTeacher && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-navy-deep/80 backdrop-blur-md p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="bg-card/95 backdrop-blur-xl border border-gold/30 rounded-[2.5rem] shadow-elegant max-w-lg w-full overflow-hidden relative"
             >
-              <X className="h-4 w-4" />
-            </button>
+              <button
+                onClick={() => setActiveTeacher(null)}
+                className="absolute top-5 right-5 h-9 w-9 rounded-full border border-border bg-background/50 hover:bg-muted flex items-center justify-center text-primary active:scale-95 transition-all z-10"
+              >
+                <X className="h-4 w-4" />
+              </button>
 
             <div className="p-8 space-y-6">
               {/* Header */}
@@ -565,9 +593,10 @@ function TeachersPage() {
                 <Mail className="h-4 w-4" /> Contact via Email
               </a>
             </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

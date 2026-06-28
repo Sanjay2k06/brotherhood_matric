@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Menu, Phone, Search, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import logoImg from "../images/brotherhoodtitle.jpg";
 
 const sections = {
@@ -14,6 +15,7 @@ const sections = {
     { to: "/academics/admission", label: "Admission Process" },
     { to: "/academics/courses-offered", label: "Courses Offered" },
     { to: "/academics/curriculum", label: "Curriculum" },
+    { to: "/teachers", label: "Teaching Faculty" },
     { to: "/academics/school-fees", label: "School Fees" },
     { to: "/academics/school-timings", label: "School Timings" },
     { to: "/academics/management-committee", label: "Managing Committee" },
@@ -40,10 +42,6 @@ const sections = {
     { to: "/co-curricular/scouts-guides", label: "Scouts & Guides" },
   ],
   gallery: [{ to: "/gallery", label: "Photo Gallery", exact: true }],
-  contact: [
-    { to: "/contact/contact-us", label: "Contact Us" },
-    { to: "/contact/location", label: "Location" },
-  ],
 } as const;
 
 type SectionKey = keyof typeof sections;
@@ -59,12 +57,12 @@ const navItems: Array<
   { label: "Association", key: "association", submenu: true },
   { label: "Co-Curricular", key: "co-curricular", submenu: true },
   { label: "Gallery", to: "/gallery" },
-  { label: "Contact", key: "contact", submenu: true },
+  { label: "Contact", to: "/contact/contact-us" },
 ];
 
 export function SiteHeader() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<SectionKey | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const menuTimeoutRef = useRef<number | null>(null);
   const location = useLocation();
@@ -89,7 +87,7 @@ export function SiteHeader() {
     return path === `/${key}` || path.startsWith(`/${key}/`);
   };
 
-  const handleMenuEnter = (key: SectionKey) => {
+  const handleMenuEnter = (key: string) => {
     if (menuTimeoutRef.current) {
       window.clearTimeout(menuTimeoutRef.current);
       menuTimeoutRef.current = null;
@@ -140,14 +138,21 @@ export function SiteHeader() {
                         onMouseLeave={handleMenuLeave}
                       >
                         <button
-                          className={`group flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold tracking-wide transition-all duration-200 whitespace-nowrap ${
+                          className={`relative group flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold tracking-wide transition-colors duration-200 whitespace-nowrap z-10 ${
                             activeMenu === item.key || isSectionActive(item.key)
-                              ? "text-[#C8940F] bg-[#D4A017]/10"
-                              : "text-[#0F172A]/65 hover:text-[#0F172A] hover:bg-[#D4A017]/6"
+                              ? "text-[#C8940F]"
+                              : "text-[#0F172A]/65 hover:text-[#0F172A]"
                           }`}
                           onMouseEnter={() => handleMenuEnter(item.key)}
                           type="button"
                         >
+                          {(activeMenu === item.key || isSectionActive(item.key)) && (
+                            <motion.div
+                              layoutId="nav-active"
+                              className="absolute inset-0 bg-[#D4A017]/10 rounded-lg -z-10"
+                              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            />
+                          )}
                           {item.label}
                           {item.badge ? (
                             <span className="ml-1 px-1.5 py-0.5 bg-gradient-to-r from-[#D4A017] to-[#B8860B] text-white text-[9.5px] rounded-full font-bold">
@@ -164,36 +169,42 @@ export function SiteHeader() {
 
                         {activeMenu === item.key ? <div className="absolute top-full left-0 right-0 h-3" /> : null}
 
-                        {activeMenu === item.key ? (
-                          <div
-                            className="absolute left-1/2 top-full z-50 w-[320px] -translate-x-1/2 pt-3"
-                            onMouseEnter={() => handleMenuEnter(item.key)}
-                            onMouseLeave={handleMenuLeave}
-                          >
-                            <div className="rounded-3xl border border-border/70 bg-white/98 p-2 shadow-2xl shadow-black/10 backdrop-blur-xl">
-                              <div className="px-3 py-2">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#0F172A]/40">
-                                  {item.label}
-                                </p>
-                                <p className="mt-1 text-[11px] text-[#0F172A]/55">
-                                  Explore the key pages in this section.
-                                </p>
+                        <AnimatePresence>
+                          {activeMenu === item.key ? (
+                            <motion.div
+                              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 8, scale: 0.98, transition: { duration: 0.15 } }}
+                              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                              className="absolute left-1/2 top-full z-50 w-[320px] -translate-x-1/2 pt-3"
+                              onMouseEnter={() => handleMenuEnter(item.key)}
+                              onMouseLeave={handleMenuLeave}
+                            >
+                              <div className="rounded-3xl border border-border/70 bg-white/98 p-2 shadow-2xl shadow-black/10 backdrop-blur-xl">
+                                <div className="px-3 py-2">
+                                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#0F172A]/40">
+                                    {item.label}
+                                  </p>
+                                  <p className="mt-1 text-[11px] text-[#0F172A]/55">
+                                    Explore the key pages in this section.
+                                  </p>
+                                </div>
+                                <div className="grid gap-1">
+                                  {sections[item.key].map((subItem) => (
+                                    <Link
+                                      key={subItem.to}
+                                      to={subItem.to}
+                                      className="rounded-2xl px-3 py-2.5 text-[12px] font-semibold text-[#0F172A]/78 transition-all hover:bg-[#D4A017]/8 hover:text-[#0F172A]"
+                                      activeProps={{ className: "bg-[#D4A017]/10 text-[#C8940F]" }}
+                                    >
+                                      {subItem.label}
+                                    </Link>
+                                  ))}
+                                </div>
                               </div>
-                              <div className="grid gap-1">
-                                {sections[item.key].map((subItem) => (
-                                  <Link
-                                    key={subItem.to}
-                                    to={subItem.to}
-                                    className="rounded-2xl px-3 py-2.5 text-[12px] font-semibold text-[#0F172A]/78 transition-all hover:bg-[#D4A017]/8 hover:text-[#0F172A]"
-                                    activeProps={{ className: "bg-[#D4A017]/10 text-[#C8940F]" }}
-                                  >
-                                    {subItem.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        ) : null}
+                            </motion.div>
+                          ) : null}
+                        </AnimatePresence>
                       </div>
                     );
                   }
@@ -202,13 +213,22 @@ export function SiteHeader() {
                     <Link
                       key={item.to}
                       to={item.to}
+                      onMouseEnter={() => handleMenuEnter(item.to)}
+                      onMouseLeave={handleMenuLeave}
                       activeOptions={item.exact ? { exact: true } : undefined}
-                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold tracking-wide transition-all duration-200 whitespace-nowrap ${
-                        isActive(item.to, item.exact)
-                          ? "text-[#C8940F] bg-[#D4A017]/10"
-                          : "text-[#0F172A]/65 hover:text-[#0F172A] hover:bg-[#D4A017]/6"
+                      className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold tracking-wide transition-colors duration-200 whitespace-nowrap z-10 ${
+                        activeMenu === item.to || isActive(item.to, item.exact)
+                          ? "text-[#C8940F]"
+                          : "text-[#0F172A]/65 hover:text-[#0F172A]"
                       }`}
                     >
+                      {(activeMenu === item.to || isActive(item.to, item.exact)) && (
+                        <motion.div
+                          layoutId="nav-active"
+                          className="absolute inset-0 bg-[#D4A017]/10 rounded-lg -z-10"
+                          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                        />
+                      )}
                       {item.label}
                     </Link>
                   );
@@ -235,14 +255,16 @@ export function SiteHeader() {
                 <Phone size={16} className="text-[#0F172A]/50 group-hover:text-[#C8940F] transition-colors duration-200" />
               </a>
 
-              <Link
-                to="/admissions/apply-online"
-                className="ml-1 px-4 py-2 rounded-full font-bold text-[11px] tracking-wide text-white bg-gradient-to-r from-[#D4A017] to-[#B8860B] shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center gap-1.5 group relative overflow-hidden whitespace-nowrap"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-500" />
-                <span className="relative">Admissions</span>
-                <span className="relative text-xs">→</span>
-              </Link>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Link
+                  to="/admissions/apply-online"
+                  className="ml-1 px-4 py-2 rounded-full font-bold text-[11px] tracking-wide text-white bg-gradient-to-r from-[#D4A017] to-[#B8860B] shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center gap-1.5 group relative overflow-hidden whitespace-nowrap"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-500" />
+                  <span className="relative">Admissions</span>
+                  <span className="relative text-xs group-hover:translate-x-1 transition-transform duration-300">→</span>
+                </Link>
+              </motion.div>
             </div>
           </div>
         </div>
