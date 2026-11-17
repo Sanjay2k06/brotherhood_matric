@@ -9,140 +9,80 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TeachersRouteImport } from './routes/teachers'
-import { Route as StudentsRouteImport } from './routes/students'
-import { Route as StudentLifeRouteImport } from './routes/student-life'
-import { Route as ScrollStackDemoRouteImport } from './routes/scroll-stack-demo'
-import { Route as GalleryRouteImport } from './routes/gallery'
-import { Route as FeaturesRouteImport } from './routes/features'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CoCurricularRouteImport } from './routes/co-curricular'
-import { Route as AssociationRouteImport } from './routes/association'
-import { Route as AdmissionsRouteImport } from './routes/admissions'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AchievementsRouteImport } from './routes/achievements'
-import { Route as AcademicsRouteImport } from './routes/academics'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as StudentsIndexRouteImport } from './routes/students/index'
-import { Route as StudentLifeIndexRouteImport } from './routes/student-life/index'
-import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
-import { Route as ContactIndexRouteImport } from './routes/contact/index'
-import { Route as CoCurricularIndexRouteImport } from './routes/co-curricular/index'
-import { Route as AssociationIndexRouteImport } from './routes/association/index'
-import { Route as AdmissionsIndexRouteImport } from './routes/admissions/index'
-import { Route as AchievementsIndexRouteImport } from './routes/achievements/index'
-import { Route as AcademicsIndexRouteImport } from './routes/academics/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AcademicsRouteImport } from './routes/academics'
+import { Route as AchievementsRouteImport } from './routes/achievements'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdmissionsRouteImport } from './routes/admissions'
+import { Route as AssociationRouteImport } from './routes/association'
+import { Route as CoCurricularRouteImport } from './routes/co-curricular'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as ScrollStackDemoRouteImport } from './routes/scroll-stack-demo'
+import { Route as StudentLifeRouteImport } from './routes/student-life'
+import { Route as StudentsRouteImport } from './routes/students'
+import { Route as TeachersRouteImport } from './routes/teachers'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
-import { Route as StudentsStudentLeadersRouteImport } from './routes/students/student-leaders'
-import { Route as StudentsSchoolUniformRouteImport } from './routes/students/school-uniform'
-import { Route as StudentsHousesRouteImport } from './routes/students/houses'
-import { Route as StudentsBestStudentRouteImport } from './routes/students/best-student'
-import { Route as StudentsAchievementsRouteImport } from './routes/students/achievements'
-import { Route as StudentLifeStudentLeadersRouteImport } from './routes/student-life/student-leaders'
-import { Route as StudentLifeScoutsGuidesRouteImport } from './routes/student-life/scouts-guides'
-import { Route as StudentLifeSchoolUniformRouteImport } from './routes/student-life/school-uniform'
-import { Route as StudentLifeRspRouteImport } from './routes/student-life/rsp'
-import { Route as StudentLifeLiteraryAssociationRouteImport } from './routes/student-life/literary-association'
-import { Route as StudentLifeHousesRouteImport } from './routes/student-life/houses'
-import { Route as StudentLifeEcoClubRouteImport } from './routes/student-life/eco-club'
-import { Route as StudentLifeChoirRouteImport } from './routes/student-life/choir'
-import { Route as GallerySportsRouteImport } from './routes/gallery/sports'
-import { Route as GalleryEventsRouteImport } from './routes/gallery/events'
-import { Route as GalleryCampusRouteImport } from './routes/gallery/campus'
-import { Route as ContactLocationRouteImport } from './routes/contact/location'
-import { Route as ContactContactUsRouteImport } from './routes/contact/contact-us'
-import { Route as CoCurricularSportsRouteImport } from './routes/co-curricular/sports'
-import { Route as CoCurricularScoutsGuidesRouteImport } from './routes/co-curricular/scouts-guides'
-import { Route as CoCurricularRspRouteImport } from './routes/co-curricular/rsp'
-import { Route as CoCurricularLiteraryAssociationRouteImport } from './routes/co-curricular/literary-association'
-import { Route as CoCurricularEcoClubRouteImport } from './routes/co-curricular/eco-club'
-import { Route as CoCurricularChoirRouteImport } from './routes/co-curricular/choir'
-import { Route as AssociationRegistrationRouteImport } from './routes/association/registration'
-import { Route as AssociationAlumniRouteImport } from './routes/association/alumni'
-import { Route as AdmissionsProcessRouteImport } from './routes/admissions/process'
-import { Route as AdmissionsEnquiryFormRouteImport } from './routes/admissions/enquiry-form'
-import { Route as AdmissionsApplyOnlineRouteImport } from './routes/admissions/apply-online'
-import { Route as AchievementsSportsRouteImport } from './routes/achievements/sports'
-import { Route as AchievementsBestStudentRouteImport } from './routes/achievements/best-student'
-import { Route as AchievementsAcademicRouteImport } from './routes/achievements/academic'
-import { Route as AcademicsSchoolTimingsRouteImport } from './routes/academics/school-timings'
-import { Route as AcademicsSchoolFeesRouteImport } from './routes/academics/school-fees'
-import { Route as AcademicsManagementCommitteeRouteImport } from './routes/academics/management-committee'
-import { Route as AcademicsFounderMessageRouteImport } from './routes/academics/founder-message'
-import { Route as AcademicsFatherCruzeProfileRouteImport } from './routes/academics/father-cruze-profile'
-import { Route as AcademicsCurriculumRouteImport } from './routes/academics/curriculum'
-import { Route as AcademicsCoursesOfferedRouteImport } from './routes/academics/courses-offered'
-import { Route as AcademicsAdmissionRouteImport } from './routes/academics/admission'
-import { Route as AboutVisionMissionRouteImport } from './routes/about/vision-mission'
-import { Route as AboutPrincipalMessageRouteImport } from './routes/about/principal-message'
-import { Route as AboutInfrastructureRouteImport } from './routes/about/infrastructure'
-import { Route as AboutCorrespondentMessageRouteImport } from './routes/about/correspondent-message'
 import { Route as AboutAboutSchoolRouteImport } from './routes/about/about-school'
+import { Route as AboutCorrespondentMessageRouteImport } from './routes/about/correspondent-message'
+import { Route as AboutInfrastructureRouteImport } from './routes/about/infrastructure'
+import { Route as AboutPrincipalMessageRouteImport } from './routes/about/principal-message'
+import { Route as AboutVisionMissionRouteImport } from './routes/about/vision-mission'
+import { Route as AcademicsIndexRouteImport } from './routes/academics/index'
+import { Route as AcademicsAdmissionRouteImport } from './routes/academics/admission'
+import { Route as AcademicsCoursesOfferedRouteImport } from './routes/academics/courses-offered'
+import { Route as AcademicsCurriculumRouteImport } from './routes/academics/curriculum'
+import { Route as AcademicsFatherCruzeProfileRouteImport } from './routes/academics/father-cruze-profile'
+import { Route as AcademicsFounderMessageRouteImport } from './routes/academics/founder-message'
+import { Route as AcademicsManagementCommitteeRouteImport } from './routes/academics/management-committee'
+import { Route as AcademicsSchoolFeesRouteImport } from './routes/academics/school-fees'
+import { Route as AcademicsSchoolTimingsRouteImport } from './routes/academics/school-timings'
+import { Route as AchievementsIndexRouteImport } from './routes/achievements/index'
+import { Route as AchievementsAcademicRouteImport } from './routes/achievements/academic'
+import { Route as AchievementsBestStudentRouteImport } from './routes/achievements/best-student'
+import { Route as AchievementsSportsRouteImport } from './routes/achievements/sports'
+import { Route as AdmissionsIndexRouteImport } from './routes/admissions/index'
+import { Route as AdmissionsApplyOnlineRouteImport } from './routes/admissions/apply-online'
+import { Route as AdmissionsEnquiryFormRouteImport } from './routes/admissions/enquiry-form'
+import { Route as AdmissionsProcessRouteImport } from './routes/admissions/process'
+import { Route as AssociationIndexRouteImport } from './routes/association/index'
+import { Route as AssociationAlumniRouteImport } from './routes/association/alumni'
+import { Route as AssociationRegistrationRouteImport } from './routes/association/registration'
+import { Route as CoCurricularIndexRouteImport } from './routes/co-curricular/index'
+import { Route as CoCurricularChoirRouteImport } from './routes/co-curricular/choir'
+import { Route as CoCurricularEcoClubRouteImport } from './routes/co-curricular/eco-club'
+import { Route as CoCurricularLiteraryAssociationRouteImport } from './routes/co-curricular/literary-association'
+import { Route as CoCurricularRspRouteImport } from './routes/co-curricular/rsp'
+import { Route as CoCurricularScoutsGuidesRouteImport } from './routes/co-curricular/scouts-guides'
+import { Route as CoCurricularSportsRouteImport } from './routes/co-curricular/sports'
+import { Route as ContactIndexRouteImport } from './routes/contact/index'
+import { Route as ContactContactUsRouteImport } from './routes/contact/contact-us'
+import { Route as ContactLocationRouteImport } from './routes/contact/location'
+import { Route as GalleryIndexRouteImport } from './routes/gallery/index'
+import { Route as GalleryCampusRouteImport } from './routes/gallery/campus'
+import { Route as GalleryEventsRouteImport } from './routes/gallery/events'
+import { Route as GallerySportsRouteImport } from './routes/gallery/sports'
+import { Route as StudentLifeIndexRouteImport } from './routes/student-life/index'
+import { Route as StudentLifeChoirRouteImport } from './routes/student-life/choir'
+import { Route as StudentLifeEcoClubRouteImport } from './routes/student-life/eco-club'
+import { Route as StudentLifeHousesRouteImport } from './routes/student-life/houses'
+import { Route as StudentLifeLiteraryAssociationRouteImport } from './routes/student-life/literary-association'
+import { Route as StudentLifeRspRouteImport } from './routes/student-life/rsp'
+import { Route as StudentLifeSchoolUniformRouteImport } from './routes/student-life/school-uniform'
+import { Route as StudentLifeScoutsGuidesRouteImport } from './routes/student-life/scouts-guides'
+import { Route as StudentLifeStudentLeadersRouteImport } from './routes/student-life/student-leaders'
+import { Route as StudentsIndexRouteImport } from './routes/students/index'
+import { Route as StudentsAchievementsRouteImport } from './routes/students/achievements'
+import { Route as StudentsBestStudentRouteImport } from './routes/students/best-student'
+import { Route as StudentsHousesRouteImport } from './routes/students/houses'
+import { Route as StudentsSchoolUniformRouteImport } from './routes/students/school-uniform'
+import { Route as StudentsStudentLeadersRouteImport } from './routes/students/student-leaders'
 
-const TeachersRoute = TeachersRouteImport.update({
-  id: '/teachers',
-  path: '/teachers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentsRoute = StudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentLifeRoute = StudentLifeRouteImport.update({
-  id: '/student-life',
-  path: '/student-life',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScrollStackDemoRoute = ScrollStackDemoRouteImport.update({
-  id: '/scroll-stack-demo',
-  path: '/scroll-stack-demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GalleryRoute = GalleryRouteImport.update({
-  id: '/gallery',
-  path: '/gallery',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesRoute = FeaturesRouteImport.update({
-  id: '/features',
-  path: '/features',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoCurricularRoute = CoCurricularRouteImport.update({
-  id: '/co-curricular',
-  path: '/co-curricular',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssociationRoute = AssociationRouteImport.update({
-  id: '/association',
-  path: '/association',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdmissionsRoute = AdmissionsRouteImport.update({
-  id: '/admissions',
-  path: '/admissions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AchievementsRoute = AchievementsRouteImport.update({
-  id: '/achievements',
-  path: '/achievements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AcademicsRoute = AcademicsRouteImport.update({
-  id: '/academics',
-  path: '/academics',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -150,281 +90,79 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AcademicsRoute = AcademicsRouteImport.update({
+  id: '/academics',
+  path: '/academics',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudentsIndexRoute = StudentsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => StudentsRoute,
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const StudentLifeIndexRoute = StudentLifeIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => StudentLifeRoute,
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const GalleryIndexRoute = GalleryIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GalleryRoute,
+const AdmissionsRoute = AdmissionsRouteImport.update({
+  id: '/admissions',
+  path: '/admissions',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const ContactIndexRoute = ContactIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ContactRoute,
+const AssociationRoute = AssociationRouteImport.update({
+  id: '/association',
+  path: '/association',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const CoCurricularIndexRoute = CoCurricularIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => CoCurricularRoute,
+const CoCurricularRoute = CoCurricularRouteImport.update({
+  id: '/co-curricular',
+  path: '/co-curricular',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AssociationIndexRoute = AssociationIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AssociationRoute,
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdmissionsIndexRoute = AdmissionsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdmissionsRoute,
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AchievementsIndexRoute = AchievementsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AchievementsRoute,
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AcademicsIndexRoute = AcademicsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AcademicsRoute,
+const ScrollStackDemoRoute = ScrollStackDemoRouteImport.update({
+  id: '/scroll-stack-demo',
+  path: '/scroll-stack-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentLifeRoute = StudentLifeRouteImport.update({
+  id: '/student-life',
+  path: '/student-life',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentsRoute = StudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeachersRoute = TeachersRouteImport.update({
+  id: '/teachers',
+  path: '/teachers',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AboutIndexRoute = AboutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AboutRoute,
 } as any)
-const StudentsStudentLeadersRoute = StudentsStudentLeadersRouteImport.update({
-  id: '/student-leaders',
-  path: '/student-leaders',
-  getParentRoute: () => StudentsRoute,
-} as any)
-const StudentsSchoolUniformRoute = StudentsSchoolUniformRouteImport.update({
-  id: '/school-uniform',
-  path: '/school-uniform',
-  getParentRoute: () => StudentsRoute,
-} as any)
-const StudentsHousesRoute = StudentsHousesRouteImport.update({
-  id: '/houses',
-  path: '/houses',
-  getParentRoute: () => StudentsRoute,
-} as any)
-const StudentsBestStudentRoute = StudentsBestStudentRouteImport.update({
-  id: '/best-student',
-  path: '/best-student',
-  getParentRoute: () => StudentsRoute,
-} as any)
-const StudentsAchievementsRoute = StudentsAchievementsRouteImport.update({
-  id: '/achievements',
-  path: '/achievements',
-  getParentRoute: () => StudentsRoute,
-} as any)
-const StudentLifeStudentLeadersRoute =
-  StudentLifeStudentLeadersRouteImport.update({
-    id: '/student-leaders',
-    path: '/student-leaders',
-    getParentRoute: () => StudentLifeRoute,
-  } as any)
-const StudentLifeScoutsGuidesRoute = StudentLifeScoutsGuidesRouteImport.update({
-  id: '/scouts-guides',
-  path: '/scouts-guides',
-  getParentRoute: () => StudentLifeRoute,
-} as any)
-const StudentLifeSchoolUniformRoute =
-  StudentLifeSchoolUniformRouteImport.update({
-    id: '/school-uniform',
-    path: '/school-uniform',
-    getParentRoute: () => StudentLifeRoute,
-  } as any)
-const StudentLifeRspRoute = StudentLifeRspRouteImport.update({
-  id: '/rsp',
-  path: '/rsp',
-  getParentRoute: () => StudentLifeRoute,
-} as any)
-const StudentLifeLiteraryAssociationRoute =
-  StudentLifeLiteraryAssociationRouteImport.update({
-    id: '/literary-association',
-    path: '/literary-association',
-    getParentRoute: () => StudentLifeRoute,
-  } as any)
-const StudentLifeHousesRoute = StudentLifeHousesRouteImport.update({
-  id: '/houses',
-  path: '/houses',
-  getParentRoute: () => StudentLifeRoute,
-} as any)
-const StudentLifeEcoClubRoute = StudentLifeEcoClubRouteImport.update({
-  id: '/eco-club',
-  path: '/eco-club',
-  getParentRoute: () => StudentLifeRoute,
-} as any)
-const StudentLifeChoirRoute = StudentLifeChoirRouteImport.update({
-  id: '/choir',
-  path: '/choir',
-  getParentRoute: () => StudentLifeRoute,
-} as any)
-const GallerySportsRoute = GallerySportsRouteImport.update({
-  id: '/sports',
-  path: '/sports',
-  getParentRoute: () => GalleryRoute,
-} as any)
-const GalleryEventsRoute = GalleryEventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => GalleryRoute,
-} as any)
-const GalleryCampusRoute = GalleryCampusRouteImport.update({
-  id: '/campus',
-  path: '/campus',
-  getParentRoute: () => GalleryRoute,
-} as any)
-const ContactLocationRoute = ContactLocationRouteImport.update({
-  id: '/location',
-  path: '/location',
-  getParentRoute: () => ContactRoute,
-} as any)
-const ContactContactUsRoute = ContactContactUsRouteImport.update({
-  id: '/contact-us',
-  path: '/contact-us',
-  getParentRoute: () => ContactRoute,
-} as any)
-const CoCurricularSportsRoute = CoCurricularSportsRouteImport.update({
-  id: '/sports',
-  path: '/sports',
-  getParentRoute: () => CoCurricularRoute,
-} as any)
-const CoCurricularScoutsGuidesRoute =
-  CoCurricularScoutsGuidesRouteImport.update({
-    id: '/scouts-guides',
-    path: '/scouts-guides',
-    getParentRoute: () => CoCurricularRoute,
-  } as any)
-const CoCurricularRspRoute = CoCurricularRspRouteImport.update({
-  id: '/rsp',
-  path: '/rsp',
-  getParentRoute: () => CoCurricularRoute,
-} as any)
-const CoCurricularLiteraryAssociationRoute =
-  CoCurricularLiteraryAssociationRouteImport.update({
-    id: '/literary-association',
-    path: '/literary-association',
-    getParentRoute: () => CoCurricularRoute,
-  } as any)
-const CoCurricularEcoClubRoute = CoCurricularEcoClubRouteImport.update({
-  id: '/eco-club',
-  path: '/eco-club',
-  getParentRoute: () => CoCurricularRoute,
-} as any)
-const CoCurricularChoirRoute = CoCurricularChoirRouteImport.update({
-  id: '/choir',
-  path: '/choir',
-  getParentRoute: () => CoCurricularRoute,
-} as any)
-const AssociationRegistrationRoute = AssociationRegistrationRouteImport.update({
-  id: '/registration',
-  path: '/registration',
-  getParentRoute: () => AssociationRoute,
-} as any)
-const AssociationAlumniRoute = AssociationAlumniRouteImport.update({
-  id: '/alumni',
-  path: '/alumni',
-  getParentRoute: () => AssociationRoute,
-} as any)
-const AdmissionsProcessRoute = AdmissionsProcessRouteImport.update({
-  id: '/process',
-  path: '/process',
-  getParentRoute: () => AdmissionsRoute,
-} as any)
-const AdmissionsEnquiryFormRoute = AdmissionsEnquiryFormRouteImport.update({
-  id: '/enquiry-form',
-  path: '/enquiry-form',
-  getParentRoute: () => AdmissionsRoute,
-} as any)
-const AdmissionsApplyOnlineRoute = AdmissionsApplyOnlineRouteImport.update({
-  id: '/apply-online',
-  path: '/apply-online',
-  getParentRoute: () => AdmissionsRoute,
-} as any)
-const AchievementsSportsRoute = AchievementsSportsRouteImport.update({
-  id: '/sports',
-  path: '/sports',
-  getParentRoute: () => AchievementsRoute,
-} as any)
-const AchievementsBestStudentRoute = AchievementsBestStudentRouteImport.update({
-  id: '/best-student',
-  path: '/best-student',
-  getParentRoute: () => AchievementsRoute,
-} as any)
-const AchievementsAcademicRoute = AchievementsAcademicRouteImport.update({
-  id: '/academic',
-  path: '/academic',
-  getParentRoute: () => AchievementsRoute,
-} as any)
-const AcademicsSchoolTimingsRoute = AcademicsSchoolTimingsRouteImport.update({
-  id: '/school-timings',
-  path: '/school-timings',
-  getParentRoute: () => AcademicsRoute,
-} as any)
-const AcademicsSchoolFeesRoute = AcademicsSchoolFeesRouteImport.update({
-  id: '/school-fees',
-  path: '/school-fees',
-  getParentRoute: () => AcademicsRoute,
-} as any)
-const AcademicsManagementCommitteeRoute =
-  AcademicsManagementCommitteeRouteImport.update({
-    id: '/management-committee',
-    path: '/management-committee',
-    getParentRoute: () => AcademicsRoute,
-  } as any)
-const AcademicsFounderMessageRoute = AcademicsFounderMessageRouteImport.update({
-  id: '/founder-message',
-  path: '/founder-message',
-  getParentRoute: () => AcademicsRoute,
-} as any)
-const AcademicsFatherCruzeProfileRoute =
-  AcademicsFatherCruzeProfileRouteImport.update({
-    id: '/father-cruze-profile',
-    path: '/father-cruze-profile',
-    getParentRoute: () => AcademicsRoute,
-  } as any)
-const AcademicsCurriculumRoute = AcademicsCurriculumRouteImport.update({
-  id: '/curriculum',
-  path: '/curriculum',
-  getParentRoute: () => AcademicsRoute,
-} as any)
-const AcademicsCoursesOfferedRoute = AcademicsCoursesOfferedRouteImport.update({
-  id: '/courses-offered',
-  path: '/courses-offered',
-  getParentRoute: () => AcademicsRoute,
-} as any)
-const AcademicsAdmissionRoute = AcademicsAdmissionRouteImport.update({
-  id: '/admission',
-  path: '/admission',
-  getParentRoute: () => AcademicsRoute,
-} as any)
-const AboutVisionMissionRoute = AboutVisionMissionRouteImport.update({
-  id: '/vision-mission',
-  path: '/vision-mission',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutPrincipalMessageRoute = AboutPrincipalMessageRouteImport.update({
-  id: '/principal-message',
-  path: '/principal-message',
-  getParentRoute: () => AboutRoute,
-} as any)
-const AboutInfrastructureRoute = AboutInfrastructureRouteImport.update({
-  id: '/infrastructure',
-  path: '/infrastructure',
+const AboutAboutSchoolRoute = AboutAboutSchoolRouteImport.update({
+  id: '/about-school',
+  path: '/about-school',
   getParentRoute: () => AboutRoute,
 } as any)
 const AboutCorrespondentMessageRoute =
@@ -433,10 +171,272 @@ const AboutCorrespondentMessageRoute =
     path: '/correspondent-message',
     getParentRoute: () => AboutRoute,
   } as any)
-const AboutAboutSchoolRoute = AboutAboutSchoolRouteImport.update({
-  id: '/about-school',
-  path: '/about-school',
+const AboutInfrastructureRoute = AboutInfrastructureRouteImport.update({
+  id: '/infrastructure',
+  path: '/infrastructure',
   getParentRoute: () => AboutRoute,
+} as any)
+const AboutPrincipalMessageRoute = AboutPrincipalMessageRouteImport.update({
+  id: '/principal-message',
+  path: '/principal-message',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutVisionMissionRoute = AboutVisionMissionRouteImport.update({
+  id: '/vision-mission',
+  path: '/vision-mission',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AcademicsIndexRoute = AcademicsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AcademicsAdmissionRoute = AcademicsAdmissionRouteImport.update({
+  id: '/admission',
+  path: '/admission',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AcademicsCoursesOfferedRoute = AcademicsCoursesOfferedRouteImport.update({
+  id: '/courses-offered',
+  path: '/courses-offered',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AcademicsCurriculumRoute = AcademicsCurriculumRouteImport.update({
+  id: '/curriculum',
+  path: '/curriculum',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AcademicsFatherCruzeProfileRoute =
+  AcademicsFatherCruzeProfileRouteImport.update({
+    id: '/father-cruze-profile',
+    path: '/father-cruze-profile',
+    getParentRoute: () => AcademicsRoute,
+  } as any)
+const AcademicsFounderMessageRoute = AcademicsFounderMessageRouteImport.update({
+  id: '/founder-message',
+  path: '/founder-message',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AcademicsManagementCommitteeRoute =
+  AcademicsManagementCommitteeRouteImport.update({
+    id: '/management-committee',
+    path: '/management-committee',
+    getParentRoute: () => AcademicsRoute,
+  } as any)
+const AcademicsSchoolFeesRoute = AcademicsSchoolFeesRouteImport.update({
+  id: '/school-fees',
+  path: '/school-fees',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AcademicsSchoolTimingsRoute = AcademicsSchoolTimingsRouteImport.update({
+  id: '/school-timings',
+  path: '/school-timings',
+  getParentRoute: () => AcademicsRoute,
+} as any)
+const AchievementsIndexRoute = AchievementsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AchievementsRoute,
+} as any)
+const AchievementsAcademicRoute = AchievementsAcademicRouteImport.update({
+  id: '/academic',
+  path: '/academic',
+  getParentRoute: () => AchievementsRoute,
+} as any)
+const AchievementsBestStudentRoute = AchievementsBestStudentRouteImport.update({
+  id: '/best-student',
+  path: '/best-student',
+  getParentRoute: () => AchievementsRoute,
+} as any)
+const AchievementsSportsRoute = AchievementsSportsRouteImport.update({
+  id: '/sports',
+  path: '/sports',
+  getParentRoute: () => AchievementsRoute,
+} as any)
+const AdmissionsIndexRoute = AdmissionsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdmissionsRoute,
+} as any)
+const AdmissionsApplyOnlineRoute = AdmissionsApplyOnlineRouteImport.update({
+  id: '/apply-online',
+  path: '/apply-online',
+  getParentRoute: () => AdmissionsRoute,
+} as any)
+const AdmissionsEnquiryFormRoute = AdmissionsEnquiryFormRouteImport.update({
+  id: '/enquiry-form',
+  path: '/enquiry-form',
+  getParentRoute: () => AdmissionsRoute,
+} as any)
+const AdmissionsProcessRoute = AdmissionsProcessRouteImport.update({
+  id: '/process',
+  path: '/process',
+  getParentRoute: () => AdmissionsRoute,
+} as any)
+const AssociationIndexRoute = AssociationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AssociationRoute,
+} as any)
+const AssociationAlumniRoute = AssociationAlumniRouteImport.update({
+  id: '/alumni',
+  path: '/alumni',
+  getParentRoute: () => AssociationRoute,
+} as any)
+const AssociationRegistrationRoute = AssociationRegistrationRouteImport.update({
+  id: '/registration',
+  path: '/registration',
+  getParentRoute: () => AssociationRoute,
+} as any)
+const CoCurricularIndexRoute = CoCurricularIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoCurricularRoute,
+} as any)
+const CoCurricularChoirRoute = CoCurricularChoirRouteImport.update({
+  id: '/choir',
+  path: '/choir',
+  getParentRoute: () => CoCurricularRoute,
+} as any)
+const CoCurricularEcoClubRoute = CoCurricularEcoClubRouteImport.update({
+  id: '/eco-club',
+  path: '/eco-club',
+  getParentRoute: () => CoCurricularRoute,
+} as any)
+const CoCurricularLiteraryAssociationRoute =
+  CoCurricularLiteraryAssociationRouteImport.update({
+    id: '/literary-association',
+    path: '/literary-association',
+    getParentRoute: () => CoCurricularRoute,
+  } as any)
+const CoCurricularRspRoute = CoCurricularRspRouteImport.update({
+  id: '/rsp',
+  path: '/rsp',
+  getParentRoute: () => CoCurricularRoute,
+} as any)
+const CoCurricularScoutsGuidesRoute =
+  CoCurricularScoutsGuidesRouteImport.update({
+    id: '/scouts-guides',
+    path: '/scouts-guides',
+    getParentRoute: () => CoCurricularRoute,
+  } as any)
+const CoCurricularSportsRoute = CoCurricularSportsRouteImport.update({
+  id: '/sports',
+  path: '/sports',
+  getParentRoute: () => CoCurricularRoute,
+} as any)
+const ContactIndexRoute = ContactIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ContactRoute,
+} as any)
+const ContactContactUsRoute = ContactContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
+  getParentRoute: () => ContactRoute,
+} as any)
+const ContactLocationRoute = ContactLocationRouteImport.update({
+  id: '/location',
+  path: '/location',
+  getParentRoute: () => ContactRoute,
+} as any)
+const GalleryIndexRoute = GalleryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GalleryRoute,
+} as any)
+const GalleryCampusRoute = GalleryCampusRouteImport.update({
+  id: '/campus',
+  path: '/campus',
+  getParentRoute: () => GalleryRoute,
+} as any)
+const GalleryEventsRoute = GalleryEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => GalleryRoute,
+} as any)
+const GallerySportsRoute = GallerySportsRouteImport.update({
+  id: '/sports',
+  path: '/sports',
+  getParentRoute: () => GalleryRoute,
+} as any)
+const StudentLifeIndexRoute = StudentLifeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentLifeRoute,
+} as any)
+const StudentLifeChoirRoute = StudentLifeChoirRouteImport.update({
+  id: '/choir',
+  path: '/choir',
+  getParentRoute: () => StudentLifeRoute,
+} as any)
+const StudentLifeEcoClubRoute = StudentLifeEcoClubRouteImport.update({
+  id: '/eco-club',
+  path: '/eco-club',
+  getParentRoute: () => StudentLifeRoute,
+} as any)
+const StudentLifeHousesRoute = StudentLifeHousesRouteImport.update({
+  id: '/houses',
+  path: '/houses',
+  getParentRoute: () => StudentLifeRoute,
+} as any)
+const StudentLifeLiteraryAssociationRoute =
+  StudentLifeLiteraryAssociationRouteImport.update({
+    id: '/literary-association',
+    path: '/literary-association',
+    getParentRoute: () => StudentLifeRoute,
+  } as any)
+const StudentLifeRspRoute = StudentLifeRspRouteImport.update({
+  id: '/rsp',
+  path: '/rsp',
+  getParentRoute: () => StudentLifeRoute,
+} as any)
+const StudentLifeSchoolUniformRoute =
+  StudentLifeSchoolUniformRouteImport.update({
+    id: '/school-uniform',
+    path: '/school-uniform',
+    getParentRoute: () => StudentLifeRoute,
+  } as any)
+const StudentLifeScoutsGuidesRoute = StudentLifeScoutsGuidesRouteImport.update({
+  id: '/scouts-guides',
+  path: '/scouts-guides',
+  getParentRoute: () => StudentLifeRoute,
+} as any)
+const StudentLifeStudentLeadersRoute =
+  StudentLifeStudentLeadersRouteImport.update({
+    id: '/student-leaders',
+    path: '/student-leaders',
+    getParentRoute: () => StudentLifeRoute,
+  } as any)
+const StudentsIndexRoute = StudentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentsRoute,
+} as any)
+const StudentsAchievementsRoute = StudentsAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => StudentsRoute,
+} as any)
+const StudentsBestStudentRoute = StudentsBestStudentRouteImport.update({
+  id: '/best-student',
+  path: '/best-student',
+  getParentRoute: () => StudentsRoute,
+} as any)
+const StudentsHousesRoute = StudentsHousesRouteImport.update({
+  id: '/houses',
+  path: '/houses',
+  getParentRoute: () => StudentsRoute,
+} as any)
+const StudentsSchoolUniformRoute = StudentsSchoolUniformRouteImport.update({
+  id: '/school-uniform',
+  path: '/school-uniform',
+  getParentRoute: () => StudentsRoute,
+} as any)
+const StudentsStudentLeadersRoute = StudentsStudentLeadersRouteImport.update({
+  id: '/student-leaders',
+  path: '/student-leaders',
+  getParentRoute: () => StudentsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -875,95 +875,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/teachers': {
-      id: '/teachers'
-      path: '/teachers'
-      fullPath: '/teachers'
-      preLoaderRoute: typeof TeachersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/students': {
-      id: '/students'
-      path: '/students'
-      fullPath: '/students'
-      preLoaderRoute: typeof StudentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student-life': {
-      id: '/student-life'
-      path: '/student-life'
-      fullPath: '/student-life'
-      preLoaderRoute: typeof StudentLifeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scroll-stack-demo': {
-      id: '/scroll-stack-demo'
-      path: '/scroll-stack-demo'
-      fullPath: '/scroll-stack-demo'
-      preLoaderRoute: typeof ScrollStackDemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gallery': {
-      id: '/gallery'
-      path: '/gallery'
-      fullPath: '/gallery'
-      preLoaderRoute: typeof GalleryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features': {
-      id: '/features'
-      path: '/features'
-      fullPath: '/features'
-      preLoaderRoute: typeof FeaturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/co-curricular': {
-      id: '/co-curricular'
-      path: '/co-curricular'
-      fullPath: '/co-curricular'
-      preLoaderRoute: typeof CoCurricularRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/association': {
-      id: '/association'
-      path: '/association'
-      fullPath: '/association'
-      preLoaderRoute: typeof AssociationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admissions': {
-      id: '/admissions'
-      path: '/admissions'
-      fullPath: '/admissions'
-      preLoaderRoute: typeof AdmissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/achievements': {
-      id: '/achievements'
-      path: '/achievements'
-      fullPath: '/achievements'
-      preLoaderRoute: typeof AchievementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/academics': {
-      id: '/academics'
-      path: '/academics'
-      fullPath: '/academics'
-      preLoaderRoute: typeof AcademicsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -973,75 +889,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/academics': {
+      id: '/academics'
+      path: '/academics'
+      fullPath: '/academics'
+      preLoaderRoute: typeof AcademicsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/students/': {
-      id: '/students/'
-      path: '/'
-      fullPath: '/students/'
-      preLoaderRoute: typeof StudentsIndexRouteImport
-      parentRoute: typeof StudentsRoute
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/student-life/': {
-      id: '/student-life/'
-      path: '/'
-      fullPath: '/student-life/'
-      preLoaderRoute: typeof StudentLifeIndexRouteImport
-      parentRoute: typeof StudentLifeRoute
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/gallery/': {
-      id: '/gallery/'
-      path: '/'
-      fullPath: '/gallery/'
-      preLoaderRoute: typeof GalleryIndexRouteImport
-      parentRoute: typeof GalleryRoute
+    '/admissions': {
+      id: '/admissions'
+      path: '/admissions'
+      fullPath: '/admissions'
+      preLoaderRoute: typeof AdmissionsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/contact/': {
-      id: '/contact/'
-      path: '/'
-      fullPath: '/contact/'
-      preLoaderRoute: typeof ContactIndexRouteImport
-      parentRoute: typeof ContactRoute
+    '/association': {
+      id: '/association'
+      path: '/association'
+      fullPath: '/association'
+      preLoaderRoute: typeof AssociationRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/co-curricular/': {
-      id: '/co-curricular/'
-      path: '/'
-      fullPath: '/co-curricular/'
-      preLoaderRoute: typeof CoCurricularIndexRouteImport
-      parentRoute: typeof CoCurricularRoute
+    '/co-curricular': {
+      id: '/co-curricular'
+      path: '/co-curricular'
+      fullPath: '/co-curricular'
+      preLoaderRoute: typeof CoCurricularRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/association/': {
-      id: '/association/'
-      path: '/'
-      fullPath: '/association/'
-      preLoaderRoute: typeof AssociationIndexRouteImport
-      parentRoute: typeof AssociationRoute
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admissions/': {
-      id: '/admissions/'
-      path: '/'
-      fullPath: '/admissions/'
-      preLoaderRoute: typeof AdmissionsIndexRouteImport
-      parentRoute: typeof AdmissionsRoute
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/achievements/': {
-      id: '/achievements/'
-      path: '/'
-      fullPath: '/achievements/'
-      preLoaderRoute: typeof AchievementsIndexRouteImport
-      parentRoute: typeof AchievementsRoute
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/academics/': {
-      id: '/academics/'
-      path: '/'
-      fullPath: '/academics/'
-      preLoaderRoute: typeof AcademicsIndexRouteImport
-      parentRoute: typeof AcademicsRoute
+    '/scroll-stack-demo': {
+      id: '/scroll-stack-demo'
+      path: '/scroll-stack-demo'
+      fullPath: '/scroll-stack-demo'
+      preLoaderRoute: typeof ScrollStackDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student-life': {
+      id: '/student-life'
+      path: '/student-life'
+      fullPath: '/student-life'
+      preLoaderRoute: typeof StudentLifeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/students': {
+      id: '/students'
+      path: '/students'
+      fullPath: '/students'
+      preLoaderRoute: typeof StudentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teachers': {
+      id: '/teachers'
+      path: '/teachers'
+      fullPath: '/teachers'
+      preLoaderRoute: typeof TeachersRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/about/': {
       id: '/about/'
@@ -1050,305 +987,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutIndexRouteImport
       parentRoute: typeof AboutRoute
     }
-    '/students/student-leaders': {
-      id: '/students/student-leaders'
-      path: '/student-leaders'
-      fullPath: '/students/student-leaders'
-      preLoaderRoute: typeof StudentsStudentLeadersRouteImport
-      parentRoute: typeof StudentsRoute
-    }
-    '/students/school-uniform': {
-      id: '/students/school-uniform'
-      path: '/school-uniform'
-      fullPath: '/students/school-uniform'
-      preLoaderRoute: typeof StudentsSchoolUniformRouteImport
-      parentRoute: typeof StudentsRoute
-    }
-    '/students/houses': {
-      id: '/students/houses'
-      path: '/houses'
-      fullPath: '/students/houses'
-      preLoaderRoute: typeof StudentsHousesRouteImport
-      parentRoute: typeof StudentsRoute
-    }
-    '/students/best-student': {
-      id: '/students/best-student'
-      path: '/best-student'
-      fullPath: '/students/best-student'
-      preLoaderRoute: typeof StudentsBestStudentRouteImport
-      parentRoute: typeof StudentsRoute
-    }
-    '/students/achievements': {
-      id: '/students/achievements'
-      path: '/achievements'
-      fullPath: '/students/achievements'
-      preLoaderRoute: typeof StudentsAchievementsRouteImport
-      parentRoute: typeof StudentsRoute
-    }
-    '/student-life/student-leaders': {
-      id: '/student-life/student-leaders'
-      path: '/student-leaders'
-      fullPath: '/student-life/student-leaders'
-      preLoaderRoute: typeof StudentLifeStudentLeadersRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/scouts-guides': {
-      id: '/student-life/scouts-guides'
-      path: '/scouts-guides'
-      fullPath: '/student-life/scouts-guides'
-      preLoaderRoute: typeof StudentLifeScoutsGuidesRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/school-uniform': {
-      id: '/student-life/school-uniform'
-      path: '/school-uniform'
-      fullPath: '/student-life/school-uniform'
-      preLoaderRoute: typeof StudentLifeSchoolUniformRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/rsp': {
-      id: '/student-life/rsp'
-      path: '/rsp'
-      fullPath: '/student-life/rsp'
-      preLoaderRoute: typeof StudentLifeRspRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/literary-association': {
-      id: '/student-life/literary-association'
-      path: '/literary-association'
-      fullPath: '/student-life/literary-association'
-      preLoaderRoute: typeof StudentLifeLiteraryAssociationRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/houses': {
-      id: '/student-life/houses'
-      path: '/houses'
-      fullPath: '/student-life/houses'
-      preLoaderRoute: typeof StudentLifeHousesRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/eco-club': {
-      id: '/student-life/eco-club'
-      path: '/eco-club'
-      fullPath: '/student-life/eco-club'
-      preLoaderRoute: typeof StudentLifeEcoClubRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/student-life/choir': {
-      id: '/student-life/choir'
-      path: '/choir'
-      fullPath: '/student-life/choir'
-      preLoaderRoute: typeof StudentLifeChoirRouteImport
-      parentRoute: typeof StudentLifeRoute
-    }
-    '/gallery/sports': {
-      id: '/gallery/sports'
-      path: '/sports'
-      fullPath: '/gallery/sports'
-      preLoaderRoute: typeof GallerySportsRouteImport
-      parentRoute: typeof GalleryRoute
-    }
-    '/gallery/events': {
-      id: '/gallery/events'
-      path: '/events'
-      fullPath: '/gallery/events'
-      preLoaderRoute: typeof GalleryEventsRouteImport
-      parentRoute: typeof GalleryRoute
-    }
-    '/gallery/campus': {
-      id: '/gallery/campus'
-      path: '/campus'
-      fullPath: '/gallery/campus'
-      preLoaderRoute: typeof GalleryCampusRouteImport
-      parentRoute: typeof GalleryRoute
-    }
-    '/contact/location': {
-      id: '/contact/location'
-      path: '/location'
-      fullPath: '/contact/location'
-      preLoaderRoute: typeof ContactLocationRouteImport
-      parentRoute: typeof ContactRoute
-    }
-    '/contact/contact-us': {
-      id: '/contact/contact-us'
-      path: '/contact-us'
-      fullPath: '/contact/contact-us'
-      preLoaderRoute: typeof ContactContactUsRouteImport
-      parentRoute: typeof ContactRoute
-    }
-    '/co-curricular/sports': {
-      id: '/co-curricular/sports'
-      path: '/sports'
-      fullPath: '/co-curricular/sports'
-      preLoaderRoute: typeof CoCurricularSportsRouteImport
-      parentRoute: typeof CoCurricularRoute
-    }
-    '/co-curricular/scouts-guides': {
-      id: '/co-curricular/scouts-guides'
-      path: '/scouts-guides'
-      fullPath: '/co-curricular/scouts-guides'
-      preLoaderRoute: typeof CoCurricularScoutsGuidesRouteImport
-      parentRoute: typeof CoCurricularRoute
-    }
-    '/co-curricular/rsp': {
-      id: '/co-curricular/rsp'
-      path: '/rsp'
-      fullPath: '/co-curricular/rsp'
-      preLoaderRoute: typeof CoCurricularRspRouteImport
-      parentRoute: typeof CoCurricularRoute
-    }
-    '/co-curricular/literary-association': {
-      id: '/co-curricular/literary-association'
-      path: '/literary-association'
-      fullPath: '/co-curricular/literary-association'
-      preLoaderRoute: typeof CoCurricularLiteraryAssociationRouteImport
-      parentRoute: typeof CoCurricularRoute
-    }
-    '/co-curricular/eco-club': {
-      id: '/co-curricular/eco-club'
-      path: '/eco-club'
-      fullPath: '/co-curricular/eco-club'
-      preLoaderRoute: typeof CoCurricularEcoClubRouteImport
-      parentRoute: typeof CoCurricularRoute
-    }
-    '/co-curricular/choir': {
-      id: '/co-curricular/choir'
-      path: '/choir'
-      fullPath: '/co-curricular/choir'
-      preLoaderRoute: typeof CoCurricularChoirRouteImport
-      parentRoute: typeof CoCurricularRoute
-    }
-    '/association/registration': {
-      id: '/association/registration'
-      path: '/registration'
-      fullPath: '/association/registration'
-      preLoaderRoute: typeof AssociationRegistrationRouteImport
-      parentRoute: typeof AssociationRoute
-    }
-    '/association/alumni': {
-      id: '/association/alumni'
-      path: '/alumni'
-      fullPath: '/association/alumni'
-      preLoaderRoute: typeof AssociationAlumniRouteImport
-      parentRoute: typeof AssociationRoute
-    }
-    '/admissions/process': {
-      id: '/admissions/process'
-      path: '/process'
-      fullPath: '/admissions/process'
-      preLoaderRoute: typeof AdmissionsProcessRouteImport
-      parentRoute: typeof AdmissionsRoute
-    }
-    '/admissions/enquiry-form': {
-      id: '/admissions/enquiry-form'
-      path: '/enquiry-form'
-      fullPath: '/admissions/enquiry-form'
-      preLoaderRoute: typeof AdmissionsEnquiryFormRouteImport
-      parentRoute: typeof AdmissionsRoute
-    }
-    '/admissions/apply-online': {
-      id: '/admissions/apply-online'
-      path: '/apply-online'
-      fullPath: '/admissions/apply-online'
-      preLoaderRoute: typeof AdmissionsApplyOnlineRouteImport
-      parentRoute: typeof AdmissionsRoute
-    }
-    '/achievements/sports': {
-      id: '/achievements/sports'
-      path: '/sports'
-      fullPath: '/achievements/sports'
-      preLoaderRoute: typeof AchievementsSportsRouteImport
-      parentRoute: typeof AchievementsRoute
-    }
-    '/achievements/best-student': {
-      id: '/achievements/best-student'
-      path: '/best-student'
-      fullPath: '/achievements/best-student'
-      preLoaderRoute: typeof AchievementsBestStudentRouteImport
-      parentRoute: typeof AchievementsRoute
-    }
-    '/achievements/academic': {
-      id: '/achievements/academic'
-      path: '/academic'
-      fullPath: '/achievements/academic'
-      preLoaderRoute: typeof AchievementsAcademicRouteImport
-      parentRoute: typeof AchievementsRoute
-    }
-    '/academics/school-timings': {
-      id: '/academics/school-timings'
-      path: '/school-timings'
-      fullPath: '/academics/school-timings'
-      preLoaderRoute: typeof AcademicsSchoolTimingsRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/school-fees': {
-      id: '/academics/school-fees'
-      path: '/school-fees'
-      fullPath: '/academics/school-fees'
-      preLoaderRoute: typeof AcademicsSchoolFeesRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/management-committee': {
-      id: '/academics/management-committee'
-      path: '/management-committee'
-      fullPath: '/academics/management-committee'
-      preLoaderRoute: typeof AcademicsManagementCommitteeRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/founder-message': {
-      id: '/academics/founder-message'
-      path: '/founder-message'
-      fullPath: '/academics/founder-message'
-      preLoaderRoute: typeof AcademicsFounderMessageRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/father-cruze-profile': {
-      id: '/academics/father-cruze-profile'
-      path: '/father-cruze-profile'
-      fullPath: '/academics/father-cruze-profile'
-      preLoaderRoute: typeof AcademicsFatherCruzeProfileRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/curriculum': {
-      id: '/academics/curriculum'
-      path: '/curriculum'
-      fullPath: '/academics/curriculum'
-      preLoaderRoute: typeof AcademicsCurriculumRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/courses-offered': {
-      id: '/academics/courses-offered'
-      path: '/courses-offered'
-      fullPath: '/academics/courses-offered'
-      preLoaderRoute: typeof AcademicsCoursesOfferedRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/admission': {
-      id: '/academics/admission'
-      path: '/admission'
-      fullPath: '/academics/admission'
-      preLoaderRoute: typeof AcademicsAdmissionRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/about/vision-mission': {
-      id: '/about/vision-mission'
-      path: '/vision-mission'
-      fullPath: '/about/vision-mission'
-      preLoaderRoute: typeof AboutVisionMissionRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/about/principal-message': {
-      id: '/about/principal-message'
-      path: '/principal-message'
-      fullPath: '/about/principal-message'
-      preLoaderRoute: typeof AboutPrincipalMessageRouteImport
-      parentRoute: typeof AboutRoute
-    }
-    '/about/infrastructure': {
-      id: '/about/infrastructure'
-      path: '/infrastructure'
-      fullPath: '/about/infrastructure'
-      preLoaderRoute: typeof AboutInfrastructureRouteImport
+    '/about/about-school': {
+      id: '/about/about-school'
+      path: '/about-school'
+      fullPath: '/about/about-school'
+      preLoaderRoute: typeof AboutAboutSchoolRouteImport
       parentRoute: typeof AboutRoute
     }
     '/about/correspondent-message': {
@@ -1358,12 +1001,369 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutCorrespondentMessageRouteImport
       parentRoute: typeof AboutRoute
     }
-    '/about/about-school': {
-      id: '/about/about-school'
-      path: '/about-school'
-      fullPath: '/about/about-school'
-      preLoaderRoute: typeof AboutAboutSchoolRouteImport
+    '/about/infrastructure': {
+      id: '/about/infrastructure'
+      path: '/infrastructure'
+      fullPath: '/about/infrastructure'
+      preLoaderRoute: typeof AboutInfrastructureRouteImport
       parentRoute: typeof AboutRoute
+    }
+    '/about/principal-message': {
+      id: '/about/principal-message'
+      path: '/principal-message'
+      fullPath: '/about/principal-message'
+      preLoaderRoute: typeof AboutPrincipalMessageRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/vision-mission': {
+      id: '/about/vision-mission'
+      path: '/vision-mission'
+      fullPath: '/about/vision-mission'
+      preLoaderRoute: typeof AboutVisionMissionRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/academics/': {
+      id: '/academics/'
+      path: '/'
+      fullPath: '/academics/'
+      preLoaderRoute: typeof AcademicsIndexRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/admission': {
+      id: '/academics/admission'
+      path: '/admission'
+      fullPath: '/academics/admission'
+      preLoaderRoute: typeof AcademicsAdmissionRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/courses-offered': {
+      id: '/academics/courses-offered'
+      path: '/courses-offered'
+      fullPath: '/academics/courses-offered'
+      preLoaderRoute: typeof AcademicsCoursesOfferedRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/curriculum': {
+      id: '/academics/curriculum'
+      path: '/curriculum'
+      fullPath: '/academics/curriculum'
+      preLoaderRoute: typeof AcademicsCurriculumRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/father-cruze-profile': {
+      id: '/academics/father-cruze-profile'
+      path: '/father-cruze-profile'
+      fullPath: '/academics/father-cruze-profile'
+      preLoaderRoute: typeof AcademicsFatherCruzeProfileRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/founder-message': {
+      id: '/academics/founder-message'
+      path: '/founder-message'
+      fullPath: '/academics/founder-message'
+      preLoaderRoute: typeof AcademicsFounderMessageRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/management-committee': {
+      id: '/academics/management-committee'
+      path: '/management-committee'
+      fullPath: '/academics/management-committee'
+      preLoaderRoute: typeof AcademicsManagementCommitteeRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/school-fees': {
+      id: '/academics/school-fees'
+      path: '/school-fees'
+      fullPath: '/academics/school-fees'
+      preLoaderRoute: typeof AcademicsSchoolFeesRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/academics/school-timings': {
+      id: '/academics/school-timings'
+      path: '/school-timings'
+      fullPath: '/academics/school-timings'
+      preLoaderRoute: typeof AcademicsSchoolTimingsRouteImport
+      parentRoute: typeof AcademicsRoute
+    }
+    '/achievements/': {
+      id: '/achievements/'
+      path: '/'
+      fullPath: '/achievements/'
+      preLoaderRoute: typeof AchievementsIndexRouteImport
+      parentRoute: typeof AchievementsRoute
+    }
+    '/achievements/academic': {
+      id: '/achievements/academic'
+      path: '/academic'
+      fullPath: '/achievements/academic'
+      preLoaderRoute: typeof AchievementsAcademicRouteImport
+      parentRoute: typeof AchievementsRoute
+    }
+    '/achievements/best-student': {
+      id: '/achievements/best-student'
+      path: '/best-student'
+      fullPath: '/achievements/best-student'
+      preLoaderRoute: typeof AchievementsBestStudentRouteImport
+      parentRoute: typeof AchievementsRoute
+    }
+    '/achievements/sports': {
+      id: '/achievements/sports'
+      path: '/sports'
+      fullPath: '/achievements/sports'
+      preLoaderRoute: typeof AchievementsSportsRouteImport
+      parentRoute: typeof AchievementsRoute
+    }
+    '/admissions/': {
+      id: '/admissions/'
+      path: '/'
+      fullPath: '/admissions/'
+      preLoaderRoute: typeof AdmissionsIndexRouteImport
+      parentRoute: typeof AdmissionsRoute
+    }
+    '/admissions/apply-online': {
+      id: '/admissions/apply-online'
+      path: '/apply-online'
+      fullPath: '/admissions/apply-online'
+      preLoaderRoute: typeof AdmissionsApplyOnlineRouteImport
+      parentRoute: typeof AdmissionsRoute
+    }
+    '/admissions/enquiry-form': {
+      id: '/admissions/enquiry-form'
+      path: '/enquiry-form'
+      fullPath: '/admissions/enquiry-form'
+      preLoaderRoute: typeof AdmissionsEnquiryFormRouteImport
+      parentRoute: typeof AdmissionsRoute
+    }
+    '/admissions/process': {
+      id: '/admissions/process'
+      path: '/process'
+      fullPath: '/admissions/process'
+      preLoaderRoute: typeof AdmissionsProcessRouteImport
+      parentRoute: typeof AdmissionsRoute
+    }
+    '/association/': {
+      id: '/association/'
+      path: '/'
+      fullPath: '/association/'
+      preLoaderRoute: typeof AssociationIndexRouteImport
+      parentRoute: typeof AssociationRoute
+    }
+    '/association/alumni': {
+      id: '/association/alumni'
+      path: '/alumni'
+      fullPath: '/association/alumni'
+      preLoaderRoute: typeof AssociationAlumniRouteImport
+      parentRoute: typeof AssociationRoute
+    }
+    '/association/registration': {
+      id: '/association/registration'
+      path: '/registration'
+      fullPath: '/association/registration'
+      preLoaderRoute: typeof AssociationRegistrationRouteImport
+      parentRoute: typeof AssociationRoute
+    }
+    '/co-curricular/': {
+      id: '/co-curricular/'
+      path: '/'
+      fullPath: '/co-curricular/'
+      preLoaderRoute: typeof CoCurricularIndexRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/co-curricular/choir': {
+      id: '/co-curricular/choir'
+      path: '/choir'
+      fullPath: '/co-curricular/choir'
+      preLoaderRoute: typeof CoCurricularChoirRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/co-curricular/eco-club': {
+      id: '/co-curricular/eco-club'
+      path: '/eco-club'
+      fullPath: '/co-curricular/eco-club'
+      preLoaderRoute: typeof CoCurricularEcoClubRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/co-curricular/literary-association': {
+      id: '/co-curricular/literary-association'
+      path: '/literary-association'
+      fullPath: '/co-curricular/literary-association'
+      preLoaderRoute: typeof CoCurricularLiteraryAssociationRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/co-curricular/rsp': {
+      id: '/co-curricular/rsp'
+      path: '/rsp'
+      fullPath: '/co-curricular/rsp'
+      preLoaderRoute: typeof CoCurricularRspRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/co-curricular/scouts-guides': {
+      id: '/co-curricular/scouts-guides'
+      path: '/scouts-guides'
+      fullPath: '/co-curricular/scouts-guides'
+      preLoaderRoute: typeof CoCurricularScoutsGuidesRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/co-curricular/sports': {
+      id: '/co-curricular/sports'
+      path: '/sports'
+      fullPath: '/co-curricular/sports'
+      preLoaderRoute: typeof CoCurricularSportsRouteImport
+      parentRoute: typeof CoCurricularRoute
+    }
+    '/contact/': {
+      id: '/contact/'
+      path: '/'
+      fullPath: '/contact/'
+      preLoaderRoute: typeof ContactIndexRouteImport
+      parentRoute: typeof ContactRoute
+    }
+    '/contact/contact-us': {
+      id: '/contact/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact/contact-us'
+      preLoaderRoute: typeof ContactContactUsRouteImport
+      parentRoute: typeof ContactRoute
+    }
+    '/contact/location': {
+      id: '/contact/location'
+      path: '/location'
+      fullPath: '/contact/location'
+      preLoaderRoute: typeof ContactLocationRouteImport
+      parentRoute: typeof ContactRoute
+    }
+    '/gallery/': {
+      id: '/gallery/'
+      path: '/'
+      fullPath: '/gallery/'
+      preLoaderRoute: typeof GalleryIndexRouteImport
+      parentRoute: typeof GalleryRoute
+    }
+    '/gallery/campus': {
+      id: '/gallery/campus'
+      path: '/campus'
+      fullPath: '/gallery/campus'
+      preLoaderRoute: typeof GalleryCampusRouteImport
+      parentRoute: typeof GalleryRoute
+    }
+    '/gallery/events': {
+      id: '/gallery/events'
+      path: '/events'
+      fullPath: '/gallery/events'
+      preLoaderRoute: typeof GalleryEventsRouteImport
+      parentRoute: typeof GalleryRoute
+    }
+    '/gallery/sports': {
+      id: '/gallery/sports'
+      path: '/sports'
+      fullPath: '/gallery/sports'
+      preLoaderRoute: typeof GallerySportsRouteImport
+      parentRoute: typeof GalleryRoute
+    }
+    '/student-life/': {
+      id: '/student-life/'
+      path: '/'
+      fullPath: '/student-life/'
+      preLoaderRoute: typeof StudentLifeIndexRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/choir': {
+      id: '/student-life/choir'
+      path: '/choir'
+      fullPath: '/student-life/choir'
+      preLoaderRoute: typeof StudentLifeChoirRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/eco-club': {
+      id: '/student-life/eco-club'
+      path: '/eco-club'
+      fullPath: '/student-life/eco-club'
+      preLoaderRoute: typeof StudentLifeEcoClubRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/houses': {
+      id: '/student-life/houses'
+      path: '/houses'
+      fullPath: '/student-life/houses'
+      preLoaderRoute: typeof StudentLifeHousesRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/literary-association': {
+      id: '/student-life/literary-association'
+      path: '/literary-association'
+      fullPath: '/student-life/literary-association'
+      preLoaderRoute: typeof StudentLifeLiteraryAssociationRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/rsp': {
+      id: '/student-life/rsp'
+      path: '/rsp'
+      fullPath: '/student-life/rsp'
+      preLoaderRoute: typeof StudentLifeRspRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/school-uniform': {
+      id: '/student-life/school-uniform'
+      path: '/school-uniform'
+      fullPath: '/student-life/school-uniform'
+      preLoaderRoute: typeof StudentLifeSchoolUniformRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/scouts-guides': {
+      id: '/student-life/scouts-guides'
+      path: '/scouts-guides'
+      fullPath: '/student-life/scouts-guides'
+      preLoaderRoute: typeof StudentLifeScoutsGuidesRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/student-life/student-leaders': {
+      id: '/student-life/student-leaders'
+      path: '/student-leaders'
+      fullPath: '/student-life/student-leaders'
+      preLoaderRoute: typeof StudentLifeStudentLeadersRouteImport
+      parentRoute: typeof StudentLifeRoute
+    }
+    '/students/': {
+      id: '/students/'
+      path: '/'
+      fullPath: '/students/'
+      preLoaderRoute: typeof StudentsIndexRouteImport
+      parentRoute: typeof StudentsRoute
+    }
+    '/students/achievements': {
+      id: '/students/achievements'
+      path: '/achievements'
+      fullPath: '/students/achievements'
+      preLoaderRoute: typeof StudentsAchievementsRouteImport
+      parentRoute: typeof StudentsRoute
+    }
+    '/students/best-student': {
+      id: '/students/best-student'
+      path: '/best-student'
+      fullPath: '/students/best-student'
+      preLoaderRoute: typeof StudentsBestStudentRouteImport
+      parentRoute: typeof StudentsRoute
+    }
+    '/students/houses': {
+      id: '/students/houses'
+      path: '/houses'
+      fullPath: '/students/houses'
+      preLoaderRoute: typeof StudentsHousesRouteImport
+      parentRoute: typeof StudentsRoute
+    }
+    '/students/school-uniform': {
+      id: '/students/school-uniform'
+      path: '/school-uniform'
+      fullPath: '/students/school-uniform'
+      preLoaderRoute: typeof StudentsSchoolUniformRouteImport
+      parentRoute: typeof StudentsRoute
+    }
+    '/students/student-leaders': {
+      id: '/students/student-leaders'
+      path: '/student-leaders'
+      fullPath: '/students/student-leaders'
+      preLoaderRoute: typeof StudentsStudentLeadersRouteImport
+      parentRoute: typeof StudentsRoute
     }
   }
 }
