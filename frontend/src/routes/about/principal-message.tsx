@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useState, useEffect } from "react";
 import principalImage from "../../images/Principal-Photo.jpg";
 import { motion } from "motion/react";
+import { API_BASE } from "@/config";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -23,7 +24,7 @@ function PrincipalMessagePage() {
   const [pageData, setPageData] = useState<any>(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/pages/principal-message/")
+    fetch(`${API_BASE}/pages/principal-message/`)
       .then(res => res.json())
       .then(data => {
         if (data && data.content_blocks) {

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import aboutImage from "../../images/aboutimage3.jpg";
 import { motion } from "motion/react";
 import { fadeUp, staggerContainer } from "../../lib/motion";
+import { API_BASE } from "@/config";
 
 export const Route = createFileRoute("/about/about-school")({
   head: () => ({
@@ -20,7 +21,7 @@ function AboutSchoolPage() {
   const [pageData, setPageData] = useState<any>(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/pages/about-school/")
+    fetch(`${API_BASE}/pages/about-school/`)
       .then(res => res.json())
       .then(data => {
         if (data && data.content_blocks) {

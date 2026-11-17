@@ -6,6 +6,7 @@ import correspondentImage from "../../images/correspondent_image.jpeg";
 import heroImage from "../../images/aboutimage3.jpg"; 
 import { PageHeader } from "@/components/PageHeader";
 import { fadeUp, staggerContainer } from "../../lib/motion";
+import { API_BASE } from "@/config";
 
 export const Route = createFileRoute("/about/correspondent-message")({
   head: () => ({
@@ -21,7 +22,7 @@ function CorrespondentMessagePage() {
   const [pageData, setPageData] = useState<any>(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/pages/correspondent-message/")
+    fetch(`${API_BASE}/pages/correspondent-message/`)
       .then(res => res.json())
       .then(data => {
         if (data && data.content_blocks) {

@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ArrowRight, ChevronRight, Phone, BookOpen, Users, Shield, Lightbulb, MapPin, Calendar, Microscope, Monitor, Library, Bus, Home, Clock } from "lucide-react";
 import { fadeUp, fadeLeft, fadeRight, staggerContainer, buttonHover, buttonTap, cardHover } from "../lib/motion";
+import { API_BASE } from "@/config";
 
 // Optimized Images
 import heroImage from "../images/herosection1.jpg";
@@ -661,7 +662,7 @@ function NewsAndEvents() {
   const [latestNews, setLatestNews] = useState(defaultLatestNews);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/events/")
+    fetch(`${API_BASE}/events/`)
       .then(res => res.json())
       .then(data => {
         const eventsList = Array.isArray(data) ? data : (data.results || []);
@@ -685,7 +686,7 @@ function NewsAndEvents() {
       })
       .catch(err => console.error("Error fetching live events:", err));
 
-    fetch("http://127.0.0.1:8000/api/announcements/")
+    fetch(`${API_BASE}/announcements/`)
       .then(res => res.json())
       .then(data => {
         const list = Array.isArray(data) ? data : (data.results || []);

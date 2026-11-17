@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { Shield } from "lucide-react";
 import { motion } from "motion/react";
+import { API_BASE } from "@/config";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -75,8 +76,8 @@ function HousesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("http://127.0.0.1:8000/api/student-houses/").then((res) => res.json()),
-      fetch("http://127.0.0.1:8000/api/student-leaders/").then((res) => res.json())
+      fetch(`${API_BASE}/student-houses/`).then((res) => res.json()),
+      fetch(`${API_BASE}/student-leaders/`).then((res) => res.json())
     ])
       .then(([housesData, leadersData]) => {
         const hList = Array.isArray(housesData) ? housesData : (housesData.results || []);

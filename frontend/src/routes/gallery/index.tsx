@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { API_BASE } from "@/config";
 import { X, ChevronLeft, ChevronRight, Eye, Calendar, Sparkles, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -67,8 +68,8 @@ function GalleryIndexPage() {
     const fetchGalleryAndEvents = async () => {
       try {
         const [galleryRes, eventsRes] = await Promise.all([
-          fetch("http://127.0.0.1:8000/api/gallery-images/"),
-          fetch("http://127.0.0.1:8000/api/events/")
+          fetch(`${API_BASE}/gallery-images/`),
+          fetch(`${API_BASE}/events/`)
         ]);
 
         if (galleryRes.ok) {

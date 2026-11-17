@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
+import { API_BASE } from "@/config";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -33,7 +34,7 @@ function SchoolUniformPage() {
   ];
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/school-uniforms/")
+    fetch(`${API_BASE}/school-uniforms/`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : (data.results || []);

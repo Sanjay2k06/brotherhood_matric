@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { Award, BookOpen, Star, Trophy, Target } from "lucide-react";
 import resultImg from "../../images/result.jpg";
-
 import { useState, useEffect } from "react";
+import { API_BASE } from "@/config";
 
 export const Route = createFileRoute("/students/achievements")({
   head: () => ({
@@ -55,7 +55,7 @@ function StudentAchievementsPage() {
   const defaultSports: any[] = [];
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/student-achievements/")
+    fetch(`${API_BASE}/student-achievements/`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : (data.results || []);

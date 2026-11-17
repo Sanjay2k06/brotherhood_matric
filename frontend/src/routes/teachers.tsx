@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { API_BASE, BACKEND_URL } from "@/config";
 import { 
   Mail, GraduationCap, Sparkles, Award, 
   BookOpen, Clock, Quote, Check, Shield, 
@@ -406,7 +407,7 @@ function TeachersPage() {
 
   // Fetch teachers from backend API dynamically
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/teachers/")
+    fetch(`${API_BASE}/teachers/`)
       .then((res) => {
         if (!res.ok) throw new Error("Network response not ok");
         return res.json();
@@ -425,7 +426,7 @@ function TeachersPage() {
           const mapped: Teacher[] = data.map((t: any, index: number) => {
             let teacherImg = t.image_url;
             if (teacherImg && !teacherImg.startsWith("http") && !teacherImg.startsWith("/")) {
-              teacherImg = `http://127.0.0.1:8000/uploads/${teacherImg}`;
+              teacherImg = `${BACKEND_URL}/uploads/${teacherImg}`;
             }
             if ((t.name && t.name.toLowerCase().includes("shima")) || (t.designation && t.designation.toLowerCase().includes("principal (higher secondary)"))) {
               teacherImg = shimaPhoto;

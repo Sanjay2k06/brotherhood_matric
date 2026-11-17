@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Award, ChevronRight, Users } from "lucide-react";
 import { motion } from "motion/react";
 import aboutImage3 from "../../images/aboutimage3.jpg";
+import { API_BASE } from "@/config";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -133,7 +134,7 @@ function StudentLeadersPage() {
   ];
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/student-leaders/")
+    fetch(`${API_BASE}/student-leaders/`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : (data.results || []);
