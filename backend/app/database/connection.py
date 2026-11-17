@@ -4,11 +4,15 @@ from app.core.config import settings
 from app.core.logging import logger
 
 engine_options = {}
-if settings.ASYNC_DATABASE_URL.startswith("postgresql"):
+if "postgresql" in settings.ASYNC_DATABASE_URL:
     engine_options = {
         "pool_pre_ping": True,
         "pool_size": 10,
         "max_overflow": 20,
+    }
+elif "sqlite" in settings.ASYNC_DATABASE_URL:
+    engine_options = {
+        "connect_args": {"check_same_thread": False}
     }
 
 logger.info(f"Connecting to database using async URL: {settings.ASYNC_DATABASE_URL}")

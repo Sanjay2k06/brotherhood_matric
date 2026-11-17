@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -11,13 +11,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 Days
     ALGORITHM: str = "HS256"
 
-    # Database
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/brotherhood_cms"
+    # Database: Defaults to local SQLite file if DATABASE_URL is not set
+    DATABASE_URL: str = "sqlite:///./brotherhood_cms.db"
 
     @property
     def ASYNC_DATABASE_URL(self) -> str:
         url = self.DATABASE_URL
-        if url.startswith("postgresql://"):
+        if url.startswith("postgres://"):
+            return url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgresql://"):
             return url.replace("postgresql://", "postgresql+asyncpg://", 1)
         elif url.startswith("sqlite:///"):
             return url.replace("sqlite:///", "sqlite+aiosqlite:///", 1)
@@ -30,8 +32,23 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: Optional[str] = None
     CLOUDINARY_API_SECRET: Optional[str] = None
 
-    # CORS Origins
-    BACKEND_CORS_ORIGINS: List[str] = ["*"]
+    # CORS Origins (Tolerant of string "*", comma-separated URLs, or JSON arrays)
+    BACKEND_CORS_ORIGINS: Union[str, List[str]] = ["*"]
+
+    @property
+    def cors_origins(self) -> List[str]:
+        if isinstance(self.BACKEND_CORS_ORIGINS, list):
+            return self.BACKEND_CORS_ORIGINS
+        if isinstance(self.BACKEND_CORS_ORIGINS, str):
+            v = self.BACKEND_CORS_ORIGINS.strip()
+            if v.startswith("[") and v.endswith("]"):
+                import json
+                try:
+                    return json.loads(v)
+                except Exception:
+                    pass
+            return [i.strip() for i in v.split(",") if i.strip()]
+        return ["*"]
 
     model_config = SettingsConfigDict(
         env_file=".env",
