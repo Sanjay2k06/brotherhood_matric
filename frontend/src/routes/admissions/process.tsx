@@ -15,19 +15,22 @@ export const Route = createFileRoute("/admissions/process")({
 
 function AdmissionProcessPage() {
   const steps = [
-    { num: 1, title: "Submit Enquiry Form", desc: "Fill out our quick online enquiry form with parent contact and candidate grade details." },
-    { num: 2, title: "Schedule Campus Visit", desc: "Receive an invitation from our administrative desk for a guided campus and classroom visit." },
-    { num: 3, title: "Parent-Candidate Dialogue", desc: "An informal interaction with class coordinators and the principal to align expectations." },
-    { num: 4, title: "Document Verification", desc: "Submit physical copies of transfer and birth certificates to secure the seat." },
+    { num: 1, title: "Registration", desc: "Obtain and submit the registration form at the school office." },
+    { num: 2, title: "Interaction / Entrance Test", desc: "An informal interaction for Kindergarten and Primary levels, or an entrance test for higher levels to assess student readiness." },
+    { num: 3, title: "Document Verification", desc: "Verification of necessary certificates, academic records, and personal documents." },
+    { num: 4, title: "Provisional Admission", desc: "Issuance of admission offer letter upon meeting the eligibility criteria." },
+    { num: 5, title: "Fee Payment & Enrollment", desc: "Completing admission formalities by paying fees and submitting final enrollment details." },
   ];
 
   const documents = [
-    "Candidate Birth Certificate (Original & Copy)",
-    "Previous Grade Transfer Certificate (TC)",
-    "Previous Term Mark Sheets (Class V onwards)",
-    "Candidate Aadhaar Card Copy",
-    "4 Passport-sized Photographs of Candidate",
-    "Address Proof (Aadhaar, Utility bill)",
+    "Completed Registration Form",
+    "Student Birth Certificate (Original & Copy)",
+    "Transfer Certificate (TC) (with EMIS number, from previous school)",
+    "Report Card / Mark Sheet (from previous school)",
+    "Student Aadhaar Card Copy",
+    "Parent Aadhaar Card Copies",
+    "Community Certificate (if applicable)",
+    "Passport-sized Photographs (Student: 4, Father: 2, Mother: 2)"
   ];
 
   return (

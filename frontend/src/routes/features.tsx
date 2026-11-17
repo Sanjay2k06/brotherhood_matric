@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
-import { Laptop, Tv, Languages, Binary, Cpu, Beaker, Sparkles } from "lucide-react";
+import { Laptop, Tv, Languages, Binary, Cpu, Beaker, BookOpen, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -16,39 +16,51 @@ function FeaturesPage() {
   const features = [
     {
       title: "Computer Education",
-      desc: "Full-scale computer laboratory equipped with modern desktops, high-speed connectivity, and programming guides (Scratch, Python, and HTML).",
+      desc: "Brotherhood Matriculation Higher Secondary School provides dedicated computer laboratories equipped with modern computer systems to develop digital literacy, typing skills, programming knowledge, internet awareness, and practical computer education. Students gain hands-on experience through technology-enabled learning that prepares them for future careers in the digital world.",
       icon: Laptop,
       color: "hover:border-blue-400 bg-blue-500/5"
     },
     {
-      title: "Smart Class",
-      desc: "Interactive projectors, audio systems, and digital class syllabus modules converting standard textbooks into immersive multi-media experiences.",
+      title: "Smart Classrooms",
+      desc: "Our smart classrooms integrate multimedia technology, interactive digital content, educational videos, presentations, animations, and visual learning tools to make every lesson engaging, interactive, and student-centered while improving conceptual understanding.",
       icon: Tv,
       color: "hover:border-amber-400 bg-amber-500/5"
     },
     {
-      title: "English Lab",
-      desc: "Accent training softwares, headphones, and speech monitoring tools helping primary and secondary sections master fluent pronunciation and phonetics.",
-      icon: Languages,
-      color: "hover:border-emerald-400 bg-emerald-500/5"
-    },
-    {
-      title: "Maths Lab",
-      desc: "Hands-on geometry boards, mathematical puzzles, and fractional blocks allowing students to physically analyze and resolve abstract formulas.",
+      title: "Mathematics Laboratory",
+      desc: "The Mathematics Laboratory encourages experiential learning through mathematical models, activities, puzzles, games, charts, and practical demonstrations that help students understand mathematical concepts with confidence and creativity.",
       icon: Binary,
       color: "hover:border-purple-400 bg-purple-500/5"
     },
     {
-      title: "Robotics Lab",
-      desc: "STEM building blocks, microcontrollers (Arduino/Raspberry Pi), sensor modules, and coding workspaces introducing students to future engineering concepts.",
+      title: "English Language Laboratory",
+      desc: "The English Language Laboratory enhances listening, speaking, pronunciation, vocabulary, grammar, reading, and communication skills through audio-visual learning, interactive activities, and language development exercises that improve students' confidence in English.",
+      icon: Languages,
+      color: "hover:border-emerald-400 bg-emerald-500/5"
+    },
+    {
+      title: "Robotics Laboratory",
+      desc: "The Robotics Laboratory introduces students to robotics, STEM education, coding, programming, innovation, automation, and problem-solving skills, encouraging creativity and technological thinking from an early age.",
       icon: Cpu,
       color: "hover:border-red-400 bg-red-500/5"
     },
     {
-      title: "Science Lab",
-      desc: "Fully equipped Physics, Chemistry, and Biology workspaces with standard compounds, measuring tools, microscopes, and safety shields.",
+      title: "Science Laboratories",
+      desc: "Well-equipped Physics, Chemistry, and Biology laboratories provide students with practical scientific learning through experiments, demonstrations, observations, and research-based activities aligned with the curriculum.",
       icon: Beaker,
       color: "hover:border-pink-400 bg-pink-500/5"
+    },
+    {
+      title: "Library",
+      desc: "The school library offers an extensive collection of academic books, reference materials, journals, newspapers, magazines, and digital resources that cultivate reading habits, research skills, and lifelong learning.",
+      icon: BookOpen,
+      color: "hover:border-indigo-400 bg-indigo-500/5"
+    },
+    {
+      title: "Holistic Development",
+      desc: "The school focuses on the overall development of every child through academics, leadership opportunities, sports, cultural activities, moral education, discipline, creativity, communication skills, and personality development.",
+      icon: Sparkles,
+      color: "hover:border-gold bg-gold/5"
     }
   ];
 

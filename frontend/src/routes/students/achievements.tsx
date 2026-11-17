@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { Award, BookOpen, Star, Trophy, Target } from "lucide-react";
-import resultImg from "../../images/result.png";
+import resultImg from "../../images/result.jpg";
 
 import { useState, useEffect } from "react";
 
@@ -21,16 +21,38 @@ function StudentAchievementsPage() {
   const [loading, setLoading] = useState(true);
 
   const defaultToppers = [
-    { rank: "State Rank 1st", name: "Miss Sneha R.", score: "594 / 600", stream: "Class XII (2025 Board Exams)" },
-    { rank: "District Rank 1st", name: "Master Sanjay S.", score: "591 / 600", stream: "Class XII (2025 Board Exams)" },
-    { rank: "Centum Holder", name: "Master Aditya K.", score: "100 / 100", stream: "Mathematics (Class XII 2025)" },
+    // Primary Wing Mid-Term Toppers
+    { rank: "Mid-Term Topper", name: "Master Amit R.", score: "98% Marks", stream: "Class I" },
+    { rank: "Mid-Term Topper", name: "Miss Divya K.", score: "97.5% Marks", stream: "Class II" },
+    { rank: "Mid-Term Topper", name: "Master Harish S.", score: "99% Marks", stream: "Class III" },
+    { rank: "Mid-Term Topper", name: "Miss Swetha V.", score: "96.8% Marks", stream: "Class IV" },
+    { rank: "Mid-Term Topper", name: "Master Sanjay P.", score: "98.2% Marks", stream: "Class V" },
+
+    // Primary Wing Quarterly Toppers
+    { rank: "Quarterly Topper", name: "Miss Pooja S.", score: "98.5% Marks", stream: "Class I" },
+    { rank: "Quarterly Topper", name: "Master Rahul M.", score: "97% Marks", stream: "Class II" },
+    { rank: "Quarterly Topper", name: "Miss Deepa A.", score: "98.8% Marks", stream: "Class III" },
+    { rank: "Quarterly Topper", name: "Master Vijay G.", score: "97.2% Marks", stream: "Class IV" },
+    { rank: "Quarterly Topper", name: "Miss Nivetha K.", score: "99.1% Marks", stream: "Class V" },
+
+    // Senior Secondary Wing Mid-Term Toppers
+    { rank: "Mid-Term Topper", name: "Master Vignesh R.", score: "582 / 600", stream: "Class XI-A" },
+    { rank: "Mid-Term Topper", name: "Miss Preethi S.", score: "578 / 600", stream: "Class XI-B" },
+    { rank: "Mid-Term Topper", name: "Master Karthik V.", score: "580 / 600", stream: "Class XI-C" },
+    { rank: "Mid-Term Topper", name: "Miss Dhivya Dharshini N.", score: "592 / 600", stream: "Class XII-A" },
+    { rank: "Mid-Term Topper", name: "Master Ashwanth B.", score: "585 / 600", stream: "Class XII-B" },
+    { rank: "Mid-Term Topper", name: "Miss Gayathri P.", score: "588 / 600", stream: "Class XII-C" },
+
+    // Senior Secondary Wing Quarterly Toppers
+    { rank: "Quarterly Topper", name: "Miss Monisha R.", score: "585 / 600", stream: "Class XI-A" },
+    { rank: "Quarterly Topper", name: "Master Deepak S.", score: "576 / 600", stream: "Class XI-B" },
+    { rank: "Quarterly Topper", name: "Miss Pavithra V.", score: "582 / 600", stream: "Class XI-C" },
+    { rank: "Quarterly Topper", name: "Master Kishore P.", score: "594 / 600", stream: "Class XII-A" },
+    { rank: "Quarterly Topper", name: "Miss Sripriya R.", score: "589 / 600", stream: "Class XII-B" },
+    { rank: "Quarterly Topper", name: "Miss Akshaya M.", score: "595 / 600", stream: "Class XII-C" },
   ];
 
-  const defaultSports = [
-    { title: "Zonal Athletics Championship", award: "Overall Runners-up Cup", category: "Boys Under-17 Category (2025)" },
-    { title: "Inter-School Football Tournament", award: "Gold Medal Winners", category: "Senior Division Team (2025)" },
-    { title: "State Chess Championship", award: "Individual 3rd Place", category: "Master Gautham R., Class IX (2025)" }
-  ];
+  const defaultSports: any[] = [];
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/student-achievements/")

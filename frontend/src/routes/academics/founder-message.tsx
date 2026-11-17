@@ -1,30 +1,60 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-import principalImage from "../../images/principal_portrait (2).png"; 
-import heroImage from "../../images/aboutimage3.png"; 
+import { useState, useEffect } from "react";
+import principalImage from "../../images/principal_portrait (2).jpg"; 
+import heroImage from "../../images/aboutimage3.jpg"; 
 import { PageHeader } from "@/components/PageHeader";
 import { fadeUp, staggerContainer } from "../../lib/motion";
 
 export const Route = createFileRoute("/academics/founder-message")({
   head: () => ({
     meta: [
-      { title: "Founder's Message — Brotherhood School" },
-      { name: "description", content: "Official welcoming statement and vision details from the Founder, Rev. Father Anton Cruze." },
+      { title: "Chairman's Message — Brotherhood School" },
+      { name: "description", content: "Official welcoming statement and vision details from the Chairman, Rev. Fr. Anton Cruz." },
     ],
   }),
   component: FounderMessagePage,
 });
 
 function FounderMessagePage() {
+  const [pageData, setPageData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/pages/founder-message/")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.content_blocks) {
+          setPageData(data);
+        }
+      })
+      .catch(err => console.error("Error loading dynamic page content:", err));
+  }, []);
+
+  const heroTitle = pageData?.hero_title || "Rev. Fr. Anton Cruz";
+  const heroSubtitle = pageData?.hero_subtitle || "A Vision That Continues To Inspire Generations";
+  
+  const name = pageData?.content_blocks?.name || "Rev. Fr. Anton Cruz";
+  const designation = pageData?.content_blocks?.designation || "Founder & Chairman";
+  const servingSince = pageData?.content_blocks?.serving_since || "Serving Since 1991";
+  const introText = pageData?.content_blocks?.intro || "With a profound commitment to holistic education and moral integrity, Rev. Fr. Anton Cruz laid the foundations of Brotherhood Matriculation Higher Secondary School. His visionary leadership established an enduring sanctuary of learning where every child is empowered through quality instruction, reason, and faith.";
+  const quoteText = pageData?.content_blocks?.quote || "Character Formation Through Quality Education";
+  const messageTitle = pageData?.content_blocks?.message_title || "Chairman & Founder's Visionary Message";
+  const messageP1 = pageData?.content_blocks?.message_p1 || "Be strong in spiritual values. Every building speaks of the sacrifices made by your parents and grandparents. Every window represents the freedom of your thoughts in your future journey. Every classroom is the inner womb where your destiny is shaped. Every school bag carries your dreams, ambitions, and vision for the future. Every student is the architect of innovation and new discoveries, and every line written in your notebook contributes to the destiny of our nation. Every teacher you meet becomes the blueprint of your inner quest for knowledge and wisdom.";
+  const messageP2 = pageData?.content_blocks?.message_p2 || "You are the builder of your own future, while your parents, teachers, and principal serve as your guides and mentors. Every school is the birthplace of God's love. Cherish it, nurture it, and let it transform your life. My prayer is that Brotherhood Group of Schools continues to raise future leaders with strong human and Godly values, expands its mission to every state of India and beyond, and reaches poor and needy children through quality education. Every child is truly a precious gift from God.";
+
+  // Format first letter to drop cap
+  const firstLetter = messageP1.charAt(0);
+  const remainingText = messageP1.slice(1);
+
   return (
     <div className="bg-[#fdfdfc] text-[#2d3748] font-sans selection:bg-[#0a2b18] selection:text-white">
       
       {/* 1. Hero Banner */}
       <PageHeader 
-        eyebrow="Founder & Chairman"
-        title="Rev. Father Anton Cruze"
-        subtitle="&quot;A Vision That Continues To Inspire Generations&quot;"
+        eyebrow="Chairman"
+        title={heroTitle}
+        subtitle={`"${heroSubtitle.replace(/"/g, "")}"`}
         backgroundImage={heroImage}
       />
 
@@ -38,7 +68,7 @@ function FounderMessagePage() {
           >
             <div className="absolute inset-0 bg-[#d4af37] rounded-3xl translate-x-3 translate-y-3 md:translate-x-4 md:translate-y-4 opacity-20 transition-transform duration-500 group-hover:translate-x-5 group-hover:translate-y-5"></div>
             <div className="relative aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl bg-[#0a2b18]">
-               <img src={principalImage} alt="Rev. Father Anton Cruze" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90 sepia-[0.1]" />
+               <img src={principalImage} alt={name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90 sepia-[0.1]" />
                <div className="absolute inset-0 bg-gradient-to-t from-[#0a2b18]/60 via-transparent to-transparent opacity-80"></div>
             </div>
           </motion.div>
@@ -51,21 +81,21 @@ function FounderMessagePage() {
               <div className="w-16 h-16 rounded-full bg-[#f4f7f5] flex items-center justify-center mb-8 border border-[#e2e8f0]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a2b18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
               </div>
-              <h2 className="font-serif text-4xl text-[#0a2b18] mb-2">Rev. Father Anton Cruze</h2>
-              <p className="text-[#d4af37] uppercase tracking-widest text-xs font-semibold">Founder & Chairman</p>
+              <h2 className="font-serif text-4xl text-[#0a2b18] mb-2">{name}</h2>
+              <p className="text-[#d4af37] uppercase tracking-widest text-xs font-semibold">{designation}</p>
             </motion.div>
 
             <motion.div variants={fadeUp} className="flex items-center gap-4">
-              <span className="text-xs uppercase tracking-widest text-[#718096] border border-[#cbd5e1] rounded-full px-4 py-1">Serving Since 1991</span>
+              <span className="text-xs uppercase tracking-widest text-[#718096] border border-[#cbd5e1] rounded-full px-4 py-1">{servingSince}</span>
             </motion.div>
 
             <motion.p variants={fadeUp} className="text-[#4a5568] text-lg font-light leading-relaxed">
-              With a profound commitment to holistic education and moral integrity, Father Anton Cruze laid the foundations of Brotherhood Matriculation Higher Secondary School. Driven by the philosophy of the Preventive System, his leadership established an enduring sanctuary of learning where every child is empowered through reason, faith, and loving-kindness.
+              {introText}
             </motion.p>
             
             <motion.div variants={fadeUp} className="pt-4">
               <div className="font-serif italic text-3xl text-[#0a2b18]/70" style={{ fontFamily: 'Georgia, serif', transform: 'rotate(-2deg)' }}>
-                Rev. Fr. Anton Cruze
+                {name}
               </div>
             </motion.div>
           </motion.div>
@@ -83,7 +113,7 @@ function FounderMessagePage() {
             "
           </div>
           <h2 className="font-serif text-3xl md:text-5xl text-[#0a2b18] leading-[1.4] italic relative z-10 pt-8">
-            Character Formation Through <br className="hidden md:block"/> Quality Education
+            {quoteText}
           </h2>
           <div className="w-24 h-[1px] bg-[#d4af37] mx-auto mt-12"></div>
         </motion.div>
@@ -100,36 +130,24 @@ function FounderMessagePage() {
             className="space-y-10 text-[19px] leading-[1.9] text-[#2d3748] font-light"
           >
             <motion.p variants={fadeUp} className="font-serif text-2xl md:text-3xl text-[#0a2b18] pb-8 border-b border-[#e2e8f0]">
-              Greetings and blessings to the entire Brotherhood family,
+              {messageTitle}
             </motion.p>
             
             <motion.p variants={fadeUp} className="pt-4">
-              <span className="float-left text-7xl font-serif text-[#0a2b18] pr-5 pt-3 leading-none">W</span>
-              hen we laid the first stone of Brotherhood Matriculation Higher Secondary School in 1991, our vision was to create more than just classrooms. We set out to establish a home away from home — a nurturing space where boys and girls, regardless of social background, could discover their inner strength and learn with joy and integrity.
+              <span className="float-left text-7xl font-serif text-[#0a2b18] pr-5 pt-3 leading-none">{firstLetter}</span>
+              {remainingText}
             </motion.p>
             
             <motion.p variants={fadeUp}>
-              Over the last three decades, our campus in Neelankarai has witnessed thousands of students transition from curious toddlers to compassionate, responsible leaders. Our pedagogical focus is heavily inspired by Don Bosco's Preventive System: utilizing reason, religion, and loving-kindness to guide students instead of fear or coercion.
+              {messageP2}
             </motion.p>
-
-            <motion.div variants={fadeUp} className="py-4 flex justify-center">
-              <div className="w-2 h-2 rounded-full bg-[#d4af37] opacity-40"></div>
-            </motion.div>
             
-            <motion.p variants={fadeUp}>
-              In this rapidly changing technological era, we continue to upgrade our science, robotics, and language labs. However, we remain firm in our belief that high-end facilities are only tools. The true soul of education lies in the moral integrity, discipline, and compassionate hearts of our graduates.
-            </motion.p>
-
-            <motion.p variants={fadeUp}>
-              I pray that our students continue to shine as light in society, bringing credit to their parents, their Alma Mater, and our nation.
-            </motion.p>
-
             {/* 5. Signature Block */}
             <motion.div variants={fadeUp} className="mt-20 pt-12 border-t border-[#e2e8f0] flex flex-col items-center md:items-start text-center md:text-left">
               <div className="font-serif italic text-4xl text-[#0a2b18] mb-4 opacity-90" style={{ fontFamily: 'Georgia, serif', transform: 'rotate(-2deg)' }}>
-                Rev. Fr. Anton Cruze
+                {name}
               </div>
-              <p className="text-[#0a2b18] font-medium text-lg">Founder & Chairman</p>
+              <p className="text-[#0a2b18] font-medium text-lg">{designation}</p>
               <p className="text-[#718096] text-sm uppercase tracking-widest mt-1">Brotherhood Educational and Charitable Trust</p>
             </motion.div>
           </motion.div>

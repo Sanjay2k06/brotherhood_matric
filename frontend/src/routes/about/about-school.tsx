@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { PageHeader } from "@/components/PageHeader";
 import { History, GraduationCap } from "lucide-react";
-import aboutImage from "../../images/aboutimage3.png";
+import { useState, useEffect } from "react";
+import aboutImage from "../../images/aboutimage3.jpg";
 import { motion } from "motion/react";
 import { fadeUp, staggerContainer } from "../../lib/motion";
 
@@ -16,49 +17,58 @@ export const Route = createFileRoute("/about/about-school")({
 });
 
 function AboutSchoolPage() {
-  // const facilities = [
-  //   { name: "Language Labs", description: "Advanced tools to master communication, accent training, and vocabulary development." },
-  //   { name: "Mathematics Lab", description: "Hands-on tools and geometric kits to bring abstract formulas to life." },
-  //   { name: "Robotics Lab", description: "Equipped with STEM kits, sensors, and microcontrollers for coding and engineering basics." },
-  //   { name: "Smart Classrooms", description: "Equipped with interactive projectors, high-definition audio, and digitised school lessons." },
-  //   { name: "Well-equipped Library", description: "Thousands of books, references, journals, and a quiet reading space to build literacy." },
-  // ];
+  const [pageData, setPageData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/pages/about-school/")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.content_blocks) {
+          setPageData(data);
+        }
+      })
+      .catch(err => console.error("Error loading dynamic page content:", err));
+  }, []);
+
+  const heroTitle = pageData?.hero_title || "About our School";
+  const heroSubtitle = pageData?.hero_subtitle || "Foundational history and campus learning resources at Brotherhood.";
+
+  const p1 = pageData?.content_blocks?.p1 || "Brotherhood Matriculation Higher Secondary school is a thirty-year-old institution, recognised by the Government of Tamilnadu. It has classes from pre-Kindergarten to standard XII. It was founded in the year 1991.";
+  const p2 = pageData?.content_blocks?.p2 || "It is a gender-neutral school, where students of both genders study and relate with respect for each other and maintain their personal dignity. It is aware that the quality of education is very much dependant on the competence of the teachers, therefore it has hired highly educated and dedicated teachers who are acutely aware of the great responsibility that vests on their shoulders. Our teachers undergo regular refresher programs and believe that they too are eternal students.";
+  const p3 = pageData?.content_blocks?.p3 || "The school has all the standard facilities and much more. In keeping with its future oriented mindset, it has set up language labs, mathematics lab, Robotic lab, smart classes and a very well-equipped library.";
 
   return (
     <>
       <PageHeader
         eyebrow="Introduction & Legacy"
-        title="About our School"
-        subtitle="Foundational history and campus learning resources at Brotherhood."
+        title={heroTitle}
+        subtitle={heroSubtitle}
       />
 
       {/* School Introduction with Image */}
-      <section className="py-24 md:py-32 px-6 bg-[#f7faf8] overflow-hidden">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-[#f7faf8] overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-24 items-center">
             
             <motion.div 
               initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
-              className="space-y-8"
+              className="space-y-6 sm:space-y-8"
             >
-              <motion.div variants={fadeUp} className="flex items-center gap-4">
-                 <div className="w-12 h-[1px] bg-[#d4af37]"></div>
+              <motion.div variants={fadeUp} className="flex items-center gap-3 sm:gap-4">
+                 <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]"></div>
                  <span className="text-[#d4af37] uppercase tracking-widest text-xs font-semibold">Our Legacy</span>
               </motion.div>
               
-              <motion.h2 variants={fadeUp} className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#0a2b18] leading-[1.15]">
+              <motion.h2 variants={fadeUp} className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#0a2b18] leading-[1.15] break-words">
                 School <br className="hidden md:block" />
                 <span className="italic text-[#1b4d32]">Introduction</span>
               </motion.h2>
 
-              <motion.div variants={fadeUp} className="space-y-6 text-[#6c8274] text-lg font-light leading-relaxed">
-                <p>
-                  Founded in 1991, Brotherhood Matriculation Higher Secondary School stands as a beacon of high academic standards, moral growth, and dedicated service in Chennai. Recognised by the Government of Tamil Nadu, our campus is a gender-neutral space built on mutual respect, personal dignity, and self-belief.
-                </p>
-                <p>
-                  We believe that true education goes beyond textbooks, striving to cultivate analytical thinking, discipline, and standard-setting character in every child. Our qualified educators are dedicated to creating a safe and engaging classroom environment where children can discover their inner potential.
-                </p>
-              </motion.div>
+                <div className="space-y-4 sm:space-y-6 text-[#6c8274] text-sm sm:text-base font-light leading-relaxed">
+                  <p>{p1}</p>
+                  <p>{p2}</p>
+                  <p>{p3}</p>
+                </div>
             </motion.div>
 
             <motion.div
@@ -74,7 +84,7 @@ function AboutSchoolPage() {
               </div>
               
               {/* Floating Element */}
-              <div className="absolute -bottom-6 -left-4 md:-left-8 bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-2xl shadow-[0_20px_40px_-15px_rgba(10,43,24,0.15)] max-w-[200px] md:max-w-[240px] border border-[#f1f6f3]">
+              <div className="absolute -bottom-6 left-2 sm:-left-4 md:-left-8 bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-2xl shadow-[0_20px_40px_-15px_rgba(10,43,24,0.15)] max-w-[200px] md:max-w-[240px] border border-[#f1f6f3] z-10">
                 <GraduationCap className="h-7 w-7 md:h-9 md:w-9 text-[#d4af37] mb-2 md:mb-3" />
                 <p className="font-serif text-lg md:text-xl text-[#0a2b18] leading-tight mb-1">"Beyond Textbooks"</p>
                 <p className="text-[#6c8274] text-[10px] md:text-xs uppercase tracking-wider font-semibold">Since 1991</p>
@@ -86,21 +96,21 @@ function AboutSchoolPage() {
       </section>
 
       {/* Our History */}
-      <section className="py-24 md:py-32 bg-[#05140b] text-white overflow-hidden relative">
+      <section className="py-16 sm:py-24 md:py-32 bg-[#05140b] text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#d4af37] rounded-full blur-[150px] opacity-[0.05] -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#1b4d32] rounded-full blur-[150px] opacity-10 translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="flex flex-col items-center text-center max-w-3xl mx-auto mb-20 space-y-6"
+            className="flex flex-col items-center text-center max-w-3xl mx-auto mb-14 sm:mb-20 space-y-4 sm:space-y-6"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-[1px] bg-[#d4af37]/40"></div>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]/40"></div>
               <span className="text-[#d4af37] uppercase tracking-widest text-xs font-semibold">Our Journey</span>
-              <div className="w-12 h-[1px] bg-[#d4af37]/40"></div>
+              <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]/40"></div>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white break-words">
               A Legacy of <span className="italic text-[#d4af37]">Purpose</span>
             </h2>
           </motion.div>

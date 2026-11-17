@@ -6,12 +6,12 @@ import { motion, AnimatePresence } from "motion/react";
 
 import imageCampus1 from "../../images/aboutimage2.jpg";
 import imageCampus2 from "../../images/aboutimage4.jpeg";
-import imageCampus3 from "../../images/schooluniform.png";
-import imageEvents1 from "../../images/aboutimage3.png";
-import imageEvents2 from "../../images/choir.png";
-import imageEvents3 from "../../images/ecoclub.png";
-import imageSports1 from "../../images/sports.png";
-import imageSports2 from "../../images/result.png";
+import imageCampus3 from "../../images/schooluniform.jpg";
+import imageEvents1 from "../../images/aboutimage3.jpg";
+import imageEvents2 from "../../images/choir.jpg";
+import imageEvents3 from "../../images/ecoclub.jpg";
+import imageSports1 from "../../images/sports.jpg";
+import imageSports2 from "../../images/result.jpg";
 
 export const Route = createFileRoute("/gallery/")({
   head: () => ({
@@ -176,117 +176,155 @@ function GalleryIndexPage() {
         subtitle="Visual stories from classrooms, laboratory blocks, athletic meets, and student councils."
       />
 
-      <section className="py-24 px-6 relative bg-[#fdfdfc]">
-        {/* Category Filter Pills - Premium Style */}
-        <div className="max-w-7xl mx-auto flex flex-wrap gap-4 justify-center mb-20 relative z-10">
-          {["All", "Campus", "Events", "Sports"].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => {
-                setSelectedCategory(cat);
-                setLightboxIndex(null);
-              }}
-              className={`relative px-8 py-3 rounded-full text-sm uppercase tracking-widest font-bold transition-all duration-500 overflow-hidden ${
-                selectedCategory === cat
-                  ? "text-white"
-                  : "text-[#718096] hover:text-[#0a2b18] border border-[#e2e8f0] bg-white hover:border-[#d4af37]"
-              }`}
-            >
-              {selectedCategory === cat && (
-                <motion.div 
-                  layoutId="activeFilter" 
-                  className="absolute inset-0 bg-[#0a2b18]"
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{cat}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Cinematic Masonry Gallery */}
-        <div className="max-w-[1400px] mx-auto relative z-10">
-          {loading ? (
-            <div className="text-center py-32">
-              <div className="w-12 h-12 border-2 border-[#e2e8f0] border-t-[#d4af37] rounded-full animate-spin mx-auto"></div>
-              <p className="text-xs text-[#718096] mt-6 uppercase tracking-widest font-bold">Curating Archives...</p>
+      {/* Main Gallery Showcase Section */}
+      <section className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 relative bg-white border-b border-[#e2e8f0] overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          
+          {/* Section Introduction Heading */}
+          <div className="max-w-3xl mx-auto text-center space-y-4 mb-10 sm:mb-14">
+            <div className="inline-flex items-center justify-center gap-3 sm:gap-4">
+              <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]"></div>
+              <span className="text-[#d4af37] uppercase tracking-[0.2em] text-xs font-bold">
+                Visual Archives
+              </span>
+              <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]"></div>
             </div>
-          ) : (
-            <motion.div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-              <AnimatePresence mode="popLayout">
-                {filteredImages.map((img, i) => (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    key={img.src + img.category}
-                    onClick={() => setLightboxIndex(i)}
-                    className="break-inside-avoid relative rounded-[2rem] overflow-hidden group cursor-pointer shadow-[0_15px_30px_rgba(10,43,24,0.05)] hover:shadow-2xl transition-all duration-700"
-                  >
-                    <div className="relative w-full overflow-hidden">
+
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0a2b18] leading-[1.15] font-normal tracking-tight break-words">
+              Moments of <span className="italic text-[#1b4d32]">Excellence</span> & Campus Life
+            </h2>
+
+            <p className="text-[#6c8274] font-light text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+              Explore photographs capturing classroom scholarship, scientific innovation, athletic achievements, and vibrant student traditions across Brotherhood School.
+            </p>
+          </div>
+
+          {/* Category Filter Pills - Perfectly Centered */}
+          <div className="flex flex-wrap gap-2.5 sm:gap-3.5 justify-center mb-10 sm:mb-16 relative z-10">
+            {["All", "Campus", "Events", "Sports"].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setLightboxIndex(null);
+                }}
+                className={`relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm uppercase tracking-widest font-bold transition-all duration-300 overflow-hidden ${
+                  selectedCategory === cat
+                    ? "text-white shadow-md"
+                    : "text-[#6c8274] hover:text-[#0a2b18] border border-[#e2e8f0] bg-[#f7faf8] hover:border-[#d4af37]/60"
+                }`}
+              >
+                {selectedCategory === cat && (
+                  <motion.div 
+                    layoutId="activeFilter" 
+                    className="absolute inset-0 bg-[#0a2b18]"
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{cat}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Perfectly Aligned Responsive Grid */}
+          <div>
+            {loading ? (
+              <div className="text-center py-32 space-y-4">
+                <div className="w-12 h-12 border-2 border-[#e2e8f0] border-t-[#d4af37] rounded-full animate-spin mx-auto"></div>
+                <p className="text-xs text-[#718096] uppercase tracking-widest font-bold">Curating Archives...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                <AnimatePresence mode="popLayout">
+                  {filteredImages.map((img, i) => (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      key={img.src + img.title}
+                      onClick={() => setLightboxIndex(i)}
+                      className="relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[4/3] group cursor-pointer shadow-[0_10px_30px_rgba(10,43,24,0.06)] hover:shadow-2xl transition-all duration-500 bg-[#06180d] border border-gray-100"
+                    >
+                      {/* Image */}
                       <img
                         src={img.src}
                         alt={img.title}
-                        className="w-full h-auto object-cover transform transition-transform duration-[1.5s] group-hover:scale-[1.07] sepia-[0.05] group-hover:sepia-0"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
                       />
-                      {/* Premium Dark Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a2b18] via-[#0a2b18]/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700"></div>
-                      
-                      {/* Hover Center Icon */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-75 group-hover:scale-100">
-                        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white">
-                          <Plus className="h-6 w-6 text-[#d4af37]" />
+
+                      {/* Dark Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#05140b]/95 via-[#05140b]/40 to-transparent opacity-75 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
+
+                      {/* Category Badge Top-Left */}
+                      <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4 z-20 pointer-events-none">
+                        <span className="inline-block px-3 py-1 rounded-full text-[10px] sm:text-[11px] uppercase font-bold tracking-widest bg-[#05140b]/85 text-[#d4af37] border border-[#d4af37]/40 backdrop-blur-md shadow-md">
+                          {img.category}
+                        </span>
+                      </div>
+
+                      {/* Center Zoom Icon on Hover */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-400 scale-90 group-hover:scale-100 pointer-events-none z-20">
+                        <div className="w-12 h-12 rounded-full bg-[#d4af37] text-[#05140b] flex items-center justify-center shadow-xl">
+                          <Plus className="h-6 w-6 stroke-[2.5]" />
                         </div>
                       </div>
 
-                      {/* Info Panel (Bottom) */}
-                      <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
-                        <div className="w-8 h-[1px] bg-[#d4af37] mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100"></div>
-                        <div className="text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-bold mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-150">{img.category}</div>
-                        <h3 className="font-serif text-xl md:text-2xl text-white font-medium mb-1 drop-shadow-lg">{img.title}</h3>
+                      {/* Info Panel Aligned at Bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 z-20 pointer-events-none">
+                        <div className="w-6 h-[2px] bg-[#d4af37] mb-2 group-hover:w-12 transition-all duration-400"></div>
+                        <h3 className="font-serif text-base sm:text-lg text-white font-medium leading-snug drop-shadow-md line-clamp-1">
+                          {img.title}
+                        </h3>
+                        <p className="text-white/70 text-xs font-light line-clamp-2 mt-1 leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity">
+                          {img.desc}
+                        </p>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+
         </div>
       </section>
 
       {/* Dynamic Events Section - Cinematic Layout */}
-      <section className="py-24 md:py-32 bg-[#05140b] relative overflow-hidden">
+      <section className="py-16 sm:py-24 md:py-32 bg-[#05140b] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#1b4d32_0%,transparent_50%)] opacity-20 pointer-events-none"></div>
         
-        <div className="max-w-7xl mx-auto px-6 relative z-10 space-y-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 space-y-16 sm:space-y-24">
           
           {/* Upcoming Events */}
           <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }}>
-            <div className="mb-16 flex flex-col items-center text-center">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-12 h-[1px] bg-[#d4af37]/60"></div>
-                <span className="text-[#d4af37] uppercase tracking-[0.2em] text-[11px] font-bold">Future</span>
-                <div className="w-12 h-[1px] bg-[#d4af37]/60"></div>
+            <div className="mb-10 sm:mb-16 flex flex-col items-center text-center">
+              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-5">
+                <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]/60"></div>
+                <span className="text-[#d4af37] uppercase tracking-[0.2em] text-[10px] sm:text-[11px] font-bold">Future</span>
+                <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]/60"></div>
               </div>
-              <h3 className="font-serif text-4xl md:text-5xl text-white">Upcoming Campus Events</h3>
+              <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white break-words">Upcoming Campus Events</h3>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {upcomingEvents.map((ev) => (
-                <div key={ev.title} className="bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-[2rem] p-10 group hover:bg-[#1b4d32]/20 hover:border-[#d4af37]/50 hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between h-full">
+                <div key={ev.title} className="bg-white/[0.02] backdrop-blur-sm border border-white/10 rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 group hover:bg-[#1b4d32]/20 hover:border-[#d4af37]/50 hover:-translate-y-2 transition-all duration-500 relative overflow-hidden flex flex-col justify-between h-full">
                   <div className="absolute top-0 right-0 w-40 h-40 bg-[#d4af37] rounded-full blur-[70px] opacity-[0.03] group-hover:opacity-[0.15] transition-opacity duration-700 pointer-events-none"></div>
                   
                   <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                      <div className="w-12 h-12 rounded-full border border-[#d4af37]/30 flex items-center justify-center bg-[#05140b]">
-                        <Calendar className="h-5 w-5 text-[#d4af37]" />
+                    <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-[#d4af37]/30 flex items-center justify-center bg-[#05140b] shrink-0">
+                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-[#d4af37]" />
                       </div>
-                      <div className="text-[11px] uppercase tracking-widest text-[#d4af37] font-bold">{ev.date}</div>
+                      <div className="text-[10px] sm:text-[11px] uppercase tracking-widest text-[#d4af37] font-bold">{ev.date}</div>
                     </div>
                     
-                    <h4 className="font-serif text-2xl text-white mb-4 leading-snug">{ev.title}</h4>
-                    <p className="text-white/60 font-light leading-relaxed text-[15px]">{ev.desc}</p>
+                    <h4 className="font-serif text-xl sm:text-2xl text-white mb-3 sm:mb-4 leading-snug">{ev.title}</h4>
+                    <p className="text-white/60 font-light leading-relaxed text-sm sm:text-[15px]">{ev.desc}</p>
                   </div>
                 </div>
               ))}
@@ -295,16 +333,16 @@ function GalleryIndexPage() {
 
           {/* Latest Events */}
           <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.2 }}>
-            <div className="mb-16 flex flex-col items-center text-center">
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-12 h-[1px] bg-white/40"></div>
-                <span className="text-white/60 uppercase tracking-[0.2em] text-[11px] font-bold">Past</span>
-                <div className="w-12 h-[1px] bg-white/40"></div>
+            <div className="mb-10 sm:mb-16 flex flex-col items-center text-center">
+              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-5">
+                <div className="w-8 sm:w-12 h-[1px] bg-white/40"></div>
+                <span className="text-white/60 uppercase tracking-[0.2em] text-[10px] sm:text-[11px] font-bold">Past</span>
+                <div className="w-8 sm:w-12 h-[1px] bg-white/40"></div>
               </div>
-              <h3 className="font-serif text-4xl md:text-5xl text-white/90">Latest Highlights</h3>
+              <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white/90 break-words">Latest Highlights</h3>
             </div>
             
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
               {latestEvents.map((ev) => {
                 const dateParts = ev.date.split(' ');
                 const month = dateParts[0];
@@ -312,18 +350,18 @@ function GalleryIndexPage() {
                 const year = dateParts[2];
 
                 return (
-                  <div key={ev.title} className="bg-transparent border border-white/10 rounded-[2.5rem] p-8 md:p-10 group hover:bg-white/[0.02] hover:border-white/20 transition-all duration-500 flex flex-col sm:flex-row gap-8 items-start relative overflow-hidden">
+                  <div key={ev.title} className="bg-transparent border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 group hover:bg-white/[0.02] hover:border-white/20 transition-all duration-500 flex flex-col sm:flex-row gap-6 sm:gap-8 items-start relative overflow-hidden">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-[60px] opacity-[0.01] group-hover:opacity-[0.05] transition-opacity duration-700 pointer-events-none"></div>
                      
-                     <div className="shrink-0 text-center bg-[#05140b] border border-white/10 rounded-[1.5rem] p-5 min-w-[110px] group-hover:border-white/30 transition-colors shadow-inner">
-                       <div className="text-white font-serif text-3xl mb-1">{day}</div>
-                       <div className="text-[10px] uppercase tracking-[0.25em] text-white/50 font-bold">{month}</div>
-                       <div className="text-[10px] uppercase tracking-[0.25em] text-white/50 font-bold mt-1">{year}</div>
+                     <div className="shrink-0 text-center bg-[#05140b] border border-white/10 rounded-xl sm:rounded-[1.5rem] p-4 sm:p-5 min-w-[90px] sm:min-w-[110px] group-hover:border-white/30 transition-colors shadow-inner">
+                       <div className="text-white font-serif text-2xl sm:text-3xl mb-1">{day}</div>
+                       <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-white/50 font-bold">{month}</div>
+                       <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-white/50 font-bold mt-1">{year}</div>
                      </div>
                      
-                     <div className="relative z-10 pt-2">
-                       <h4 className="font-serif text-2xl text-white/90 mb-3 leading-snug">{ev.title}</h4>
-                       <p className="text-white/50 font-light leading-relaxed text-[15px]">{ev.desc}</p>
+                     <div className="relative z-10 pt-1 sm:pt-2">
+                       <h4 className="font-serif text-xl sm:text-2xl text-white/90 mb-2 sm:mb-3 leading-snug">{ev.title}</h4>
+                       <p className="text-white/50 font-light leading-relaxed text-sm sm:text-[15px]">{ev.desc}</p>
                      </div>
                   </div>
                 );
@@ -339,20 +377,20 @@ function GalleryIndexPage() {
         {lightboxIndex !== null && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[100] flex flex-col justify-between bg-[#030906]/95 backdrop-blur-xl p-4 sm:p-8"
+            className="fixed inset-0 z-[100] flex flex-col justify-between bg-[#030906]/95 backdrop-blur-xl p-3 sm:p-8"
             onClick={() => setLightboxIndex(null)}
           >
             {/* Top Bar */}
             <div className="flex justify-between items-center w-full relative z-10">
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-[1px] bg-[#d4af37]"></div>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-6 sm:w-8 h-[1px] bg-[#d4af37]"></div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d4af37]">
                   {lightboxIndex + 1} / {filteredImages.length}
                 </span>
               </div>
               <button
                 onClick={() => setLightboxIndex(null)}
-                className="group h-12 w-12 rounded-full border border-white/20 bg-white/5 hover:bg-[#d4af37] flex items-center justify-center transition-all duration-300"
+                className="group h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-white/20 bg-white/5 hover:bg-[#d4af37] flex items-center justify-center transition-all duration-300"
               >
                 <X className="h-5 w-5 text-white group-hover:text-[#0a2b18]" />
               </button>
@@ -362,13 +400,13 @@ function GalleryIndexPage() {
             <div className="flex-1 flex items-center justify-between w-full relative">
               <button
                 onClick={handlePrev}
-                className="group h-14 w-14 rounded-full border border-white/20 bg-white/5 hover:bg-[#d4af37] flex items-center justify-center transition-all duration-300 shrink-0 mx-2 sm:mx-8 z-10"
+                className="group h-10 w-10 sm:h-14 sm:w-14 rounded-full border border-white/20 bg-white/5 hover:bg-[#d4af37] flex items-center justify-center transition-all duration-300 shrink-0 mx-1 sm:mx-8 z-10"
               >
-                <ChevronLeft className="h-6 w-6 text-white group-hover:text-[#0a2b18] group-hover:-translate-x-0.5 transition-transform" />
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:text-[#0a2b18] group-hover:-translate-x-0.5 transition-transform" />
               </button>
 
               <div 
-                className="w-full h-full flex items-center justify-center p-4 relative"
+                className="w-full h-full flex items-center justify-center p-2 sm:p-4 relative"
                 onClick={(e) => e.stopPropagation()}
               >
                 <motion.img
@@ -376,28 +414,28 @@ function GalleryIndexPage() {
                   initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
                   src={filteredImages[lightboxIndex].src}
                   alt={filteredImages[lightboxIndex].title}
-                  className="max-w-full max-h-[75vh] object-contain rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/10"
+                  className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-xl sm:rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/10"
                 />
               </div>
 
               <button
                 onClick={handleNext}
-                className="group h-14 w-14 rounded-full border border-white/20 bg-white/5 hover:bg-[#d4af37] flex items-center justify-center transition-all duration-300 shrink-0 mx-2 sm:mx-8 z-10"
+                className="group h-10 w-10 sm:h-14 sm:w-14 rounded-full border border-white/20 bg-white/5 hover:bg-[#d4af37] flex items-center justify-center transition-all duration-300 shrink-0 mx-1 sm:mx-8 z-10"
               >
-                <ChevronRight className="h-6 w-6 text-white group-hover:text-[#0a2b18] group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:text-[#0a2b18] group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
 
             {/* Bottom Caption */}
-            <div className="w-full text-center pb-4 relative z-10" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full text-center pb-2 sm:pb-4 relative z-10" onClick={(e) => e.stopPropagation()}>
               <motion.div key={`caption-${lightboxIndex}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-                <div className="text-[10px] uppercase tracking-[0.25em] text-[#d4af37] font-bold mb-3">
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-[#d4af37] font-bold mb-1 sm:mb-3">
                   {filteredImages[lightboxIndex].category}
                 </div>
-                <h4 className="font-serif text-3xl font-medium mb-3 text-white drop-shadow-lg">
+                <h4 className="font-serif text-xl sm:text-2xl md:text-3xl font-medium mb-1 sm:mb-3 text-white drop-shadow-lg">
                   {filteredImages[lightboxIndex].title}
                 </h4>
-                <p className="text-sm text-white/60 font-light leading-relaxed max-w-2xl mx-auto">
+                <p className="text-xs sm:text-sm text-white/60 font-light leading-relaxed max-w-2xl mx-auto px-4">
                   {filteredImages[lightboxIndex].desc}
                 </p>
               </motion.div>

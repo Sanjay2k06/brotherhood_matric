@@ -9,6 +9,7 @@ const sections = {
     { to: "/about/about-school", label: "About School" },
     { to: "/about/vision-mission", label: "Vision & Mission" },
     { to: "/about/principal-message", label: "Principal's Message" },
+    { to: "/about/correspondent-message", label: "Correspondent's Message" },
     { to: "/about/infrastructure", label: "Infrastructure" },
   ],
   academics: [
@@ -18,8 +19,8 @@ const sections = {
     { to: "/academics/school-fees", label: "School Fees" },
     { to: "/academics/school-timings", label: "School Timings" },
     { to: "/academics/management-committee", label: "Managing Committee" },
-    { to: "/academics/founder-message", label: "Founder's Message" },
-    { to: "/academics/father-cruze-profile", label: "Father Anton Cruze" },
+    { to: "/academics/founder-message", label: "Chairman's Message" },
+    { to: "/academics/father-cruze-profile", label: "Father Anton Cruz" },
   ],
   students: [
     { to: "/students/school-uniform", label: "School Uniform" },

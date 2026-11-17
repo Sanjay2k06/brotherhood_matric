@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { Leaf, Globe, Sprout } from "lucide-react";
 import { motion } from "motion/react";
-import ecoImg from "../../images/ecoclub.png";
+import ecoImg from "../../images/ecoclub.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },

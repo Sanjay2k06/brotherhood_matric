@@ -70,8 +70,12 @@ function BestStudentPage() {
   const [loading, setLoading] = useState(true);
 
   const defaultAwardees = [
-    { title: "Student of the Month", name: "Miss Divya S.", grade: "Class X", reason: "Outstanding academic progress and volunteering in Eco Club drives." },
-    { title: "Student of the Month", name: "Master Nitin R.", grade: "Class XII", reason: "Exemplary school discipline and leading the Road Safety Patrol squad." },
+    { title: "Best Student of the Month", name: "Master R. Sai Ganesh", grade: "Class XI-A", reason: "Outstanding programming project in Computer Science and leadership in STEM club." },
+    { title: "Best Student of the Month", name: "Miss S. Kavitha", grade: "Class XI-B", reason: "Excellent leadership in Commerce club activities and consistent academic support to peers." },
+    { title: "Best Student of the Month", name: "Master M. Vignesh", grade: "Class XI-C", reason: "Academic consistency and top scores in chemistry laboratory worksheets." },
+    { title: "Best Student of the Month", name: "Miss P. Harini", grade: "Class XII-A", reason: "Exemplary discipline, high attendance, and centum score in mathematics mock examinations." },
+    { title: "Best Student of the Month", name: "Master V. Rajesh", grade: "Class XII-B", reason: "Outstanding public speaking in the debate tournament and active commerce club volunteer." },
+    { title: "Best Student of the Month", name: "Miss K. Sneha", grade: "Class XII-C", reason: "Consistent academic performance of 95%+ marks and dedicated library club student helper." },
   ];
 
   useEffect(() => {

@@ -29,22 +29,27 @@ function AcademicsAdmissionPage() {
     {
       num: "01",
       title: "Registration",
-      desc: "Fill out the online Enquiry Form or register via the Admissions Portal to initiate your interest.",
+      desc: "Obtain and submit the registration form at the school office.",
     },
     {
       num: "02",
-      title: "Interaction",
-      desc: "An informal interactive session with parents and candidate to understand learning background and values.",
+      title: "Interaction / Entrance Test",
+      desc: "An informal interaction for Kindergarten/Primary, or entrance test for higher levels to assess readiness.",
     },
     {
       num: "03",
-      title: "Verification",
-      desc: "Submission and verification of Birth Certificate, Transfer Certificate, and previous academic transcripts.",
+      title: "Document Verification",
+      desc: "Verification of necessary certificates, academic records, and personal documents.",
     },
     {
       num: "04",
-      title: "Enrollment",
-      desc: "Confirmation of admission and payment of standard term fees to secure enrollment.",
+      title: "Provisional Admission",
+      desc: "Issuance of admission offer letter upon meeting the eligibility criteria.",
+    },
+    {
+      num: "05",
+      title: "Fee Payment & Enrollment",
+      desc: "Completing admission formalities by paying fees and submitting final enrollment details.",
     },
   ];
 
@@ -145,7 +150,7 @@ function AcademicsAdmissionPage() {
             <h2 className="font-serif text-4xl md:text-5xl text-[#0a2b18]">Enrollment Process</h2>
           </motion.div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
             {steps.map((step, idx) => (
               <motion.div
                 key={step.num}

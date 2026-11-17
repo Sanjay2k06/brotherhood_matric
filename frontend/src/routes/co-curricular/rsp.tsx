@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { ShieldCheck, Users, Clock, Shield } from "lucide-react";
 import { motion } from "motion/react";
-import aboutImage3 from "../../images/aboutimage3.png";
+import aboutImage3 from "../../images/aboutimage3.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },

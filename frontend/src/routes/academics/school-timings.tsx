@@ -21,21 +21,12 @@ export const Route = createFileRoute("/academics/school-timings")({
 
 function SchoolTimingsPage() {
   const timings = [
-    { label: "I Bell", time: "8:40 AM", type: "bell" },
-    { label: "II Bell", time: "8:50 AM", type: "bell" },
-    { label: "Assembly", time: "8:50 AM – 9:00 AM", type: "event" },
-    { label: "1st Period", time: "9:00 AM – 9:40 AM", type: "class" },
-    { label: "2nd Period", time: "9:40 AM – 10:20 AM", type: "class" },
-    { label: "Break", time: "10:20 AM – 10:30 AM", type: "break" },
-    { label: "3rd Period", time: "10:30 AM – 11:10 AM", type: "class" },
-    { label: "4th Period", time: "11:10 AM – 11:50 AM", type: "class" },
-    { label: "5th Period", time: "11:50 AM – 12:30 PM", type: "class" },
-    { label: "Lunch Break", time: "12:30 PM – 1:00 PM", type: "break" },
-    { label: "6th Period", time: "1:00 PM – 1:40 PM", type: "class" },
-    { label: "7th Period", time: "1:40 PM – 2:20 PM", type: "class" },
-    { label: "8th Period", time: "2:30 PM – 3:00 PM", type: "class" },
-    { label: "9th Period", time: "3:00 PM – 3:40 PM", type: "class" },
-    { label: "Special Classes", time: "After 3:40 PM", type: "event" },
+    { label: "Pre-KG Schedule", time: "08:45 AM – 12:00 PM", type: "event" },
+    { label: "LKG Schedule", time: "08:45 AM – 12:30 PM", type: "event" },
+    { label: "UKG Schedule", time: "08:45 AM – 03:00 PM", type: "event" },
+    { label: "Classes I – V (Primary)", time: "08:45 AM – 03:30 PM", type: "class" },
+    { label: "Classes VI – IX (Secondary)", time: "08:45 AM – 03:40 PM", type: "class" },
+    { label: "Classes X – XII (Board Coaching)", time: "03:40 PM – 04:30 PM", type: "class" }
   ];
 
   const handleDownload = () => {

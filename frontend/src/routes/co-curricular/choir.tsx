@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { Music, Star, Quote } from "lucide-react";
 import { motion } from "motion/react";
-import choirImg from "../../images/choir.png";
+import choirImg from "../../images/choir.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },

@@ -34,29 +34,89 @@ const getHouseColors = (colorStr: string) => {
 
 function HousesPage() {
   const [houseData, setHouseData] = useState<any[]>([]);
+  const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const defaultHouses = [
-    { name: "Red House", motto: "Charity", color_code: "bg-red-500", description: "Instilling deep compassion, volunteer service, and caring attitudes." },
-    { name: "Blue House", motto: "Faith", color_code: "bg-blue-500", description: "Focusing on trust, resilience, dedication, and integrity in challenges." },
-    { name: "Green House", motto: "Hope", color_code: "bg-emerald-500", description: "Inspiring environmental care, growth, positive attitudes, and optimism." },
-    { name: "Gold House", motto: "Wisdom", color_code: "bg-amber-500", description: "Prioritizing scholastic research, sound judgment, and lifelong study." },
+    // Primary Wing Houses
+    { name: "Galileo House", motto: "Knowledge and Exploration", color_code: "bg-blue-600", points: 350, description: "Primary Wing Galileo house - inspiring research and logic." },
+    { name: "Zion House", motto: "Strength and Faith", color_code: "bg-amber-500", points: 390, description: "Primary Wing Zion house - focus on moral character." },
+    { name: "Judah House", motto: "Courage and Praise", color_code: "bg-red-500", points: 360, description: "Primary Wing Judah house - encouraging endurance and sportsmanship." },
+    { name: "Bethel House", motto: "House of Peace", color_code: "bg-emerald-500", points: 380, description: "Primary Wing Bethel house - focus on ecological harmony." },
+    
+    // Senior Wing Houses
+    { name: "St. Matthew House", motto: "Grace and Wisdom", color_code: "bg-blue-600", points: 410, description: "Senior Wing St. Matthew house - encouraging mathematical logic." },
+    { name: "St. Mark House", motto: "Courage and Action", color_code: "bg-red-500", points: 385, description: "Senior Wing St. Mark house - focused on athletics and sports." },
+    { name: "St. Luke House", motto: "Healing and Service", color_code: "bg-emerald-500", points: 430, description: "Senior Wing St. Luke house - focus on biology and charity." },
+    { name: "St. John House", motto: "Love and Truth", color_code: "bg-amber-500", points: 405, description: "Senior Wing St. John house - prioritizing literacy and speech." }
+  ];
+
+  const defaultCouncil = [
+    // Primary Student Council
+    { role: "Galileo House Captain (Primary)", name: "Pratheesh B.", grade: "Std V" },
+    { role: "Galileo House Vice Captain (Primary)", name: "Nivedha N.", grade: "Std IV" },
+    { role: "Zion House Captain (Primary)", name: "Jeshwanth S.", grade: "Std V" },
+    { role: "Zion House Vice Captain (Primary)", name: "Jackin Nibola J.", grade: "Std IV" },
+    { role: "Judah House Captain (Primary)", name: "Praveen Sai B.", grade: "Std V" },
+    { role: "Judah House Vice Captain (Primary)", name: "Sree Dharshini I.", grade: "Std IV" },
+    { role: "Bethel House Captain (Primary)", name: "Jayapreetha M.D.", grade: "Std V" },
+    { role: "Bethel House Vice Captain (Primary)", name: "Deepa Sree R.", grade: "Std IV" },
+
+    // Senior House Leaders
+    { role: "St. Matthew House Captain", name: "G. Ajith Kumar", grade: "XII" },
+    { role: "St. Matthew House Vice Captain", name: "D. Sairathi", grade: "XI" },
+    { role: "St. Mark House Captain", name: "R. Sree Hari", grade: "XII" },
+    { role: "St. Mark House Vice Captain", name: "P. Akshaya", grade: "XI" },
+    { role: "St. Luke House Captain", name: "B. Jaya Prakash", grade: "XII" },
+    { role: "St. Luke House Vice Captain", name: "B. Priya Dharshini", grade: "XI" },
+    { role: "St. John House Captain", name: "G. Nithish Kumar", grade: "XII" },
+    { role: "St. John House Vice Captain", name: "K. Soniya", grade: "XI" },
   ];
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/student-houses/")
-      .then((res) => res.json())
-      .then((data) => {
-        const list = Array.isArray(data) ? data : (data.results || []);
-        setHouseData(list.length > 0 ? list : defaultHouses);
+    Promise.all([
+      fetch("http://127.0.0.1:8000/api/student-houses/").then((res) => res.json()),
+      fetch("http://127.0.0.1:8000/api/student-leaders/").then((res) => res.json())
+    ])
+      .then(([housesData, leadersData]) => {
+        const hList = Array.isArray(housesData) ? housesData : (housesData.results || []);
+        const lList = Array.isArray(leadersData) ? leadersData : (leadersData.results || []);
+        setHouseData(hList.length > 0 ? hList : defaultHouses);
+        setLeaders(lList.length > 0 ? lList : defaultCouncil);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching houses:", err);
+        console.error("Error fetching houses details:", err);
         setHouseData(defaultHouses);
+        setLeaders(defaultCouncil);
         setLoading(false);
       });
   }, []);
+
+  const getHouseLeaders = (houseName: string) => {
+    const prefix = houseName.replace(" House", "").trim();
+    const captain = leaders.find((l) => 
+      l.role.toLowerCase().includes(prefix.toLowerCase()) && 
+      l.role.toLowerCase().includes("captain") && 
+      !l.role.toLowerCase().includes("vice")
+    );
+    const viceCaptain = leaders.find((l) => 
+      l.role.toLowerCase().includes(prefix.toLowerCase()) && 
+      l.role.toLowerCase().includes("vice captain")
+    );
+    return {
+      captain: captain ? `${captain.name} (${captain.grade})` : "To be elected",
+      viceCaptain: viceCaptain ? `${viceCaptain.name} (${viceCaptain.grade})` : "To be elected"
+    };
+  };
+
+  const primaryHouses = houseData.filter(h => 
+    h.name.includes("Galileo") || h.name.includes("Zion") || h.name.includes("Judah") || h.name.includes("Bethel")
+  );
+  
+  const seniorHouses = houseData.filter(h => 
+    h.name.includes("St. Matthew") || h.name.includes("St. Mark") || h.name.includes("St. Luke") || h.name.includes("St. John")
+  );
 
   return (
     <div className="bg-[#fdfdfc] text-[#2d3748] font-sans selection:bg-[#0a2b18] selection:text-white">
@@ -90,48 +150,123 @@ function HousesPage() {
               <div className="w-10 h-10 border-2 border-[#e2e8f0] border-t-[#d4af37] rounded-full animate-spin mx-auto"></div>
               <p className="text-xs text-[#718096] mt-4 uppercase tracking-widest font-semibold font-sans">Loading Houses...</p>
             </div>
-          ) : houseData.length > 0 ? (
-            <motion.div 
-              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
-              className="grid gap-8 md:grid-cols-2 lg:grid-cols-4"
-            >
-              {houseData.map((house) => {
-                const colors = getHouseColors(house.color_code || 'bg-slate-400');
-                
-                return (
-                  <motion.div 
-                    key={house.name} 
-                    variants={fadeUp} 
-                    className="relative group p-10 lg:p-12 rounded-[2.5rem] bg-white border border-[#f1f6f3] shadow-[0_15px_40px_-15px_rgba(10,43,24,0.04)] hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col items-center text-center"
-                  >
-                    {/* Top colored edge */}
-                    <div className={`absolute top-0 left-0 w-full h-2 ${colors.bgGlow} opacity-80`}></div>
-                    
-                    {/* Background Letter Watermark */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[180px] font-serif opacity-[0.02] pointer-events-none select-none group-hover:scale-110 transition-transform duration-700">
-                      {house.name.charAt(0)}
-                    </div>
-
-                    <div className="relative z-10">
-                      <div className={`w-20 h-20 mx-auto rounded-full ${colors.lightBg} border ${colors.border} border-opacity-30 flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform duration-700`}>
-                        <Shield className={`h-8 w-8 ${colors.text} opacity-90`} strokeWidth={1.5} />
-                        <div className={`absolute inset-0 rounded-full ${colors.bgGlow} blur-[20px] opacity-0 group-hover:opacity-20 transition-opacity duration-700`}></div>
-                      </div>
-
-                      <h3 className="font-serif text-2xl text-[#0a2b18] mb-3">{house.name}</h3>
-                      <p className={`uppercase tracking-[0.2em] text-[10px] font-bold mb-6 ${colors.text}`}>Motto: {house.motto}</p>
-                      
-                      <div className="w-8 h-[1px] bg-[#f1f6f3] mx-auto mb-6 group-hover:w-16 transition-all duration-700"></div>
-                      
-                      <p className="text-[#718096] font-light leading-relaxed text-[15px]">{house.description}</p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
           ) : (
-            <div className="text-center py-16 bg-white/50 border border-dashed border-[#e2e8f0] rounded-[2.5rem]">
-              <p className="text-[#718096] font-light">No school houses registered yet.</p>
+            <div className="space-y-20">
+              {/* Primary Wing */}
+              {primaryHouses.length > 0 && (
+                <div className="space-y-10">
+                  <div className="border-b border-[#e2e8f0] pb-4">
+                    <h3 className="font-serif text-3xl text-[#0a2b18] flex items-center gap-3">
+                      Primary Wing <span className="text-xs font-sans uppercase font-bold tracking-wider text-[#d4af37] bg-[#05140b] px-3 py-1 rounded-full">Classes I – V</span>
+                    </h3>
+                  </div>
+                  <motion.div 
+                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
+                    className="grid gap-8 md:grid-cols-2 lg:grid-cols-4"
+                  >
+                    {primaryHouses.map((house) => {
+                      const colors = getHouseColors(house.color_code || 'bg-slate-400');
+                      const { captain, viceCaptain } = getHouseLeaders(house.name);
+                      
+                      return (
+                        <motion.div 
+                          key={house.name} 
+                          variants={fadeUp} 
+                          className="relative group p-10 lg:p-12 rounded-[2.5rem] bg-white border border-[#f1f6f3] shadow-[0_15px_40px_-15px_rgba(10,43,24,0.04)] hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col items-center text-center"
+                        >
+                          <div className={`absolute top-0 left-0 w-full h-2 ${colors.bgGlow} opacity-80`}></div>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[180px] font-serif opacity-[0.02] pointer-events-none select-none group-hover:scale-110 transition-transform duration-700">
+                            {house.name.charAt(0)}
+                          </div>
+                          
+                          <div className="relative z-10 w-full flex flex-col items-center h-full justify-between">
+                            <div className="w-full">
+                              <div className={`w-20 h-20 mx-auto rounded-full ${colors.lightBg} border ${colors.border} border-opacity-30 flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform duration-700`}>
+                                <Shield className={`h-8 w-8 ${colors.text} opacity-90`} strokeWidth={1.5} />
+                                <div className={`absolute inset-0 rounded-full ${colors.bgGlow} blur-[20px] opacity-0 group-hover:opacity-20 transition-opacity duration-700`}></div>
+                              </div>
+
+                              <h3 className="font-serif text-2xl text-[#0a2b18] mb-1">{house.name}</h3>
+                              <p className={`uppercase tracking-[0.2em] text-[10px] font-bold mb-4 ${colors.text}`}>Motto: {house.motto}</p>
+                              
+                              <p className="text-[#718096] font-light leading-relaxed text-[14px] mb-6">{house.description}</p>
+                            </div>
+                            
+                            <div className="w-full pt-4 border-t border-border/60 text-left text-xs space-y-2 bg-[#fcfdfc] p-4 rounded-2xl border mt-auto">
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-[#0a2b18]">House Captain:</span>
+                                <span className="text-[#718096] font-medium">{captain}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-[#0a2b18]">Vice Captain:</span>
+                                <span className="text-[#718096] font-medium">{viceCaptain}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                </div>
+              )}
+
+              {/* Senior Wing */}
+              {seniorHouses.length > 0 && (
+                <div className="space-y-10">
+                  <div className="border-b border-[#e2e8f0] pb-4">
+                    <h3 className="font-serif text-3xl text-[#0a2b18] flex items-center gap-3">
+                      Senior Wing <span className="text-xs font-sans uppercase font-bold tracking-wider text-[#d4af37] bg-[#05140b] px-3 py-1 rounded-full">Classes VI – XII</span>
+                    </h3>
+                  </div>
+                  <motion.div 
+                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
+                    className="grid gap-8 md:grid-cols-2 lg:grid-cols-4"
+                  >
+                    {seniorHouses.map((house) => {
+                      const colors = getHouseColors(house.color_code || 'bg-slate-400');
+                      const { captain, viceCaptain } = getHouseLeaders(house.name);
+                      
+                      return (
+                        <motion.div 
+                          key={house.name} 
+                          variants={fadeUp} 
+                          className="relative group p-10 lg:p-12 rounded-[2.5rem] bg-white border border-[#f1f6f3] shadow-[0_15px_40px_-15px_rgba(10,43,24,0.04)] hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col items-center text-center"
+                        >
+                          <div className={`absolute top-0 left-0 w-full h-2 ${colors.bgGlow} opacity-80`}></div>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[180px] font-serif opacity-[0.02] pointer-events-none select-none group-hover:scale-110 transition-transform duration-700">
+                            {house.name.charAt(0)}
+                          </div>
+                          
+                          <div className="relative z-10 w-full flex flex-col items-center h-full justify-between">
+                            <div className="w-full">
+                              <div className={`w-20 h-20 mx-auto rounded-full ${colors.lightBg} border ${colors.border} border-opacity-30 flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform duration-700`}>
+                                <Shield className={`h-8 w-8 ${colors.text} opacity-90`} strokeWidth={1.5} />
+                                <div className={`absolute inset-0 rounded-full ${colors.bgGlow} blur-[20px] opacity-0 group-hover:opacity-20 transition-opacity duration-700`}></div>
+                              </div>
+
+                              <h3 className="font-serif text-2xl text-[#0a2b18] mb-1">{house.name}</h3>
+                              <p className={`uppercase tracking-[0.2em] text-[10px] font-bold mb-4 ${colors.text}`}>Motto: {house.motto}</p>
+                              
+                              <p className="text-[#718096] font-light leading-relaxed text-[14px] mb-6">{house.description}</p>
+                            </div>
+                            
+                            <div className="w-full pt-4 border-t border-border/60 text-left text-xs space-y-2 bg-[#fcfdfc] p-4 rounded-2xl border mt-auto">
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-[#0a2b18]">House Captain:</span>
+                                <span className="text-[#718096] font-medium">{captain}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-[#0a2b18]">Vice Captain:</span>
+                                <span className="text-[#718096] font-medium">{viceCaptain}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                </div>
+              )}
             </div>
           )}
         </div>

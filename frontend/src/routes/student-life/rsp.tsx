@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { ShieldAlert, Compass, Users, Heart } from "lucide-react";
-import aboutImage3 from "../../images/aboutimage3.png";
+import aboutImage3 from "../../images/aboutimage3.jpg";
 
 export const Route = createFileRoute("/student-life/rsp")({
   head: () => ({

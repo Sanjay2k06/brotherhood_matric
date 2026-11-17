@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { Trophy, Shield, Star, Calendar } from "lucide-react";
 import { motion } from "motion/react";
-import sportsImg from "../../images/sports.png";
+import sportsImg from "../../images/sports.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },

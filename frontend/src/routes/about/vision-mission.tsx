@@ -26,11 +26,16 @@ export const Route = createFileRoute("/about/vision-mission")({
 
 function VisionMissionPage() {
   const values = [
-    { title: "Integrity", desc: "Honesty and strong moral principles in actions and academic pursuits." },
-    { title: "Discipline", desc: "Orderly conduct, consistency, and respect for school policies and community guidelines." },
-    { title: "Excellence", desc: "Striving for the highest standards in academics, co-curriculars, and character." },
-    { title: "Compassion", desc: "Caring for the less fortunate and relating to one another with sympathy and respect." },
-    { title: "Respect", desc: "Recognizing the profound value and dignity inherent in every individual." },
+    { title: "Academic Excellence", desc: "Striving for the highest scholastic standards and intellectual depth." },
+    { title: "Integrity", desc: "Fostering honesty, ethical behavior, and strong moral principles in all actions." },
+    { title: "Respect", desc: "Valuing the unique worth, dignity, and perspectives of every individual." },
+    { title: "Discipline", desc: "Cultivating self-control, orderliness, and consistent focus in learning." },
+    { title: "Innovation", desc: "Encouraging creative thinking, technological exploration, and problem-solving." },
+    { title: "Leadership", desc: "Empowering students to take initiative, guide others, and serve responsibly." },
+    { title: "Compassion", desc: "Developing empathy, kindness, and active service towards others." },
+    { title: "Responsibility", desc: "Being accountable for one's actions, learning, and duties to society." },
+    { title: "Teamwork", desc: "Fostering collaboration, mutual support, and cooperative efforts in activities." },
+    { title: "Lifelong Learning", desc: "Instilling a continuous curiosity and love for learning throughout life." }
   ];
 
   return (
@@ -80,10 +85,7 @@ function VisionMissionPage() {
                 
                 <div className="space-y-6 text-lg font-light text-[#6c8274] leading-relaxed border-l-2 border-[#1b4d32]/30 pl-6 md:pl-10 ml-2 md:ml-4">
                   <p>
-                    To offer comprehensive education that balances academic excellence, innovative technological understanding, and personal growth.
-                  </p>
-                  <p>
-                    By aligning our methodologies with the preventative pedagogical principles of Don Bosco, we foster standard-setting discipline and character, preparing students to confidently navigate and serve the global community.
+                    Our mission is to nurture every child academically, morally, socially, spiritually, and emotionally by providing a safe, disciplined, and inspiring learning environment that empowers students to become confident leaders, responsible citizens, and lifelong learners.
                   </p>
                 </div>
               </motion.div>

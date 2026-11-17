@@ -27,24 +27,29 @@ export const Route = createFileRoute("/academics/curriculum")({
 function CurriculumPage() {
   const sectionsList = [
     {
-      title: "Foundational",
-      subtitle: "Pre-KG to UKG",
-      desc: "Focus on fine motor skills, language development, basic numeracy, sensory play, and social interaction through activities inspired by standard early childhood methodologies.",
+      title: "Kindergarten",
+      subtitle: "Pre-KG, LKG & UKG",
+      desc: "Activity-Based Learning, Phonics & Language Development, Basic Numeracy, Creative Play, Storytelling, Rhymes, Art & Craft, Motor Skill Development, Social Interaction.",
     },
     {
-      title: "Primary",
+      title: "Primary School",
       subtitle: "Classes I to V",
-      desc: "Comprehensive study of Mathematics, English language and grammar, Tamil/Hindi languages, Environmental Studies, Computer Science, Drawing, Value Education, and physical training.",
+      desc: "English, Tamil, Mathematics, Environmental Science, General Knowledge, Computer Education, Art & Craft, Music, Physical Education, Moral Instruction.",
     },
     {
-      title: "Secondary",
-      subtitle: "Classes VI to X",
-      desc: "Deeper academic study focused on advanced Maths, Physics, Chemistry, Biology, Social Sciences (History & Geography), English Prose & Grammar, Languages (Tamil/Hindi), and Coding basics.",
+      title: "Middle School",
+      subtitle: "Classes VI to VIII",
+      desc: "English, Tamil, Mathematics, Science, Social Science, Computer Science, Robotics, English Communication, Physical Education, Value Education.",
+    },
+    {
+      title: "High School",
+      subtitle: "Classes IX to X",
+      desc: "Tamil, English, Mathematics, Science, Social Science, Computer Science, Practical Laboratory Sessions, Smart Classroom Learning, Career Guidance.",
     },
     {
       title: "Higher Secondary",
       subtitle: "Classes XI & XII",
-      desc: "Specialized streams targeting competitive board and university entry levels. We offer double-track groups in Science and Commerce streams.",
+      desc: "Academic streams offered based on Tamil Nadu State Board curriculum with experienced faculty, practical laboratory sessions, career guidance, board examination preparation, and higher education counseling. Subjects include: Mathematics, Physics, Chemistry, Biology, Computer Science, Commerce, Accountancy, Economics, History, Languages.",
     }
   ];
 
@@ -84,6 +89,7 @@ function CurriculumPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-center">
             
+            {/* Intro Section */}
             <motion.div 
               initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
               className="lg:col-span-7 space-y-10"
@@ -100,10 +106,10 @@ function CurriculumPage() {
 
               <motion.div variants={fadeUp} className="space-y-8 text-lg font-light text-[#6c8274] leading-relaxed border-l-2 border-[#1b4d32]/20 pl-6 md:pl-10">
                 <p>
-                  <span className="text-4xl font-serif text-[#0a2b18] float-left mr-3 mt-1 leading-none italic">B</span>rotherhood Matriculation Higher Secondary School is recognized by the Government of Tamil Nadu and follows the Matriculation School curriculum for lower levels, culminating in the Tamil Nadu State Board Syllabus for classes X, XI, and XII.
+                  <span className="text-4xl font-serif text-[#0a2b18] float-left mr-3 mt-1 leading-none italic">B</span>rotherhood Matriculation Higher Secondary School follows the Tamil Nadu State Board Curriculum while providing a balanced educational experience that combines academic excellence, value-based education, practical learning, technology integration, and co-curricular activities.
                 </p>
                 <p>
-                  We implement a student-centric learning model where teacher instruction is paired with hands-on lab experiments, interactive smart-class modules, and remedial sessions. Equal emphasis is placed on formative quizzes, term exams, and project submissions to measure conceptual clarity.
+                  The curriculum is designed to nurture intellectual, emotional, social, physical, and moral development, ensuring students become confident, responsible, and lifelong learners.
                 </p>
               </motion.div>
             </motion.div>

@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import image2 from "../../images/aboutimage2.jpg";
-import image3 from "../../images/aboutimage3.png";
+import image3 from "../../images/aboutimage3.jpg";
 import image4 from "../../images/aboutimage4.jpeg";
-import { Laptop, BookOpen, Compass, Trophy, Microscope, MessageSquare } from "lucide-react";
+import { Laptop, BookOpen, Compass, Trophy, Microscope, MessageSquare, Tv, Beaker, Bus } from "lucide-react";
 import { motion } from "motion/react";
 
 const fadeUp = {
@@ -24,34 +24,49 @@ export const Route = createFileRoute("/about/infrastructure")({
 function InfrastructurePage() {
   const infraItems = [
     {
-      name: "Smart Classrooms",
-      desc: "Our classrooms are fully digitised with high-quality interactive projectors and audio systems, creating immersive lessons and catering to auditory and visual learners.",
+      name: "Computer Lab",
+      desc: "Brotherhood Matriculation Higher Secondary School provides dedicated computer laboratories equipped with modern computer systems to develop digital literacy, typing skills, programming knowledge, internet awareness, and practical computer education.",
       icon: Laptop,
     },
     {
-      name: "Language Lab",
-      desc: "An audio-visual setup dedicated to honing pronunciation, public speaking, and fluency in English and other regional languages through specialized software.",
-      icon: MessageSquare,
+      name: "Science Laboratories",
+      desc: "Well-equipped Physics, Chemistry, and Biology laboratories provide students with practical scientific learning through experiments, demonstrations, observations, and research-based activities aligned with the curriculum.",
+      icon: Beaker,
     },
     {
-      name: "Robotics Lab",
-      desc: "Equipped with STEM kits, microcontroller blocks, sensors, and basic soldering gear. Designed to teach programming logic, automation, and basic circuit design.",
-      icon: Compass,
-    },
-    {
-      name: "Mathematics Lab",
-      desc: "Features solid geometry kits, abacus structures, metric charts, and models that allow students to explore mathematical concepts practically.",
+      name: "Mathematics Laboratory",
+      desc: "The Mathematics Laboratory encourages experiential learning through mathematical models, activities, puzzles, games, charts, and practical demonstrations that help students understand mathematical concepts with confidence and creativity.",
       icon: Microscope,
     },
     {
+      name: "English Laboratory",
+      desc: "The English Language Laboratory enhances listening, speaking, pronunciation, vocabulary, grammar, reading, and communication skills through audio-visual learning, interactive activities, and language development exercises.",
+      icon: MessageSquare,
+    },
+    {
+      name: "Robotics Laboratory",
+      desc: "The Robotics Laboratory introduces students to robotics, STEM education, coding, programming, innovation, automation, and problem-solving skills, encouraging creativity and technological thinking from an early age.",
+      icon: Compass,
+    },
+    {
       name: "Library",
-      desc: "A spacious reading hall housing thousands of books, referencing encyclopedias, children's fiction, science journals, and online research terminals.",
+      desc: "The school library offers an extensive collection of academic books, reference materials, journals, newspapers, magazines, and digital resources that cultivate reading habits, research skills, and lifelong learning.",
       icon: BookOpen,
     },
     {
-      name: "Sports Facilities",
-      desc: "Includes our main football field, outdoor basketball court, cricket net pitches, and an indoor arena for table tennis and chess tournaments.",
+      name: "Smart Classrooms",
+      desc: "Our smart classrooms integrate multimedia technology, interactive digital content, educational videos, presentations, animations, and visual learning tools to make every lesson engaging, interactive, and student-centered.",
+      icon: Tv,
+    },
+    {
+      name: "Playground",
+      desc: "Offers spacious outdoor playgrounds, football field, basketball court, and equipment for student athletics and games.",
       icon: Trophy,
+    },
+    {
+      name: "School Transport",
+      desc: "Safe and reliable bus transport services connecting the campus to various key residential neighborhoods across Chennai.",
+      icon: Bus,
     },
   ];
 

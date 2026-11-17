@@ -77,6 +77,7 @@ import { Route as AcademicsAdmissionRouteImport } from './routes/academics/admis
 import { Route as AboutVisionMissionRouteImport } from './routes/about/vision-mission'
 import { Route as AboutPrincipalMessageRouteImport } from './routes/about/principal-message'
 import { Route as AboutInfrastructureRouteImport } from './routes/about/infrastructure'
+import { Route as AboutCorrespondentMessageRouteImport } from './routes/about/correspondent-message'
 import { Route as AboutAboutSchoolRouteImport } from './routes/about/about-school'
 
 const TeachersRoute = TeachersRouteImport.update({
@@ -426,6 +427,12 @@ const AboutInfrastructureRoute = AboutInfrastructureRouteImport.update({
   path: '/infrastructure',
   getParentRoute: () => AboutRoute,
 } as any)
+const AboutCorrespondentMessageRoute =
+  AboutCorrespondentMessageRouteImport.update({
+    id: '/correspondent-message',
+    path: '/correspondent-message',
+    getParentRoute: () => AboutRoute,
+  } as any)
 const AboutAboutSchoolRoute = AboutAboutSchoolRouteImport.update({
   id: '/about-school',
   path: '/about-school',
@@ -449,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/students': typeof StudentsRouteWithChildren
   '/teachers': typeof TeachersRoute
   '/about/about-school': typeof AboutAboutSchoolRoute
+  '/about/correspondent-message': typeof AboutCorrespondentMessageRoute
   '/about/infrastructure': typeof AboutInfrastructureRoute
   '/about/principal-message': typeof AboutPrincipalMessageRoute
   '/about/vision-mission': typeof AboutVisionMissionRoute
@@ -510,6 +518,7 @@ export interface FileRoutesByTo {
   '/scroll-stack-demo': typeof ScrollStackDemoRoute
   '/teachers': typeof TeachersRoute
   '/about/about-school': typeof AboutAboutSchoolRoute
+  '/about/correspondent-message': typeof AboutCorrespondentMessageRoute
   '/about/infrastructure': typeof AboutInfrastructureRoute
   '/about/principal-message': typeof AboutPrincipalMessageRoute
   '/about/vision-mission': typeof AboutVisionMissionRoute
@@ -582,6 +591,7 @@ export interface FileRoutesById {
   '/students': typeof StudentsRouteWithChildren
   '/teachers': typeof TeachersRoute
   '/about/about-school': typeof AboutAboutSchoolRoute
+  '/about/correspondent-message': typeof AboutCorrespondentMessageRoute
   '/about/infrastructure': typeof AboutInfrastructureRoute
   '/about/principal-message': typeof AboutPrincipalMessageRoute
   '/about/vision-mission': typeof AboutVisionMissionRoute
@@ -655,6 +665,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/teachers'
     | '/about/about-school'
+    | '/about/correspondent-message'
     | '/about/infrastructure'
     | '/about/principal-message'
     | '/about/vision-mission'
@@ -716,6 +727,7 @@ export interface FileRouteTypes {
     | '/scroll-stack-demo'
     | '/teachers'
     | '/about/about-school'
+    | '/about/correspondent-message'
     | '/about/infrastructure'
     | '/about/principal-message'
     | '/about/vision-mission'
@@ -787,6 +799,7 @@ export interface FileRouteTypes {
     | '/students'
     | '/teachers'
     | '/about/about-school'
+    | '/about/correspondent-message'
     | '/about/infrastructure'
     | '/about/principal-message'
     | '/about/vision-mission'
@@ -1338,6 +1351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutInfrastructureRouteImport
       parentRoute: typeof AboutRoute
     }
+    '/about/correspondent-message': {
+      id: '/about/correspondent-message'
+      path: '/correspondent-message'
+      fullPath: '/about/correspondent-message'
+      preLoaderRoute: typeof AboutCorrespondentMessageRouteImport
+      parentRoute: typeof AboutRoute
+    }
     '/about/about-school': {
       id: '/about/about-school'
       path: '/about-school'
@@ -1350,6 +1370,7 @@ declare module '@tanstack/react-router' {
 
 interface AboutRouteChildren {
   AboutAboutSchoolRoute: typeof AboutAboutSchoolRoute
+  AboutCorrespondentMessageRoute: typeof AboutCorrespondentMessageRoute
   AboutInfrastructureRoute: typeof AboutInfrastructureRoute
   AboutPrincipalMessageRoute: typeof AboutPrincipalMessageRoute
   AboutVisionMissionRoute: typeof AboutVisionMissionRoute
@@ -1358,6 +1379,7 @@ interface AboutRouteChildren {
 
 const AboutRouteChildren: AboutRouteChildren = {
   AboutAboutSchoolRoute: AboutAboutSchoolRoute,
+  AboutCorrespondentMessageRoute: AboutCorrespondentMessageRoute,
   AboutInfrastructureRoute: AboutInfrastructureRoute,
   AboutPrincipalMessageRoute: AboutPrincipalMessageRoute,
   AboutVisionMissionRoute: AboutVisionMissionRoute,

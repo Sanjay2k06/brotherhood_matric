@@ -173,100 +173,18 @@ function RootComponent() {
     };
   }, []);
 
-  // Premium Fast Splash Screen State
-  const [showSplash, setShowSplash] = useState(true);
-  const [fadeOut, setFadeOut] = useState(false);
-
-  useEffect(() => {
-    // Disabled sessionStorage check temporarily for development so you can see it on every refresh!
-    // const entered = sessionStorage.getItem("hasEntered") === "true";
-    // if (entered) {
-    //   setShowSplash(false);
-    //   return;
-    // }
-
-    // High-class fast splash screen
-    const enterTimer = setTimeout(() => {
-      setFadeOut(true);
-      setTimeout(() => {
-        sessionStorage.setItem("hasEntered", "true");
-        setShowSplash(false);
-      }, 800); // 800ms ultra-smooth fade out
-    }, 1800); // 1.8 seconds initial display
-
-    return () => clearTimeout(enterTimer);
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
-      {showSplash ? (
-        <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-[#05140b] text-white transition-all duration-[800ms] ease-in-out ${
-            fadeOut ? "opacity-0 scale-105 pointer-events-none" : "opacity-100 scale-100"
-          }`}
-        >
-          {/* Subtle atmospheric gold glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#d4af37]/5 blur-[120px] pointer-events-none" />
-
-          <div className="relative z-10 w-full max-w-4xl px-6 text-center flex flex-col items-center">
-            {/* Elegant Logo Reveal */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-8"
-            >
-              <div className="w-16 h-16 md:w-20 md:h-20 bg-white/5 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10 shadow-2xl p-4">
-                <img src={logoImg} className="w-full h-full object-contain drop-shadow-xl" alt="Brotherhood School" />
-              </div>
-            </motion.div>
-
-            {/* Minimalist Cinematic Typography */}
-            <motion.h1 
-              initial={{ opacity: 0, letterSpacing: "0.05em" }}
-              animate={{ opacity: 1, letterSpacing: "0.2em" }}
-              transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
-              className="font-serif text-3xl md:text-5xl font-light tracking-[0.2em] text-white mb-3 uppercase"
-            >
-              Brotherhood
-            </motion.h1>
-            
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 1 }}
-              className="text-xs uppercase tracking-[0.3em] text-[#d4af37]/80 font-medium"
-            >
-              Since 1991
-            </motion.p>
-
-            {/* Elegant loading accent */}
-            <motion.div 
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "120px", opacity: 1 }}
-              transition={{ delay: 0.6, duration: 1.2, ease: "circOut" }}
-              className="h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/60 to-transparent mt-8"
-            />
-          </div>
-        </div>
-      ) : null}
-      
-      {/* Main Content Wrapper - Animates in as splash fades out */}
-      <div 
-        className={`relative z-0 bg-[#05140b] transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          !showSplash || fadeOut 
-            ? "blur-0 translate-y-0 scale-100" 
-            : "blur-md translate-y-12 scale-105 pointer-events-none"
-        }`}
-      >
+      {/* Main Content Wrapper - Instant loading without artificial delay */}
+      <div className="relative z-0 bg-[#05140b]">
         <SiteHeader />
-        <main key={location.pathname} className="min-h-screen page-reveal">
+        <main key={location.pathname} className="min-h-screen">
           <Outlet />
         </main>
         <SiteFooter />
 
         {/* Global Floating Action Buttons */}
-        <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-4 items-end">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col gap-3 sm:gap-4 items-end pointer-events-auto">
           {/* Floating Enquiry Button */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link

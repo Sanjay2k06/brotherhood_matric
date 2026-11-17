@@ -67,12 +67,13 @@ function ManagementCommitteePage() {
   const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
 
   const members = [
-    { role: "Founder & Chairman", name: "Rev. Father Anton Cruze", desc: "Visionary educator with 40+ years of social development and scholastic leadership, laying the foundation of Brotherhood." },
-    { role: "Correspondent", name: "Mrs. Clara Cruze", desc: "Oversees daily institutional administration, financial compliance, and welfare systems, ensuring smooth operations." },
-    { role: "Principal", name: "Dr. Joseph Raj", desc: "Academically guides the institution, stream operations, and teacher training schedules with a focus on modern pedagogy." },
-    { role: "Advisory Board Member", name: "Rev. Fr. Maria Arokiam, SDB", desc: "Don Bosco educational advisor guiding pedagogical principles and fostering a holistic approach to student character." },
-    { role: "Advisory Board Member", name: "Dr. L. S. Ganesh", desc: "Former Professor, IIT Madras, advising on curriculum standards, STEM integrations, and future-ready academic policies." },
-    { role: "Parent Representative", name: "Mr. Rajasekar K.", desc: "Elected parental voice contributing critical feedback on facilities, safety, and co-curricular development programs." }
+    { role: "Founder & Chairman", name: "Rev. Fr. Anton Cruz", desc: "Founder and Chairman of Brotherhood Matriculation Higher Secondary School, steering the institution since 1991." },
+    { role: "Chairperson", name: "Mrs. Jesintha Cruz", desc: "Chairperson of the school management, directing long-term development initiatives and holistic student care policies." },
+    { role: "Vice Chairman", name: "Mr. Samuel Keithson Cruz", desc: "Vice Chairman of the school committee, focusing on technology integration and modern infrastructure upgrades." },
+    { role: "Correspondent", name: "Mr. J. Jeyakumar", desc: "Correspondent of the school, overseeing daily administration, government recognitions, and compliance affairs." },
+    { role: "Principal (Primary)", name: "Mrs. Helen Johnson", desc: "Principal of the Primary Wing, coordinating pre-primary and foundational primary school academic programs." },
+    { role: "Principal (Higher Secondary)", name: "Mrs. Shima Newton", desc: "Principal of the Higher Secondary Wing, directing classes, board exam prep, and higher secondary streams." },
+    { role: "Academic Coordinator", name: "Mr. S. Solomon Devadoss", desc: "Academic Coordinator of the school, organizing subject syllabi, smart-board lessons, and co-curricular programs." }
   ];
 
   return (

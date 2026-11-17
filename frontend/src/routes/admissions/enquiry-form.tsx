@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { MessageSquareReply, Sparkles } from "lucide-react";
-import aboutImage3 from "../../images/aboutimage3.png";
+import aboutImage3 from "../../images/aboutimage3.jpg";
 
 export const Route = createFileRoute("/admissions/enquiry-form")({
   head: () => ({

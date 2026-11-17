@@ -15,8 +15,8 @@ const staggerContainer = {
 export const Route = createFileRoute("/academics/father-cruze-profile")({
   head: () => ({
     meta: [
-      { title: "Father Anton Cruze Profile — Brotherhood School" },
-      { name: "description", content: "Read the life story, achievements, and educational philosophy of Father Anton Cruze, founder of Brotherhood Matriculation Hr. Sec. School." },
+      { title: "Father Anton Cruz Profile — Brotherhood School" },
+      { name: "description", content: "Read the life story, achievements, and educational philosophy of Father Anton Cruz, founder of Brotherhood Matriculation Hr. Sec. School." },
     ],
   }),
   component: FatherCruzeProfilePage,
@@ -34,7 +34,7 @@ function FatherCruzeProfilePage() {
     <div className="bg-[#fdfdfc] text-[#2d3748] font-sans selection:bg-[#0a2b18] selection:text-white">
       <PageHeader
         eyebrow="Tribute Profile"
-        title="Father Anton Cruze"
+        title="Father Anton Cruz"
         subtitle="A lifetime dedicated to character formation, community welfare, and educational access."
       />
 
@@ -55,13 +55,13 @@ function FatherCruzeProfilePage() {
                 <span className="text-[#1b4d32] uppercase tracking-widest text-xs font-semibold">The Visionary</span>
               </div>
               <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#0a2b18] leading-tight">
-                Rev. Fr. Anton Cruze <br/> <span className="italic text-[#1b4d32] font-light">— Founder</span>
+                Rev. Fr. Anton Cruz <br/> <span className="italic text-[#1b4d32] font-light">— Founder</span>
               </h2>
             </motion.div>
             
             <motion.div variants={fadeUp} className="space-y-6 text-lg font-light leading-[1.8] text-[#4a5568]">
               <p>
-                <span className="text-5xl font-serif text-[#0a2b18] float-left mr-3 mt-1 leading-none italic">R</span>ev. Father Anton Cruze is a visionary educationist and social reformer who has dedicated his life to youth empowerment and value-based scholastic formation. Inspired by the Salesian educational framework of Saint John Bosco, he believes that true education cannot be separated from moral training and sympathetic guidance.
+                <span className="text-5xl font-serif text-[#0a2b18] float-left mr-3 mt-1 leading-none italic">R</span>ev. Father Anton Cruz is a visionary educationist and social reformer who has dedicated his life to youth empowerment and value-based scholastic formation. Inspired by the Salesian educational framework of Saint John Bosco, he believes that true education cannot be separated from moral training and sympathetic guidance.
               </p>
               <p>
                 Under his guidance, Brotherhood School has expanded from a small primary school block into a double-track higher secondary school with thousands of alumni. He remains a beloved figure on campus, regularly visiting students during assemblies, counselling families, and advocating for inclusive education for less fortunate children.

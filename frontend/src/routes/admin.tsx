@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { 
   Lock, User, Mail, Calendar, Upload, Plus, Edit, Trash2, Check, X, 
   Sparkles, Award, Users, Image as ImageIcon, Bell, MessageSquare, Briefcase, FileText, LayoutDashboard, LogOut, Trophy, Megaphone,
-  Shirt, Flag, UserCheck
+  Shirt, Flag, UserCheck, Home, BookOpen, GraduationCap
 } from "lucide-react";
 import { toast } from "sonner";
 import FlowingMenu from "@/components/FlowingMenu";
@@ -69,11 +69,23 @@ function AdminPage() {
   // Dialog / Edit states
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<any | null>(null);
-  const [editorPage, setEditorPage] = useState<"home" | "teachers" | "gallery" | "students" | "uniform" | "houses" | "leaders">("home");
+  const [editorPage, setEditorPage] = useState<"home" | "teachers" | "gallery" | "students" | "uniform" | "houses" | "leaders" | "about-school" | "founder-message" | "correspondent-message" | "principal-message">("home");
   const [achievementCategory, setAchievementCategory] = useState<"best_student" | "board_topper" | "sports">("best_student");
 
   // Vacancy state for job applications creation
   const [vacancies, setVacancies] = useState<any[]>([]);
+
+  // Pages CMS Data States
+  const [cmsPages, setCmsPages] = useState<any[]>([]);
+  const [activePageData, setActivePageData] = useState<any>(null);
+  const [pageEditorForm, setPageEditorForm] = useState({
+    title: "",
+    hero_title: "",
+    hero_subtitle: "",
+    seo_title: "",
+    seo_description: "",
+    content_blocks: {} as any
+  });
 
   // Form Fields State
   const [announcementForm, setAnnouncementForm] = useState({
@@ -270,6 +282,13 @@ function AdminPage() {
         if (results.length > 0) {
           setJobForm(prev => ({ ...prev, vacancy: prev.vacancy || results[0].id }));
         }
+      }
+
+      // Fetch dynamic CMS pages
+      const pagesRes = await fetch(`${API_BASE}/pages/`, { headers });
+      if (pagesRes.ok) {
+        const d = await pagesRes.json();
+        setCmsPages(d);
       }
 
     } catch (err) {
@@ -813,6 +832,72 @@ function AdminPage() {
     setActiveDialog("leader");
   };
 
+  // Synchronize dynamic pages with pageEditorForm
+  useEffect(() => {
+    const dynamicSlugs = ["about-school", "founder-message", "correspondent-message", "principal-message"];
+    if (dynamicSlugs.includes(editorPage) && cmsPages.length > 0) {
+      const page = cmsPages.find(p => p.slug === editorPage);
+      if (page) {
+        setActivePageData(page);
+        setPageEditorForm({
+          title: page.title || "",
+          hero_title: page.hero_title || "",
+          hero_subtitle: page.hero_subtitle || "",
+          seo_title: page.seo_title || "",
+          seo_description: page.seo_description || "",
+          content_blocks: page.content_blocks ? { ...page.content_blocks } : {}
+        });
+      }
+    } else {
+      setActivePageData(null);
+    }
+  }, [editorPage, cmsPages]);
+
+  const handlePageUpdateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activePageData || !token) return;
+
+    const payload = {
+      title: pageEditorForm.title,
+      hero_title: pageEditorForm.hero_title,
+      hero_subtitle: pageEditorForm.hero_subtitle,
+      seo_title: pageEditorForm.seo_title,
+      seo_description: pageEditorForm.seo_description,
+      content_blocks: pageEditorForm.content_blocks
+    };
+
+    const loadToast = toast.loading("Saving live page content changes...");
+    try {
+      const res = await fetch(`${API_BASE}/pages/${activePageData.id}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        toast.dismiss(loadToast);
+        toast.success("Page content updated and published successfully!");
+        // Refresh page data
+        const headers = { "Authorization": `Bearer ${token}` };
+        const pagesRes = await fetch(`${API_BASE}/pages/`, { headers });
+        if (pagesRes.ok) {
+          const d = await pagesRes.json();
+          setCmsPages(d);
+        }
+      } else {
+        toast.dismiss(loadToast);
+        toast.error("Failed to update page content.");
+      }
+    } catch (err) {
+      toast.dismiss(loadToast);
+      console.error(err);
+      toast.error("Network error saving changes.");
+    }
+  };
+
   // Open Edit Modals and Populate Form
   const startEditAnnounce = (item: any) => {
     setEditItem(item);
@@ -952,98 +1037,107 @@ function AdminPage() {
   // Unauthenticated Login Interface
   if (!token) {
     return (
-      <div className="flex min-h-[85vh] items-center justify-center bg-navy-deep py-16 px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.7679_0.1778_81.65/0.08),transparent_65%)] pointer-events-none" />
-        <Card className="w-full max-w-md bg-card border border-gold/30 shadow-elegant relative overflow-hidden animate-scale-up">
-          <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-gold" />
+      <div className="flex min-h-[92vh] items-center justify-center bg-[#05140b] py-16 px-6 relative overflow-hidden">
+        {/* Cinematic Backdrop Glow */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-[#0a2b18] to-transparent rounded-full blur-[120px] opacity-40 pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-bl from-[#d4af37]/10 to-transparent rounded-full blur-[120px] opacity-45 pointer-events-none" />
+        
+        {/* Subtle grid mesh background */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
+        <div className="w-full max-w-md bg-[#0a2b18]/50 backdrop-blur-2xl border border-[#d4af37]/30 rounded-[2rem] shadow-[0_25px_60px_-15px_rgba(5,20,11,0.7)] relative overflow-hidden animate-scale-up p-8 space-y-6">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#b58c2a] via-[#d4af37] to-[#b58c2a]" />
           
-          <CardHeader className="text-center space-y-2 pb-6">
-            <div className="mx-auto h-12 w-12 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-2 animate-float">
-              <Lock className="h-6 w-6" />
+          <div className="text-center space-y-2 pb-2">
+            <div className="mx-auto h-16 w-16 rounded-2xl bg-[#0a2b18] border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] mb-3 animate-float shadow-[0_8px_20px_rgba(212,175,55,0.15)]">
+              <Lock className="h-7 w-7" />
             </div>
-            <CardTitle className="font-display text-2xl font-bold text-primary">Admin Access Control</CardTitle>
-            <CardDescription className="text-xs uppercase tracking-widest text-gold font-semibold">
-              Matriculation Higher Secondary School
-            </CardDescription>
-          </CardHeader>
+            <h2 className="font-serif text-3xl font-bold text-white tracking-tight">Admin Gatekeeper</h2>
+            <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-bold">
+              Brotherhood Group of Schools
+            </p>
+          </div>
           
-          <form onSubmit={handleLogin}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Username</Label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="username"
-                    type="text" 
-                    placeholder="Enter username" 
-                    className="pl-10 rounded-xl bg-background border-border focus:border-gold"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </div>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div className="space-y-1.5 text-left">
+              <Label htmlFor="username" className="text-[10px] font-bold uppercase tracking-widest text-white/60">Username</Label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#d4af37]" />
+                <Input 
+                  id="username"
+                  type="text" 
+                  placeholder="Enter username" 
+                  className="pl-11 pr-4 py-6 rounded-xl bg-black/40 border-white/10 text-white focus:border-[#d4af37]/60 focus:ring-1 focus:ring-[#d4af37]/30 placeholder:text-white/30"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="password"
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="pl-10 rounded-xl bg-background border-border focus:border-gold"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
+            </div>
+
+            <div className="space-y-1.5 text-left">
+              <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-widest text-white/60">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#d4af37]" />
+                <Input 
+                  id="password"
+                  type="password" 
+                  placeholder="••••••••" 
+                  className="pl-11 pr-4 py-6 rounded-xl bg-black/40 border-white/10 text-white focus:border-[#d4af37]/60 focus:ring-1 focus:ring-[#d4af37]/30 placeholder:text-white/30"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
-            </CardContent>
+            </div>
             
-            <CardFooter className="pt-4 pb-6 flex flex-col gap-4">
+            <div className="pt-4 flex flex-col gap-4">
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-gold text-navy-deep font-bold rounded-full py-6 active:scale-[0.98] transition-transform shadow-gold hover:opacity-95"
+                className="w-full bg-gradient-to-r from-[#b58c2a] via-[#d4af37] to-[#b58c2a] hover:from-[#d4af37] hover:to-[#b58c2a] text-[#0a2b18] font-bold rounded-full py-6 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(212,175,55,0.25)] border-0"
                 disabled={loading}
               >
                 {loading ? "Authenticating Master Key..." : "Secure Log In"}
               </Button>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground text-center">
-                Restricted Area • Active Auditing
+              <div className="text-[9px] uppercase tracking-widest text-white/40 text-center">
+                Restricted System • Authorized Staff Only
               </div>
-            </CardFooter>
+            </div>
           </form>
-        </Card>
+        </div>
       </div>
     );
   }
 
   // Authenticated Administration Console
   return (
-    <div className="min-h-screen bg-muted/20 pb-20">
+    <div className="min-h-screen bg-[#f4f7f5] pb-20 text-[#2d3748] selection:bg-[#0a2b18] selection:text-white">
       {/* Top Banner Control Panel Header */}
-      <div className="bg-navy-deep text-white py-12 px-6 shadow-md border-b border-gold/10 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,oklch(0.7679_0.1778_81.65/0.1),transparent_65%)] pointer-events-none" />
+      <div className="bg-gradient-to-br from-[#05140b] via-[#0a2b18] to-[#05140b] text-white py-14 px-8 shadow-2xl border-b border-[#d4af37]/25 relative overflow-hidden">
+        {/* Glowing overlay effects */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#d4af37]/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0a2b18] rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.02)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
+
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-gold/30 bg-gold/10 text-[10px] font-bold text-gold tracking-widest uppercase mb-3">
-              <Sparkles className="h-3 w-3" /> Unified Control Console
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#d4af37]/45 bg-[#d4af37]/10 text-[10px] font-bold text-[#d4af37] tracking-widest uppercase mb-3 shadow-[0_2px_8px_rgba(212,175,55,0.1)]">
+              <Sparkles className="h-3.5 w-3.5 text-[#d4af37]" /> Unified Control Console
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            <h1 className="font-serif text-3.5xl sm:text-4.5xl font-bold tracking-tight text-white leading-tight">
               School Content Admin
             </h1>
-            <p className="text-sm text-gold-soft font-medium mt-1">
-              Active Session: <strong className="text-white">{userProfile?.username || "Admin"}</strong> ({userProfile?.role || "Staff Editor"})
+            <p className="text-sm text-white/70 font-medium mt-1.5">
+              Active Session: <strong className="text-[#d4af37]">{userProfile?.username || "Admin"}</strong> ({userProfile?.role || "Staff Editor"})
             </p>
           </div>
           
           <Button 
             onClick={handleLogout}
             variant="outline" 
-            className="rounded-full border-white/20 bg-white/10 hover:bg-red-600 hover:text-white transition duration-300 text-white gap-2"
+            className="rounded-full border-[#d4af37]/35 bg-[#d4af37]/5 hover:bg-red-600 hover:text-white transition duration-300 text-white gap-2 font-bold px-6 shadow-[0_4px_12px_rgba(212,175,55,0.05)] hover:border-red-600"
           >
-            <LogOut className="h-4 w-4" /> Sign Out
+            <LogOut className="h-4 w-4 text-[#d4af37]" /> Sign Out
           </Button>
         </div>
       </div>
@@ -1925,29 +2019,67 @@ function AdminPage() {
               <h3 className="font-display text-lg font-bold text-gold mb-1">Live CMS Switcher</h3>
               <p className="text-[10px] text-white/60 uppercase tracking-widest font-semibold mb-6">Select page to preview & edit</p>
               
-              <div className="h-[420px] rounded-2xl overflow-hidden border border-white/10 bg-black/30">
-                <FlowingMenu 
-                  items={[
-                    { link: "#home", text: "Home Page", image: heroImageStatic, page: "home" },
-                    { link: "#teachers", text: "Faculty List", image: heroImage2 || "", page: "teachers" },
-                    { link: "#gallery", text: "Gallery Grid", image: "https://picsum.photos/600/400?random=12", page: "gallery" },
-                    { link: "#students", text: "Honors Board", image: "https://picsum.photos/600/400?random=13", page: "students" },
-                    { link: "#uniform", text: "School Uniform", image: "https://picsum.photos/600/400?random=14", page: "uniform" },
-                    { link: "#houses", text: "School Houses", image: "https://picsum.photos/600/400?random=15", page: "houses" },
-                    { link: "#leaders", text: "Student Leaders", image: "https://picsum.photos/600/400?random=16", page: "leaders" }
-                  ]}
-                  onItemClick={(page) => setEditorPage(page as any)}
-                  textColor="#ffffff"
-                  bgColor="transparent"
-                  marqueeBgColor="#D4A017"
-                  marqueeTextColor="#243424"
-                  borderColor="rgba(255,255,255,0.08)"
-                  speed={12}
-                />
+              <div className="h-[540px] rounded-2xl overflow-y-auto border border-white/10 bg-black/40 p-4 space-y-5 custom-scrollbar text-xs">
+                {/* Live Pages Group */}
+                <div className="space-y-2">
+                  <p className="text-[9px] uppercase font-bold text-gold tracking-widest px-2 opacity-70">Live Pages</p>
+                  <div className="space-y-1">
+                    {[
+                      { id: "home", text: "Home Page", icon: <Home className="h-4 w-4" /> },
+                      { id: "about-school", text: "About School", icon: <BookOpen className="h-4 w-4" /> },
+                      { id: "founder-message", text: "Chairman Message", icon: <UserCheck className="h-4 w-4" /> },
+                      { id: "correspondent-message", text: "Correspondent Message", icon: <FileText className="h-4 w-4" /> },
+                      { id: "principal-message", text: "Principal Message", icon: <Award className="h-4 w-4" /> }
+                    ].map(item => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setEditorPage(item.id as any)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-medium transition-all duration-300 ${
+                          editorPage === item.id 
+                            ? "bg-gold/15 text-gold border-l-2 border-gold shadow-[inset_0_0_8px_rgba(212,175,55,0.05)]" 
+                            : "text-white/70 hover:text-white hover:bg-white/5 hover:translate-x-1"
+                        }`}
+                      >
+                        <span className={`${editorPage === item.id ? "text-gold" : "text-white/40"}`}>{item.icon}</span>
+                        <span>{item.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dynamic Modules Group */}
+                <div className="space-y-2">
+                  <p className="text-[9px] uppercase font-bold text-gold tracking-widest px-2 opacity-70">Dynamic Sections</p>
+                  <div className="space-y-1">
+                    {[
+                      { id: "teachers", text: "Faculty List", icon: <Users className="h-4 w-4" /> },
+                      { id: "gallery", text: "Gallery Grid", icon: <ImageIcon className="h-4 w-4" /> },
+                      { id: "students", text: "Honors Board", icon: <Trophy className="h-4 w-4" /> },
+                      { id: "uniform", text: "School Uniform", icon: <Shirt className="h-4 w-4" /> },
+                      { id: "houses", text: "School Houses", icon: <Flag className="h-4 w-4" /> },
+                      { id: "leaders", text: "Student Leaders", icon: <GraduationCap className="h-4 w-4" /> }
+                    ].map(item => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setEditorPage(item.id as any)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-medium transition-all duration-300 ${
+                          editorPage === item.id 
+                            ? "bg-gold/15 text-gold border-l-2 border-gold shadow-[inset_0_0_8px_rgba(212,175,55,0.05)]" 
+                            : "text-white/70 hover:text-white hover:bg-white/5 hover:translate-x-1"
+                        }`}
+                      >
+                        <span className={`${editorPage === item.id ? "text-gold" : "text-white/40"}`}>{item.icon}</span>
+                        <span>{item.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
               
               <div className="mt-6 p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/85 leading-relaxed">
-                💡 <strong className="text-gold">Tip:</strong> Hover over the menu items to see a visual peek! Click to toggle the editor page view on the right.
+                 <strong className="text-gold">Tip:</strong> Hover over the menu items to see a visual peek! Click to toggle the editor page view on the right.
               </div>
             </SpotlightCard>
 
@@ -2417,6 +2549,513 @@ function AdminPage() {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* About School Page Editor & Preview */}
+              {editorPage === "about-school" && activePageData && (
+                <div className="space-y-8 animate-fade-in text-left">
+                  <div className="border border-border rounded-3xl p-6 bg-[#f7faf8] relative">
+                    <span className="absolute -top-3 left-6 px-3 py-0.5 bg-primary text-primary-foreground text-[10px] uppercase font-bold rounded-full">
+                      Live Visual Mockup
+                    </span>
+                    
+                    {/* Header Mock */}
+                    <div className="bg-[#05140b] text-white p-8 rounded-2xl relative overflow-hidden mb-6 mt-2">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/10 rounded-full blur-2xl"></div>
+                      <span className="text-[10px] uppercase text-[#d4af37] tracking-wider font-semibold">Introduction & Legacy</span>
+                      <h1 className="font-serif text-3xl font-bold mt-1 text-white">{pageEditorForm.hero_title || "About our School"}</h1>
+                      <p className="text-xs text-white/80 font-light mt-2 max-w-xl">{pageEditorForm.hero_subtitle}</p>
+                    </div>
+
+                    {/* Content Mock */}
+                    <div className="space-y-4 text-xs font-light text-[#6c8274] leading-relaxed max-w-3xl">
+                      <p className="border-l-2 border-primary pl-3 py-0.5 font-semibold text-[#0a2b18] text-sm">School Introduction</p>
+                      <p className="bg-white p-4 rounded-2xl shadow-sm border border-border/60 whitespace-pre-wrap">{pageEditorForm.content_blocks?.p1}</p>
+                      <p className="bg-white p-4 rounded-2xl shadow-sm border border-border/60 whitespace-pre-wrap">{pageEditorForm.content_blocks?.p2}</p>
+                      <p className="bg-white p-4 rounded-2xl shadow-sm border border-border/60 whitespace-pre-wrap">{pageEditorForm.content_blocks?.p3}</p>
+                    </div>
+                  </div>
+
+                  {/* Form Editor */}
+                  <form onSubmit={handlePageUpdateSubmit} className="space-y-6 bg-card border border-border/80 rounded-3xl p-6 shadow-sm">
+                    <h3 className="font-display text-base font-bold text-primary border-b border-border pb-3 flex items-center gap-2">
+                      <Sparkles className="h-4.5 w-4.5 text-gold" /> Page Editor & SEO Settings
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Page Title</Label>
+                        <Input value={pageEditorForm.title} onChange={e => setPageEditorForm(prev => ({ ...prev, title: e.target.value }))} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Title</Label>
+                        <Input value={pageEditorForm.hero_title} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_title: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Subtitle</Label>
+                      <Input value={pageEditorForm.hero_subtitle} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_subtitle: e.target.value }))} />
+                    </div>
+
+                    <div className="space-y-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Paragraph 1 (Main Intro)</Label>
+                        <Textarea rows={4} value={pageEditorForm.content_blocks?.p1 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, p1: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Paragraph 2 (Governance / Values)</Label>
+                        <Textarea rows={4} value={pageEditorForm.content_blocks?.p2 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, p2: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Paragraph 3 (Campus Facilities / Conclusion)</Label>
+                        <Textarea rows={4} value={pageEditorForm.content_blocks?.p3 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, p3: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Title Tag</Label>
+                        <Input value={pageEditorForm.seo_title} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_title: e.target.value }))} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Meta Description</Label>
+                        <Input value={pageEditorForm.seo_description} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_description: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-3">
+                      <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                        Publish Changes Live
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Chairman Message Page Editor & Preview */}
+              {editorPage === "founder-message" && activePageData && (
+                <div className="space-y-8 animate-fade-in text-left">
+                  <div className="border border-border rounded-3xl p-6 bg-[#f7faf8] relative">
+                    <span className="absolute -top-3 left-6 px-3 py-0.5 bg-primary text-primary-foreground text-[10px] uppercase font-bold rounded-full">
+                      Live Visual Mockup
+                    </span>
+                    
+                    {/* Header Mock */}
+                    <div className="bg-[#05140b] text-white p-8 rounded-2xl relative overflow-hidden mb-6 mt-2">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/10 rounded-full blur-2xl"></div>
+                      <span className="text-[10px] uppercase text-[#d4af37] tracking-wider font-semibold">Chairman</span>
+                      <h1 className="font-serif text-3xl font-bold mt-1 text-white">{pageEditorForm.hero_title || "Rev. Fr. Anton Cruz"}</h1>
+                      <p className="text-xs text-white/80 font-light mt-2 max-w-xl">{pageEditorForm.hero_subtitle}</p>
+                    </div>
+
+                    {/* Content Mock */}
+                    <div className="bg-white p-6 rounded-2xl border border-border shadow-sm max-w-3xl space-y-6">
+                      <div className="border-b border-border pb-4">
+                        <h4 className="font-serif text-xl text-[#0a2b18] mb-1 font-semibold">{pageEditorForm.content_blocks?.name || "Rev. Fr. Anton Cruz"}</h4>
+                        <p className="text-[10px] text-gold font-bold uppercase tracking-wider">{pageEditorForm.content_blocks?.designation || "Founder & Chairman"} · {pageEditorForm.content_blocks?.serving_since}</p>
+                      </div>
+                      
+                      <p className="text-sm font-light text-[#4a5568] leading-relaxed italic border-l-2 border-gold pl-4 py-1">{pageEditorForm.content_blocks?.intro}</p>
+                      
+                      <div className="py-6 border-y border-border/60 text-center">
+                        <p className="font-serif text-lg italic text-[#0a2b18] font-bold">"{pageEditorForm.content_blocks?.quote}"</p>
+                      </div>
+
+                      <div className="space-y-4 text-xs font-light text-[#2d3748] leading-relaxed">
+                        <p className="font-bold text-sm text-[#0a2b18]">{pageEditorForm.content_blocks?.message_title}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.message_p1}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.message_p2}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Editor */}
+                  <form onSubmit={handlePageUpdateSubmit} className="space-y-6 bg-card border border-border/80 rounded-3xl p-6 shadow-sm">
+                    <h3 className="font-display text-base font-bold text-primary border-b border-border pb-3 flex items-center gap-2">
+                      <Sparkles className="h-4.5 w-4.5 text-gold" /> Page Editor & SEO Settings
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Page Title</Label>
+                        <Input value={pageEditorForm.title} onChange={e => setPageEditorForm(prev => ({ ...prev, title: e.target.value }))} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Title</Label>
+                        <Input value={pageEditorForm.hero_title} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_title: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Subtitle</Label>
+                      <Input value={pageEditorForm.hero_subtitle} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_subtitle: e.target.value }))} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Founder Full Name</Label>
+                        <Input value={pageEditorForm.content_blocks?.name || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, name: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Designation Title</Label>
+                        <Input value={pageEditorForm.content_blocks?.designation || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, designation: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Serving Since Text</Label>
+                        <Input value={pageEditorForm.content_blocks?.serving_since || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, serving_since: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Founder Profile Intro text</Label>
+                      <Textarea rows={3} value={pageEditorForm.content_blocks?.intro || ""} onChange={e => {
+                        const blocks = { ...pageEditorForm.content_blocks, intro: e.target.value };
+                        setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                      }} required />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Highlighted Vision Quote</Label>
+                      <Input value={pageEditorForm.content_blocks?.quote || ""} onChange={e => {
+                        const blocks = { ...pageEditorForm.content_blocks, quote: e.target.value };
+                        setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                      }} required />
+                    </div>
+
+                    <div className="space-y-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Letter Heading / Title</Label>
+                        <Input value={pageEditorForm.content_blocks?.message_title || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, message_title: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Message Paragraph 1</Label>
+                        <Textarea rows={5} value={pageEditorForm.content_blocks?.message_p1 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, message_p1: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Message Paragraph 2</Label>
+                        <Textarea rows={5} value={pageEditorForm.content_blocks?.message_p2 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, message_p2: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Title Tag</Label>
+                        <Input value={pageEditorForm.seo_title} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_title: e.target.value }))} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Meta Description</Label>
+                        <Input value={pageEditorForm.seo_description} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_description: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-3">
+                      <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                        Publish Changes Live
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Correspondent Message Page Editor & Preview */}
+              {editorPage === "correspondent-message" && activePageData && (
+                <div className="space-y-8 animate-fade-in text-left">
+                  <div className="border border-border rounded-3xl p-6 bg-[#f7faf8] relative">
+                    <span className="absolute -top-3 left-6 px-3 py-0.5 bg-primary text-primary-foreground text-[10px] uppercase font-bold rounded-full">
+                      Live Visual Mockup
+                    </span>
+                    
+                    {/* Header Mock */}
+                    <div className="bg-[#05140b] text-white p-8 rounded-2xl relative overflow-hidden mb-6 mt-2">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/10 rounded-full blur-2xl"></div>
+                      <span className="text-[10px] uppercase text-[#d4af37] tracking-wider font-semibold">Correspondent</span>
+                      <h1 className="font-serif text-3xl font-bold mt-1 text-white">{pageEditorForm.hero_title || "Mr. J. Jeyakumar"}</h1>
+                      <p className="text-xs text-white/80 font-light mt-2 max-w-xl">{pageEditorForm.hero_subtitle}</p>
+                    </div>
+
+                    {/* Content Mock */}
+                    <div className="bg-white p-6 rounded-2xl border border-border shadow-sm max-w-3xl space-y-6">
+                      <div className="border-b border-border pb-4">
+                        <h4 className="font-serif text-xl text-[#0a2b18] mb-1 font-semibold">{pageEditorForm.content_blocks?.name || "Mr. J. Jeyakumar"}</h4>
+                        <p className="text-[10px] text-gold font-bold uppercase tracking-wider">{pageEditorForm.content_blocks?.designation || "Correspondent"}</p>
+                      </div>
+                      
+                      <p className="text-sm font-light text-[#4a5568] leading-relaxed italic border-l-2 border-gold pl-4 py-1">{pageEditorForm.content_blocks?.intro}</p>
+
+                      <div className="space-y-4 text-xs font-light text-[#2d3748] leading-relaxed border-t border-border pt-4">
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.message_p1}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.message_p2}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Editor */}
+                  <form onSubmit={handlePageUpdateSubmit} className="space-y-6 bg-card border border-border/80 rounded-3xl p-6 shadow-sm">
+                    <h3 className="font-display text-base font-bold text-primary border-b border-border pb-3 flex items-center gap-2">
+                      <Sparkles className="h-4.5 w-4.5 text-gold" /> Page Editor & SEO Settings
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Page Title</Label>
+                        <Input value={pageEditorForm.title} onChange={e => setPageEditorForm(prev => ({ ...prev, title: e.target.value }))} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Title</Label>
+                        <Input value={pageEditorForm.hero_title} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_title: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Subtitle</Label>
+                      <Input value={pageEditorForm.hero_subtitle} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_subtitle: e.target.value }))} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Correspondent Name</Label>
+                        <Input value={pageEditorForm.content_blocks?.name || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, name: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Correspondent Designation / Credentials</Label>
+                        <Input value={pageEditorForm.content_blocks?.designation || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, designation: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Welcome / Intro paragraph</Label>
+                      <Textarea rows={3} value={pageEditorForm.content_blocks?.intro || ""} onChange={e => {
+                        const blocks = { ...pageEditorForm.content_blocks, intro: e.target.value };
+                        setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                      }} required />
+                    </div>
+
+                    <div className="space-y-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Message Paragraph 1</Label>
+                        <Textarea rows={5} value={pageEditorForm.content_blocks?.message_p1 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, message_p1: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Message Paragraph 2</Label>
+                        <Textarea rows={5} value={pageEditorForm.content_blocks?.message_p2 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, message_p2: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Title Tag</Label>
+                        <Input value={pageEditorForm.seo_title} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_title: e.target.value }))} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Meta Description</Label>
+                        <Input value={pageEditorForm.seo_description} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_description: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-3">
+                      <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                        Publish Changes Live
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Principals Messages Page Editor & Preview */}
+              {editorPage === "principal-message" && activePageData && (
+                <div className="space-y-8 animate-fade-in text-left">
+                  <div className="border border-border rounded-3xl p-6 bg-[#f7faf8] relative">
+                    <span className="absolute -top-3 left-6 px-3 py-0.5 bg-primary text-primary-foreground text-[10px] uppercase font-bold rounded-full">
+                      Live Visual Mockup
+                    </span>
+                    
+                    {/* Header Mock */}
+                    <div className="bg-[#05140b] text-white p-8 rounded-2xl relative overflow-hidden mb-6 mt-2">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/10 rounded-full blur-2xl"></div>
+                      <span className="text-[10px] uppercase text-[#d4af37] tracking-wider font-semibold">Principals</span>
+                      <h1 className="font-serif text-3xl font-bold mt-1 text-white">{pageEditorForm.hero_title || "Principal's Message"}</h1>
+                      <p className="text-xs text-white/80 font-light mt-2 max-w-xl">{pageEditorForm.hero_subtitle}</p>
+                    </div>
+
+                    {/* Content Mock */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl text-xs font-light leading-relaxed text-[#6c8274]">
+                      {/* Secondary HS Principal */}
+                      <div className="bg-white p-5 rounded-2xl border border-[#d4af37]/30 shadow-sm space-y-3">
+                        <h4 className="font-serif text-sm text-[#0a2b18] font-bold border-b pb-2">{pageEditorForm.content_blocks?.secondary_title}</h4>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.secondary_message_p1}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.secondary_message_p2}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.secondary_message_p3}</p>
+                      </div>
+
+                      {/* Primary Principal */}
+                      <div className="bg-white p-5 rounded-2xl border border-primary/30 shadow-sm space-y-3">
+                        <h4 className="font-serif text-sm text-[#0a2b18] font-bold border-b pb-2">{pageEditorForm.content_blocks?.primary_title}</h4>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.primary_message_p1}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.primary_message_p2}</p>
+                        <p className="whitespace-pre-wrap">{pageEditorForm.content_blocks?.primary_message_p3}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Editor */}
+                  <form onSubmit={handlePageUpdateSubmit} className="space-y-6 bg-card border border-border/80 rounded-3xl p-6 shadow-sm">
+                    <h3 className="font-display text-base font-bold text-primary border-b border-border pb-3 flex items-center gap-2">
+                      <Sparkles className="h-4.5 w-4.5 text-gold" /> Page Editor & SEO Settings
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Page Title</Label>
+                        <Input value={pageEditorForm.title} onChange={e => setPageEditorForm(prev => ({ ...prev, title: e.target.value }))} required />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Title</Label>
+                        <Input value={pageEditorForm.hero_title} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_title: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase text-muted-foreground font-semibold">Hero Subtitle</Label>
+                      <Input value={pageEditorForm.hero_subtitle} onChange={e => setPageEditorForm(prev => ({ ...prev, hero_subtitle: e.target.value }))} />
+                    </div>
+
+                    {/* SECTION 1: HIGHER SECONDARY WING */}
+                    <div className="space-y-4 pt-4 border-t border-[#d4af37]/30">
+                      <h4 className="text-xs uppercase text-[#d4af37] font-bold tracking-wider">Higher Secondary Principal Section</h4>
+                      
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">HS Principal Heading</Label>
+                        <Input value={pageEditorForm.content_blocks?.secondary_title || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, secondary_title: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">HS Principal Message Paragraph 1</Label>
+                        <Textarea rows={3} value={pageEditorForm.content_blocks?.secondary_message_p1 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, secondary_message_p1: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">HS Principal Message Paragraph 2</Label>
+                        <Textarea rows={3} value={pageEditorForm.content_blocks?.secondary_message_p2 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, secondary_message_p2: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">HS Principal Message Paragraph 3</Label>
+                        <Textarea rows={3} value={pageEditorForm.content_blocks?.secondary_message_p3 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, secondary_message_p3: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    {/* SECTION 2: PRIMARY WING */}
+                    <div className="space-y-4 pt-4 border-t border-primary/30">
+                      <h4 className="text-xs uppercase text-primary font-bold tracking-wider">Primary Wing Principal Section</h4>
+                      
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Primary Principal Heading</Label>
+                        <Input value={pageEditorForm.content_blocks?.primary_title || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, primary_title: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Primary Principal Message Paragraph 1</Label>
+                        <Textarea rows={3} value={pageEditorForm.content_blocks?.primary_message_p1 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, primary_message_p1: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Primary Principal Message Paragraph 2</Label>
+                        <Textarea rows={3} value={pageEditorForm.content_blocks?.primary_message_p2 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, primary_message_p2: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">Primary Principal Message Paragraph 3</Label>
+                        <Textarea rows={3} value={pageEditorForm.content_blocks?.primary_message_p3 || ""} onChange={e => {
+                          const blocks = { ...pageEditorForm.content_blocks, primary_message_p3: e.target.value };
+                          setPageEditorForm(prev => ({ ...prev, content_blocks: blocks }));
+                        }} required />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Title Tag</Label>
+                        <Input value={pageEditorForm.seo_title} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_title: e.target.value }))} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs uppercase text-muted-foreground font-semibold">SEO Meta Description</Label>
+                        <Input value={pageEditorForm.seo_description} onChange={e => setPageEditorForm(prev => ({ ...prev, seo_description: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-3">
+                      <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                        Publish Changes Live
+                      </Button>
+                    </div>
+                  </form>
                 </div>
               )}
 
