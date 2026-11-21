@@ -16,11 +16,11 @@ const sections = {
     { to: "/academics/admission", label: "Admission Process" },
     { to: "/academics/courses-offered", label: "Courses Offered" },
     { to: "/academics/curriculum", label: "Curriculum" },
+    { to: "/events", label: "Academic Calendar" },
     { to: "/academics/school-fees", label: "School Fees" },
     { to: "/academics/school-timings", label: "School Timings" },
     { to: "/academics/management-committee", label: "Managing Committee" },
     { to: "/academics/founder-message", label: "Chairman's Message" },
-    { to: "/academics/father-cruze-profile", label: "Father Anton Cruz" },
   ],
   students: [
     { to: "/students/school-uniform", label: "School Uniform" },
@@ -52,7 +52,7 @@ const navItems: Array<
 > = [
   { label: "Home", to: "/", exact: true },
   { label: "About Us", key: "about", submenu: true },
-  { label: "Academics", key: "academics", submenu: true, badge: "Admissions" },
+  { label: "Academics", key: "academics", submenu: true },
   { label: "Teachers", to: "/teachers" },
   { label: "Students", key: "students", submenu: true },
   { label: "Association", key: "association", submenu: true },
@@ -255,17 +255,6 @@ export function SiteHeader() {
               >
                 <Phone size={16} className="text-[#0F172A]/50 group-hover:text-[#C8940F] transition-colors duration-200" />
               </a>
-
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Link
-                  to="/admissions/apply-online"
-                  className="ml-1 px-4 py-2 rounded-full font-bold text-[11px] tracking-wide text-white bg-gradient-to-r from-[#D4A017] to-[#B8860B] shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center gap-1.5 group relative overflow-hidden whitespace-nowrap"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-500" />
-                  <span className="relative">Admissions</span>
-                  <span className="relative text-xs group-hover:translate-x-1 transition-transform duration-300">→</span>
-                </Link>
-              </motion.div>
             </div>
           </div>
         </div>
@@ -347,15 +336,6 @@ export function SiteHeader() {
                   );
                 })}
               </div>
-
-              <Link
-                to="/admissions/apply-online"
-                onClick={() => setIsOpen(false)}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#D4A017] to-[#B8860B] px-5 py-3.5 text-sm font-bold text-white shadow-md"
-              >
-                Admissions
-                <span>→</span>
-              </Link>
             </div>
           </div>
         ) : null}

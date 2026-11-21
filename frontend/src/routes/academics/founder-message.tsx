@@ -2,8 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
-import principalImage from "../../images/principal_portrait (2).jpg"; 
-import heroImage from "../../images/aboutimage3.jpg"; 
+import chairmanImage from "../../images/father_anton_cruz.jpg"; 
 import { PageHeader } from "@/components/PageHeader";
 import { fadeUp, staggerContainer } from "../../lib/motion";
 import { API_BASE } from "@/config";
@@ -53,10 +52,9 @@ function FounderMessagePage() {
       
       {/* 1. Hero Banner */}
       <PageHeader 
-        eyebrow="Chairman"
+        eyebrow="Chairman's Message"
         title={heroTitle}
         subtitle={`"${heroSubtitle.replace(/"/g, "")}"`}
-        backgroundImage={heroImage}
       />
 
       {/* 2. Founder Profile */}
@@ -69,7 +67,7 @@ function FounderMessagePage() {
           >
             <div className="absolute inset-0 bg-[#d4af37] rounded-3xl translate-x-3 translate-y-3 md:translate-x-4 md:translate-y-4 opacity-20 transition-transform duration-500 group-hover:translate-x-5 group-hover:translate-y-5"></div>
             <div className="relative aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl bg-[#0a2b18]">
-               <img src={principalImage} alt={name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90 sepia-[0.1]" />
+               <img src={chairmanImage} alt={name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                <div className="absolute inset-0 bg-gradient-to-t from-[#0a2b18]/60 via-transparent to-transparent opacity-80"></div>
             </div>
           </motion.div>
@@ -93,12 +91,6 @@ function FounderMessagePage() {
             <motion.p variants={fadeUp} className="text-[#4a5568] text-lg font-light leading-relaxed">
               {introText}
             </motion.p>
-            
-            <motion.div variants={fadeUp} className="pt-4">
-              <div className="font-serif italic text-3xl text-[#0a2b18]/70" style={{ fontFamily: 'Georgia, serif', transform: 'rotate(-2deg)' }}>
-                {name}
-              </div>
-            </motion.div>
           </motion.div>
 
         </div>
@@ -143,13 +135,11 @@ function FounderMessagePage() {
               {messageP2}
             </motion.p>
             
-            {/* 5. Signature Block */}
+            {/* 5. Sign-off Block */}
             <motion.div variants={fadeUp} className="mt-20 pt-12 border-t border-[#e2e8f0] flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="font-serif italic text-4xl text-[#0a2b18] mb-4 opacity-90" style={{ fontFamily: 'Georgia, serif', transform: 'rotate(-2deg)' }}>
-                {name}
-              </div>
-              <p className="text-[#0a2b18] font-medium text-lg">{designation}</p>
-              <p className="text-[#718096] text-sm uppercase tracking-widest mt-1">Brotherhood Educational and Charitable Trust</p>
+              <p className="text-[#0a2b18] font-serif font-semibold text-2xl">{name}</p>
+              <p className="text-[#d4af37] font-medium text-sm uppercase tracking-widest mt-1">{designation}</p>
+              <p className="text-[#718096] text-xs uppercase tracking-wider mt-1">Brotherhood Educational and Charitable Trust</p>
             </motion.div>
           </motion.div>
         </div>

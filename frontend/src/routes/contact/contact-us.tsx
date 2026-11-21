@@ -46,10 +46,10 @@ function ContactUsPage() {
         subtitle="Get in touch with our helpdesk, office administration, or admissions director."
       />
 
-      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 relative overflow-hidden bg-[#05140b]">
-        {/* Cinematic ambient lighting */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#1b4d32_0%,transparent_50%)] opacity-20 pointer-events-none"></div>
-        <div className="absolute top-1/2 left-0 w-[500px] sm:w-[800px] h-[500px] sm:h-[800px] bg-[#d4af37] rounded-full blur-[100px] sm:blur-[150px] opacity-[0.05] -translate-y-1/2 pointer-events-none"></div>
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 relative overflow-hidden bg-white">
+        {/* Subtle decorative ambient accents */}
+        <div className="absolute top-0 right-0 w-[500px] sm:w-[800px] h-[500px] sm:h-[800px] bg-[#d4af37]/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-[#1b4d32]/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto relative z-10 grid xl:grid-cols-12 gap-12 sm:gap-16 lg:gap-24 items-start">
           
@@ -61,11 +61,11 @@ function ContactUsPage() {
             
             <motion.div variants={fadeUp}>
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="w-8 h-[1px] bg-[#d4af37]/60"></div>
-                <span className="text-[#d4af37] uppercase tracking-[0.15em] text-xs font-semibold">Directory</span>
+                <div className="w-8 h-[1px] bg-[#d4af37]"></div>
+                <span className="text-[#1b4d32] uppercase tracking-[0.15em] text-xs font-semibold">Directory</span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white mb-4 sm:mb-6 break-words">School <span className="italic text-[#d4af37]">Offices</span></h2>
-              <p className="text-white/60 font-light text-sm sm:text-base leading-relaxed">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0a2b18] mb-4 sm:mb-6 break-words">School <span className="italic text-[#d4af37]">Offices</span></h2>
+              <p className="text-[#6c8274] font-light text-sm sm:text-base leading-relaxed">
                 Whether you have a question about admissions, academics, or events, our dedicated team is here to assist you.
               </p>
             </motion.div>
@@ -77,25 +77,25 @@ function ContactUsPage() {
                 { icon: Mail, label: "Email Address", detail: "info@brotherhoodschool.edu.in" },
                 { icon: Clock, label: "Working Hours", detail: "Mon – Fri: 8:30 AM – 3:30 PM\nSat: 9:00 AM – 12:30 PM" },
               ].map((info) => (
-                <div key={info.label} className="group flex items-start gap-4 sm:gap-5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-[#d4af37]/30 transition-all duration-500 cursor-default">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 bg-[#05140b] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:border-[#d4af37]/50 transition-transform duration-500">
-                    <info.icon className="h-4 w-4 sm:h-5 sm:w-5 text-[#d4af37]" />
+                <div key={info.label} className="group flex items-start gap-4 sm:gap-5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-[#f7faf8] border border-gray-100 hover:bg-white hover:border-[#d4af37]/40 hover:shadow-lg transition-all duration-500 cursor-default">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-200 bg-white flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:border-[#d4af37] shadow-xs transition-all duration-500">
+                    <info.icon className="h-4 w-4 sm:h-5 sm:w-5 text-[#1b4d32] group-hover:text-[#d4af37] transition-colors" />
                   </div>
                   <div>
-                    <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold mb-1 group-hover:text-white/70 transition-colors">{info.label}</h4>
-                    <div className="text-white/90 font-serif text-base sm:text-lg leading-snug whitespace-pre-line">{info.detail}</div>
+                    <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#6c8274] font-bold mb-1 group-hover:text-[#1b4d32] transition-colors">{info.label}</h4>
+                    <div className="text-[#0a2b18] font-serif text-base sm:text-lg leading-snug whitespace-pre-line">{info.detail}</div>
                   </div>
                 </div>
               ))}
             </motion.div>
 
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 pt-2 sm:pt-4">
-              <a href="tel:0442440133" className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-full bg-[#d4af37] text-[#05140b] px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest uppercase overflow-hidden transition-all hover:scale-105">
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
-                <Phone className="h-4 w-4 relative z-10" /> 
+              <a href="tel:0442440133" className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-full bg-[#0a2b18] text-white px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest uppercase overflow-hidden transition-all hover:bg-[#1b4d32] hover:shadow-md cursor-pointer">
+                <div className="absolute inset-0 bg-[#d4af37]/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
+                <Phone className="h-4 w-4 text-[#d4af37] relative z-10" /> 
                 <span className="relative z-10">Call Helpdesk</span>
               </a>
-              <a href="https://wa.me/919884204848" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-full bg-white/[0.05] border border-white/10 text-white px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest uppercase overflow-hidden transition-all hover:bg-white/10 hover:border-[#25D366]/50">
+              <a href="https://wa.me/919884204848" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-full bg-[#25D366]/10 border border-[#25D366]/30 text-[#128C7E] px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest uppercase overflow-hidden transition-all hover:bg-[#25D366]/20 cursor-pointer">
                 <MessageCircle className="h-4 w-4 text-[#25D366] relative z-10" /> 
                 <span className="relative z-10">WhatsApp</span>
               </a>
@@ -104,7 +104,7 @@ function ContactUsPage() {
 
           {/* Contact Form (Right Column) */}
           <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.3 }} className="xl:col-span-7 w-full">
-            <div className="relative rounded-2xl sm:rounded-[2.5rem] bg-white p-6 sm:p-8 md:p-12 lg:p-16 shadow-[0_30px_60px_-15px_rgba(10,43,24,0.15)] overflow-hidden">
+            <div className="relative rounded-2xl sm:rounded-[2.5rem] bg-[#fcfdfc] p-6 sm:p-8 md:p-12 lg:p-16 border border-gray-100 shadow-[0_20px_50px_rgba(10,43,24,0.06)] overflow-hidden">
               {/* Form Graphic Background */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#f4f7f5] rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
 
@@ -211,10 +211,10 @@ function ContactUsPage() {
                       <div className="pt-6 sm:pt-8 flex justify-end">
                         <button
                           type="submit"
-                          className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-full bg-[#05140b] text-white px-8 sm:px-10 py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest uppercase overflow-hidden transition-all hover:bg-[#0a2b18] hover:shadow-[0_10px_20px_rgba(10,43,24,0.2)] hover:-translate-y-1"
+                          className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-3 rounded-full bg-[#0a2b18] text-white px-8 sm:px-10 py-3.5 sm:py-4 text-xs sm:text-sm font-bold tracking-widest uppercase overflow-hidden transition-all hover:bg-[#1b4d32] hover:shadow-[0_10px_20px_rgba(10,43,24,0.15)] hover:-translate-y-1 cursor-pointer"
                         >
                           <span className="relative z-10">Send Message</span>
-                          <Send className="h-4 w-4 relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                          <Send className="h-4 w-4 relative z-10 text-[#d4af37] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </button>
                       </div>
                     </div>

@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { PageHeader } from "@/components/PageHeader";
-import { History, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import aboutImage from "../../images/aboutimage3.jpg";
 import { motion } from "motion/react";
@@ -82,13 +81,6 @@ function AboutSchoolPage() {
               <div className="relative rounded-[2rem] overflow-hidden aspect-[4/5] shadow-2xl">
                 <img src={aboutImage} alt="Brotherhood School Legacy" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-[#0a2b18]/10 mix-blend-multiply"></div>
-              </div>
-              
-              {/* Floating Element */}
-              <div className="absolute -bottom-6 left-2 sm:-left-4 md:-left-8 bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-2xl shadow-[0_20px_40px_-15px_rgba(10,43,24,0.15)] max-w-[200px] md:max-w-[240px] border border-[#f1f6f3] z-10">
-                <GraduationCap className="h-7 w-7 md:h-9 md:w-9 text-[#d4af37] mb-2 md:mb-3" />
-                <p className="font-serif text-lg md:text-xl text-[#0a2b18] leading-tight mb-1">"Beyond Textbooks"</p>
-                <p className="text-[#6c8274] text-[10px] md:text-xs uppercase tracking-wider font-semibold">Since 1991</p>
               </div>
             </motion.div>
 

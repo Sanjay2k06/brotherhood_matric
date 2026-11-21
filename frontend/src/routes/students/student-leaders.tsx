@@ -1,86 +1,403 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
-import { Award, ChevronRight, Users } from "lucide-react";
+import { Award, Users, Shield, RotateCw, Sparkles, CheckCircle2 } from "lucide-react";
 import { motion } from "motion/react";
 import aboutImage3 from "../../images/aboutimage3.jpg";
 import { API_BASE } from "@/config";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
-};
-
 export const Route = createFileRoute("/students/student-leaders")({
   head: () => ({
     meta: [
-      { title: "Student Leaders — Brotherhood School" },
-      { name: "description", content: "Meet the Student Council and pupil leaders of Brotherhood School." },
+      { title: "Student Leadership & Council 2026–2027 — Brotherhood School" },
+      {
+        name: "description",
+        content:
+          "Meet the elected student leaders and pupil representatives of Brotherhood Matriculation Higher Secondary School for the academic year 2026–2027.",
+      },
     ],
   }),
   component: StudentLeadersPage,
 });
 
-const getRoleDescription = (role: string) => {
-  const r = role.toLowerCase();
-  if (r.includes('head boy') || r.includes('head girl')) {
-    return "Responsible for representing the student body, assisting the administration, and leading all student council initiatives.";
-  }
-  if (r.includes('sports')) {
-    return "Leading athletic events, promoting sportsmanship, and coordinating inter-house physical education activities.";
-  }
-  if (r.includes('house captain')) {
-    return "Directing house activities, competitive sports events, assemblies, and managing house points allocation.";
-  }
-  if (r.includes('prefect')) {
-    return "Supporting general campus discipline, classroom order, and assisting staff during assemblies and breaks.";
-  }
-  return "Dedicated to serving the student community, organizing events, and maintaining school discipline.";
-};
+interface LeaderItem {
+  role: string;
+  name: string;
+  grade: string;
+  house?: string;
+  duties?: string;
+}
 
-function FlipCard({ leader, idx, isFlipped, onFlip }: { leader: any, idx: number, isFlipped: boolean, onFlip: () => void }) {
-  const initial = leader.name.charAt(0) === 'M' ? (leader.name.split(' ')[1]?.charAt(0) || 'S') : leader.name.charAt(0);
-  
+const PRIMARY_COUNCIL: LeaderItem[] = [
+  {
+    role: "Head Boy",
+    name: "Immanual Jafferson.S",
+    grade: "Std V",
+    duties: "Leading the primary pupil body, coordinating morning assemblies, and representing junior student interests with faculty.",
+  },
+  {
+    role: "Head Girl",
+    name: "Inshika Shri.S",
+    grade: "Std V",
+    duties: "Guiding primary student initiatives, welcoming school guests, and maintaining classroom harmony and peer friendship.",
+  },
+  {
+    role: "Sports Captain",
+    name: "Harish.S",
+    grade: "Std V",
+    duties: "Coordinating junior sports meets, physical training drills, and promoting fair play and energetic sportsmanship.",
+  },
+  {
+    role: "Sports Captain",
+    name: "Yashika.D",
+    grade: "Std V",
+    duties: "Organizing primary athletic activities, track events, and motivating young athletes during inter-house games.",
+  },
+  {
+    role: "Cultural Leader",
+    name: "Keerthana.V",
+    grade: "Std V",
+    duties: "Directing primary cultural celebrations, storytelling sessions, music performances, and festival assemblies.",
+  },
+];
+
+const PRIMARY_HOUSE_CAPTAINS: { house: string; color: string; badge: string; members: LeaderItem[] }[] = [
+  {
+    house: "Galilee House",
+    color: "from-blue-600 to-indigo-800",
+    badge: "bg-blue-50 text-blue-700 border-blue-200",
+    members: [
+      {
+        role: "Captain",
+        name: "Pratheesh.B",
+        grade: "Std V",
+        house: "Galilee House",
+        duties: "Leading Galilee House in primary sports, quizzes, and discipline assemblies.",
+      },
+      {
+        role: "Vice Captain",
+        name: "Nivedha.N",
+        grade: "Std V",
+        house: "Galilee House",
+        duties: "Assisting the House Captain in squad coordination and inter-house preparation.",
+      },
+    ],
+  },
+  {
+    house: "Zion House",
+    color: "from-amber-500 to-yellow-700",
+    badge: "bg-amber-50 text-amber-700 border-amber-200",
+    members: [
+      {
+        role: "Captain",
+        name: "Jeshwanth.S",
+        grade: "Std V",
+        house: "Zion House",
+        duties: "Directing Zion House members, fostering team spirit, and inspiring moral character.",
+      },
+      {
+        role: "Vice Captain",
+        name: "Jaclin Nibola.J",
+        grade: "Std V",
+        house: "Zion House",
+        duties: "Managing house points allocation, sports lineups, and classroom cleanliness.",
+      },
+    ],
+  },
+  {
+    house: "Judah House",
+    color: "from-red-500 to-rose-800",
+    badge: "bg-red-50 text-red-700 border-red-200",
+    members: [
+      {
+        role: "Captain",
+        name: "Praveen Sai.B",
+        grade: "Std V",
+        house: "Judah House",
+        duties: "Inspiring courage and sporting determination in all Judah House competitions.",
+      },
+      {
+        role: "Vice Captain",
+        name: "Sree Dharshini.I",
+        grade: "Std V",
+        house: "Judah House",
+        duties: "Coordinating relay squads, attendance, and encouraging participation in house events.",
+      },
+    ],
+  },
+  {
+    house: "Bethel House",
+    color: "from-emerald-600 to-teal-800",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    members: [
+      {
+        role: "Captain",
+        name: "Jayakandhan.M.D",
+        grade: "Std V",
+        house: "Bethel House",
+        duties: "Directing Bethel House environmental care, campus stewardship, and academic excellence.",
+      },
+      {
+        role: "Vice Captain",
+        name: "Danya Shree.R",
+        grade: "Std V",
+        house: "Bethel House",
+        duties: "Supporting house members in creative arts, literary contests, and sports assemblies.",
+      },
+    ],
+  },
+];
+
+const SENIOR_COUNCIL: LeaderItem[] = [
+  {
+    role: "Head Boy",
+    name: "P. Kishore",
+    grade: "XII - A",
+    duties: "Chief student representative, managing the prefectorial board, coordinating school celebrations, and liaising directly with the Principal.",
+  },
+  {
+    role: "Head Girl",
+    name: "M. Akshaya",
+    grade: "XII - C",
+    duties: "Chief student leader presiding over student governance, mentorship circles, academic forums, and community outreach programs.",
+  },
+  {
+    role: "Vice Head Boy",
+    name: "B. Ashwanth",
+    grade: "XII - A",
+    duties: "Assisting the Head Boy in day-to-day discipline, morning assembly alignment, and committee oversight.",
+  },
+  {
+    role: "Vice Head Girl",
+    name: "A. Monisha",
+    grade: "XII - B",
+    duties: "Assisting the Head Girl in student council duties, cultural arrangements, and junior student welfare.",
+  },
+  {
+    role: "Sport Secretary",
+    name: "N. Divya Dharshini",
+    grade: "XII - A",
+    duties: "Directing the annual Sports Day, zonal athletic meets, inter-school tournaments, and campus physical fitness.",
+  },
+  {
+    role: "Asst. Sport Secretary",
+    name: "F. Calvin Mawia",
+    grade: "XII - A",
+    duties: "Supporting sports equipment management, ground organization, and scheduling inter-house leagues.",
+  },
+  {
+    role: "Cultural Secretary",
+    name: "R. Sripriya",
+    grade: "XII - B",
+    duties: "Leading the drama, dance, and music ensembles for Annual Day, Teachers' Day, and festive school galas.",
+  },
+  {
+    role: "Literary Secretary",
+    name: "P. Gayathri",
+    grade: "XII - C",
+    duties: "Coordinating school debating society, editorial club, elocution contests, and library symposiums.",
+  },
+];
+
+const SENIOR_HOUSE_CAPTAINS: { house: string; color: string; badge: string; members: LeaderItem[] }[] = [
+  {
+    house: "St. Matthew House",
+    color: "from-blue-600 to-indigo-800",
+    badge: "bg-blue-50 text-blue-700 border-blue-200",
+    members: [
+      {
+        role: "Captain",
+        name: "G. Ajith Kumar",
+        grade: "XII - B",
+        house: "St. Matthew House",
+        duties: "Leading St. Matthew House in high school athletic championships, debates, and points tally.",
+      },
+      {
+        role: "Vice Captain",
+        name: "D. Sairathi",
+        grade: "XII - C",
+        house: "St. Matthew House",
+        duties: "Assisting the House Captain in organizing march-past contingents and quiz delegations.",
+      },
+    ],
+  },
+  {
+    house: "St. Mark House",
+    color: "from-red-500 to-rose-800",
+    badge: "bg-red-50 text-red-700 border-red-200",
+    members: [
+      {
+        role: "Captain",
+        name: "R. Sree Hari",
+        grade: "XII - A",
+        house: "St. Mark House",
+        duties: "Inspiring St. Mark House members to athletic supremacy and energetic participation in all campus meets.",
+      },
+      {
+        role: "Vice Captain",
+        name: "P. Akshaya",
+        grade: "XII - B",
+        house: "St. Mark House",
+        duties: "Supporting the captain with senior sports squads, attendance verification, and house discipline.",
+      },
+    ],
+  },
+  {
+    house: "St. Luke House",
+    color: "from-emerald-600 to-teal-800",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    members: [
+      {
+        role: "Captain",
+        name: "B. Jaya Prakash",
+        grade: "XII - C",
+        house: "St. Luke House",
+        duties: "Commanding St. Luke House in science fairs, humanitarian service projects, and sports tournaments.",
+      },
+      {
+        role: "Vice Captain",
+        name: "B. Priya Dharshini",
+        grade: "XII - A",
+        house: "St. Luke House",
+        duties: "Coordinating house literary entries, assembly presentations, and student sports coaching.",
+      },
+    ],
+  },
+  {
+    house: "St. John House",
+    color: "from-amber-500 to-yellow-700",
+    badge: "bg-amber-50 text-amber-700 border-amber-200",
+    members: [
+      {
+        role: "Captain",
+        name: "G. Nithish Kumar",
+        grade: "XII - C",
+        house: "St. John House",
+        duties: "Leading St. John House with dedication in academics, speech competitions, and athletic events.",
+      },
+      {
+        role: "Vice Captain",
+        name: "K. Soniya",
+        grade: "XII - A",
+        house: "St. John House",
+        duties: "Managing house points tracking, sports cheer squads, and inter-house cultural showcases.",
+      },
+    ],
+  },
+];
+
+const SENIOR_PREFECTS: LeaderItem[] = [
+  {
+    role: "Senior Student Prefect",
+    name: "G. Vijay Vignesh",
+    grade: "XII - A",
+    duties: "Maintaining high school corridor order, monitoring morning arrivals, and ensuring student punctuality.",
+  },
+  {
+    role: "Senior Student Prefect",
+    name: "N. Raju Yogi",
+    grade: "XII - B",
+    duties: "Assisting during campus break periods, library study hours, and maintaining assembly line discipline.",
+  },
+  {
+    role: "Senior Student Prefect",
+    name: "R. Sathya Priya",
+    grade: "XII - B",
+    duties: "Supporting campus cleanliness, monitoring canteen areas, and helping junior students with campus guidance.",
+  },
+  {
+    role: "Senior Student Prefect",
+    name: "S. Karnika",
+    grade: "XII - B",
+    duties: "Assisting school events management, visitor guidance during parent-teacher meetings, and lab discipline.",
+  },
+];
+
+function FlipLeaderCard({
+  leader,
+  idx,
+  accent = "#d4af37",
+}: {
+  leader: LeaderItem;
+  idx: number;
+  accent?: string;
+}) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // Extract initial for avatar
+  const initial = leader.name.charAt(0);
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
+    <motion.div
+      initial={{ opacity: 0, y: 25 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.8, delay: idx * 0.05 }}
-      className="relative w-full h-[280px] cursor-pointer perspective-[1000px] group"
-      onClick={onFlip}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.5, delay: (idx % 4) * 0.08 }}
+      className="relative w-full h-[290px] cursor-pointer perspective-[1000px] select-none group"
+      onClick={() => setIsFlipped(!isFlipped)}
     >
-      <motion.div 
+      <motion.div
         className="w-full h-full relative [transform-style:preserve-3d] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
         animate={{ rotateY: isFlipped ? 180 : 0 }}
       >
-        {/* Front Side (Light) */}
-        <div className="absolute inset-0 [backface-visibility:hidden] bg-white border border-[#f1f6f3] border-t-[6px] border-t-[#d4af37]/60 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center group-hover:shadow-[0_15px_30px_rgba(10,43,24,0.06)] transition-shadow overflow-hidden">
-          
-          <div className="w-14 h-14 rounded-full bg-[#f4f7f5] border border-[#e2e8f0] flex items-center justify-center mb-4 relative mt-2">
-            <div className="absolute inset-0 border border-[#d4af37] rounded-full opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"></div>
-            <span className="font-serif text-lg text-[#1b4d32]">{initial}</span>
+        {/* Front Side (Light & Prestigious) */}
+        <div className="absolute inset-0 [backface-visibility:hidden] bg-white border border-[#e2e8f0] border-t-[5px] border-t-[#d4af37] rounded-3xl p-6 flex flex-col justify-between items-center text-center shadow-sm group-hover:shadow-xl group-hover:border-[#d4af37]/60 group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+          {/* Top Initial Avatar */}
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0a2b18] to-[#1b4d32] border-2 border-[#d4af37]/50 flex items-center justify-center text-[#d4af37] shadow-md group-hover:scale-105 group-hover:border-[#d4af37] transition-all duration-300">
+            <span className="font-serif font-bold text-lg">{initial}</span>
           </div>
 
-          <h4 className="text-[9px] uppercase tracking-[0.2em] text-[#d4af37] font-bold mb-2">{leader.role}</h4>
-          <h3 className="font-serif text-xl text-[#0a2b18] mb-1">{leader.name}</h3>
-          <p className="text-[#6c8274] font-light italic text-xs">{leader.grade}</p>
-          
-          <div className="absolute bottom-4 left-0 right-0 text-center">
-            <span className="text-[10px] uppercase tracking-widest text-[#6c8274] border-b border-[#6c8274]/20 pb-0.5 group-hover:text-[#1b4d32] group-hover:border-[#1b4d32]/50 transition-colors">Duties</span>
+          {/* Content: Role, Bold Name, Italic Class */}
+          <div className="space-y-1.5 w-full">
+            <span className="inline-block text-[10px] uppercase tracking-[0.2em] text-[#d4af37] font-bold">
+              {leader.role}
+            </span>
+            <h3 className="font-serif font-bold text-xl text-[#0a2b18] leading-tight">
+              {leader.name}
+            </h3>
+            <p className="italic font-medium text-xs text-[#526a5c]">
+              Class {leader.grade}
+            </p>
+            {leader.house && (
+              <span className="inline-block text-[11px] font-semibold text-[#1b4d32] bg-[#f0f6f2] px-2.5 py-0.5 rounded-full border border-[#d2e2d7] mt-1">
+                {leader.house}
+              </span>
+            )}
+          </div>
+
+          {/* Flip Hint */}
+          <div className="pt-2 border-t border-[#f0f4f1] w-full flex items-center justify-center gap-1.5 text-[11px] text-[#7a8c80] group-hover:text-[#1b4d32] transition-colors">
+            <RotateCw className="w-3 h-3 text-[#d4af37] group-hover:rotate-180 transition-transform duration-500" />
+            <span className="italic font-medium">Click to view duties</span>
           </div>
         </div>
 
-        {/* Back Side (Dark) */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-[#05140b] rounded-[2rem] p-6 flex flex-col justify-center items-center text-center shadow-2xl border border-[#1b4d32]/30 overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#d4af37] rounded-full blur-[50px] opacity-[0.15] pointer-events-none"></div>
-          
-          <div className="relative z-10 flex flex-col items-center">
-            <Users className="h-6 w-6 text-[#d4af37] mb-4 opacity-80" strokeWidth={1.5} />
-            <h4 className="text-[9px] uppercase tracking-widest text-[#d4af37] font-semibold mb-3 pb-2 border-b border-[#d4af37]/20">Core Responsibilities</h4>
-            <p className="text-white/90 font-light leading-relaxed text-xs italic">
-              "{getRoleDescription(leader.role)}"
+        {/* Back Side (Deep Emerald & Gold) */}
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-[#05140b] rounded-3xl p-6 flex flex-col justify-between items-center text-center shadow-2xl border-2 border-[#d4af37]/40 overflow-hidden">
+          <div className="absolute top-0 right-0 w-28 h-28 bg-[#d4af37] rounded-full blur-[60px] opacity-[0.2] pointer-events-none"></div>
+
+          <div className="flex items-center gap-2 pt-1 text-[#d4af37]">
+            <Award className="w-5 h-5" />
+            <span className="text-[10px] uppercase tracking-widest font-bold">
+              Leadership Responsibilities
+            </span>
+          </div>
+
+          <div className="space-y-2 py-2">
+            <h4 className="font-serif font-bold text-base text-[#f3eed9]">
+              {leader.name}
+            </h4>
+            <p className="text-white/90 font-light leading-relaxed text-xs italic px-2">
+              &ldquo;{leader.duties}&rdquo;
             </p>
+          </div>
+
+          <div className="pt-2 border-t border-white/10 w-full flex items-center justify-center gap-1.5 text-[10px] text-[#d4af37]">
+            <RotateCw className="w-3 h-3" />
+            <span className="italic">Click to flip back</span>
           </div>
         </div>
       </motion.div>
@@ -89,212 +406,349 @@ function FlipCard({ leader, idx, isFlipped, onFlip }: { leader: any, idx: number
 }
 
 function StudentLeadersPage() {
-  const [flippedIndex, setFlippedIndex] = useState<string | null>(null);
-  const [primaryLeaders, setPrimaryLeaders] = useState<any[]>([]);
-  const [seniorLeaders, setSeniorLeaders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const defaultCouncil = [
-    // Primary Student Council
-    { role: "Head Boy (Primary)", name: "Immanual Jefferson S.", grade: "Std V" },
-    { role: "Head Girl (Primary)", name: "Inshika Shri S.", grade: "Std V" },
-    { role: "Sports Captain (Primary - Boys)", name: "Harish S.", grade: "Std V" },
-    { role: "Sports Captain (Primary - Girls)", name: "Yashika D.", grade: "Std V" },
-    { role: "Cultural Leader (Primary)", name: "Keerthana V.", grade: "Std V" },
-    { role: "Galileo House Captain (Primary)", name: "Pratheesh B.", grade: "Std V" },
-    { role: "Galileo House Vice Captain (Primary)", name: "Nivedha N.", grade: "Std IV" },
-    { role: "Zion House Captain (Primary)", name: "Jeshwanth S.", grade: "Std V" },
-    { role: "Zion House Vice Captain (Primary)", name: "Jackin Nibola J.", grade: "Std IV" },
-    { role: "Judah House Captain (Primary)", name: "Praveen Sai B.", grade: "Std V" },
-    { role: "Judah House Vice Captain (Primary)", name: "Sree Dharshini I.", grade: "Std IV" },
-    { role: "Bethel House Captain (Primary)", name: "Jayapreetha M.D.", grade: "Std V" },
-    { role: "Bethel House Vice Captain (Primary)", name: "Deepa Sree R.", grade: "Std IV" },
-
-    // Senior Student Council
-    { role: "Head Boy", name: "P. Kishore", grade: "XII-A" },
-    { role: "Head Girl", name: "M. Akshaya", grade: "XII-C" },
-    { role: "Vice Head Boy", name: "B. Ashwanth", grade: "XII-A" },
-    { role: "Vice Head Girl", name: "A. Monisha", grade: "XII-B" },
-    { role: "Sports Secretary", name: "N. Divya Dharshini", grade: "XII-A" },
-    { role: "Assistant Sports Secretary", name: "F. Calvin Mawia", grade: "XII-A" },
-    { role: "Cultural Secretary", name: "R. Sripriya", grade: "XII-B" },
-    { role: "Literary Secretary", name: "P. Gayathri", grade: "XII-C" },
-    { role: "St. Matthew House Captain", name: "G. Ajith Kumar", grade: "XII" },
-    { role: "St. Matthew House Vice Captain", name: "D. Sairathi", grade: "XI" },
-    { role: "St. Mark House Captain", name: "R. Sree Hari", grade: "XII" },
-    { role: "St. Mark House Vice Captain", name: "P. Akshaya", grade: "XI" },
-    { role: "St. Luke House Captain", name: "B. Jaya Prakash", grade: "XII" },
-    { role: "St. Luke House Vice Captain", name: "B. Priya Dharshini", grade: "XI" },
-    { role: "St. John House Captain", name: "G. Nithish Kumar", grade: "XII" },
-    { role: "St. John House Vice Captain", name: "K. Soniya", grade: "XI" },
-    { role: "School Prefect", name: "G. Vijay Vignesh", grade: "XII" },
-    { role: "School Prefect", name: "N. Raju Yogi", grade: "XII" },
-    { role: "School Prefect", name: "Sathya Priya", grade: "XII" },
-    { role: "School Prefect", name: "Karnika", grade: "XII" }
-  ];
+  const [activeTab, setActiveTab] = useState<"all" | "primary" | "senior">("all");
+  const [apiLeaders, setApiLeaders] = useState<any[]>([]);
 
   useEffect(() => {
     fetch(`${API_BASE}/student-leaders/`)
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        const list = Array.isArray(data) ? data : (data.results || []);
-        const targetList = list.length > 0 ? list : defaultCouncil;
-        
-        // Group by wing
-        const primary = targetList.filter((item: any) => 
-          item.role.toLowerCase().includes("primary") || 
-          item.grade.toLowerCase().includes("std iv") || 
-          item.grade.toLowerCase().includes("std v")
-        );
-        const senior = targetList.filter((item: any) => 
-          !item.role.toLowerCase().includes("primary") && 
-          !item.grade.toLowerCase().includes("std iv") && 
-          !item.grade.toLowerCase().includes("std v")
-        );
-        
-        setPrimaryLeaders(primary);
-        setSeniorLeaders(senior);
-        setLoading(false);
+        if (Array.isArray(data) && data.length > 0) {
+          setApiLeaders(data);
+        }
       })
-      .catch((err) => {
-        console.error("Error fetching council leaders:", err);
-        const primary = defaultCouncil.filter((item: any) => 
-          item.role.toLowerCase().includes("primary") || 
-          item.grade.toLowerCase().includes("std iv") || 
-          item.grade.toLowerCase().includes("std v")
-        );
-        const senior = defaultCouncil.filter((item: any) => 
-          !item.role.toLowerCase().includes("primary") && 
-          !item.grade.toLowerCase().includes("std iv") && 
-          !item.grade.toLowerCase().includes("std v")
-        );
-        setPrimaryLeaders(primary);
-        setSeniorLeaders(senior);
-        setLoading(false);
-      });
+      .catch(() => {});
   }, []);
 
+  // Filter out any leaders that are already in the static lists so we don't duplicate them
+  const knownNames = new Set<string>([
+    ...PRIMARY_COUNCIL.map((l) => l.name.toLowerCase().trim()),
+    ...PRIMARY_HOUSE_CAPTAINS.flatMap((h) => h.members.map((m) => m.name.toLowerCase().trim())),
+    ...SENIOR_COUNCIL.map((l) => l.name.toLowerCase().trim()),
+    ...SENIOR_HOUSE_CAPTAINS.flatMap((h) => h.members.map((m) => m.name.toLowerCase().trim())),
+    ...SENIOR_PREFECTS.map((l) => l.name.toLowerCase().trim()),
+  ]);
+
+  const customLeaders = apiLeaders.filter(
+    (l) => l.name && !knownNames.has(l.name.toLowerCase().trim())
+  );
+
   return (
-    <div className="bg-[#fdfdfc] text-[#2d3748] font-sans selection:bg-[#0a2b18] selection:text-white">
+    <div className="bg-[#fcfdfa] text-[#1c2e24] min-h-screen">
+      {/* 1. Hero Header */}
       <PageHeader
-        eyebrow="Student Council"
-        title="Student Leaders"
-        subtitle="Meet the student representatives elected to support our school community."
+        eyebrow="Student Governance"
+        title="Student Leadership & Council 2026–2027"
+        subtitle="Our Student Council provides opportunities for students to develop leadership, teamwork, responsibility and confidence. Student leaders play an important role in representing their fellow students and contributing to the academic, cultural and sporting activities of the school."
       />
 
-      <section className="py-20 px-6 bg-[#fdfdfc]">
-        <div className="max-w-7xl mx-auto">
-          
-          {loading ? (
-            <div className="text-center py-16">
-              <div className="w-10 h-10 border-2 border-[#e2e8f0] border-t-[#d4af37] rounded-full animate-spin mx-auto"></div>
-              <p className="text-xs text-[#718096] mt-4 uppercase tracking-widest font-semibold">Loading Council...</p>
-            </div>
-          ) : (
-            <div className="space-y-24">
-              
-              {/* Senior Student Council */}
-              <div className="space-y-10">
-                <div className="border-b border-[#0a2b18]/10 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                  <div>
-                    <span className="text-[#1b4d32] uppercase tracking-[0.2em] text-xs font-semibold block mb-2">Secondary & Higher Secondary</span>
-                    <h2 className="font-serif text-3xl md:text-4xl text-[#0a2b18]">Pupil Leaders (2026–2027)</h2>
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {seniorLeaders.map((leader, idx) => (
-                    <FlipCard 
-                      key={`sr-${leader.name}-${leader.role}`} 
-                      leader={leader} 
-                      idx={idx} 
-                      isFlipped={flippedIndex === `sr-${idx}`}
-                      onFlip={() => setFlippedIndex(flippedIndex === `sr-${idx}` ? null : `sr-${idx}`)}
-                    />
-                  ))}
-                </div>
-              </div>
+      {/* 2. Institutional Introduction */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-white border-b border-[#e2e8f0] relative overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <div className="inline-flex items-center justify-center gap-3">
+            <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]"></div>
+            <span className="text-[#d4af37] uppercase tracking-[0.2em] text-[11px] sm:text-xs font-bold">
+              Investiture & Student Leadership Roster
+            </span>
+            <div className="w-8 sm:w-12 h-[1px] bg-[#d4af37]"></div>
+          </div>
 
-              {/* Primary Student Council */}
-              <div className="space-y-10 pt-10 border-t border-[#0a2b18]/10">
-                <div className="pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                  <div>
-                    <span className="text-[#1b4d32] uppercase tracking-[0.2em] text-xs font-semibold block mb-2">Primary Wing</span>
-                    <h2 className="font-serif text-3xl md:text-4xl text-[#0a2b18]">Student Council (2026–2027)</h2>
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {primaryLeaders.map((leader, idx) => (
-                    <FlipCard 
-                      key={`pr-${leader.name}-${leader.role}`} 
-                      leader={leader} 
-                      idx={idx} 
-                      isFlipped={flippedIndex === `pr-${idx}`}
-                      onFlip={() => setFlippedIndex(flippedIndex === `pr-${idx}` ? null : `pr-${idx}`)}
-                    />
-                  ))}
-                </div>
-              </div>
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#0a2b18] font-normal">
+            Student Leadership & <span className="italic text-[#1b4d32]">Council 2026–2027</span>
+          </h1>
 
-            </div>
-          )}
+          <p className="text-[#55695d] font-light text-base sm:text-lg leading-relaxed max-w-3xl mx-auto">
+            Our Student Council provides opportunities for students to develop leadership, teamwork, responsibility and confidence. Student leaders play an important role in representing their fellow students and contributing to the academic, cultural and sporting activities of the school.
+          </p>
+
+          {/* Filter Pills */}
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all ${
+                activeTab === "all"
+                  ? "bg-[#1b4d32] text-white shadow-md"
+                  : "bg-[#f4f7f5] text-[#55695d] hover:bg-[#e6ece8]"
+              }`}
+            >
+              All Wings (29 Leaders)
+            </button>
+            <button
+              onClick={() => setActiveTab("primary")}
+              className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all ${
+                activeTab === "primary"
+                  ? "bg-[#1b4d32] text-white shadow-md"
+                  : "bg-[#f4f7f5] text-[#55695d] hover:bg-[#e6ece8]"
+              }`}
+            >
+              Primary Wing (13 Leaders)
+            </button>
+            <button
+              onClick={() => setActiveTab("senior")}
+              className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-all ${
+                activeTab === "senior"
+                  ? "bg-[#1b4d32] text-white shadow-md"
+                  : "bg-[#f4f7f5] text-[#55695d] hover:bg-[#e6ece8]"
+              }`}
+            >
+              Senior Wing (20 Leaders)
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* Leadership Responsibilities */}
-      <section className="py-24 md:py-32 bg-[#05140b] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,#1b4d32_0%,transparent_50%)] opacity-20 pointer-events-none"></div>
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
-           
-           {/* Text Side */}
-           <motion.div 
-             initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 1 }} 
-             className="w-full lg:w-[50%] space-y-10"
-           >
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-[1px] bg-[#d4af37]/60"></div>
-                <span className="text-[#d4af37] uppercase tracking-[0.15em] text-xs font-semibold">Duties & Impact</span>
+      {/* 3. Main Leaders Roster */}
+      <main className="py-14 sm:py-20 px-4 sm:px-6 md:px-10 lg:px-16 max-w-7xl mx-auto space-y-20">
+        {/* ================= PRIMARY WING ================= */}
+        {(activeTab === "all" || activeTab === "primary") && (
+          <div className="space-y-16">
+            {/* Primary Student Council */}
+            <section className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b-2 border-[#1b4d32]/15 gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1b4d32] to-[#0a2b18] text-[#d4af37] flex items-center justify-center shadow-sm">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+                      Primary Student Council
+                    </h2>
+                    <span className="text-xs uppercase tracking-wider text-[#6c8274] font-medium">
+                      Executive Pupil Leadership • Classes I – V
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
+                  5 Council Members
+                </span>
               </div>
-              
-              <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
-                Leadership <br/><span className="italic text-[#d4af37]">Responsibilities</span>
-              </h3>
-              
-              <div className="space-y-6 text-white/70 font-light text-lg leading-[1.8]">
-                <p>
-                  The Student Council serves as the liaison between the school administration, faculty, and student body. They are elected or selected annually through leadership evaluations to develop cooperation and responsibility.
-                </p>
-                <p>
-                  Leaders maintain school discipline during morning assemblies, coordinate house events, organize co-curricular activities, and guide student initiatives.
-                </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+                {PRIMARY_COUNCIL.map((leader, idx) => (
+                  <FlipLeaderCard key={leader.name + leader.role} leader={leader} idx={idx} />
+                ))}
               </div>
-           </motion.div>
+            </section>
 
-           {/* Image Side */}
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.2 }} 
-             className="w-full lg:w-[50%]"
-           >
-             <div className="relative aspect-[4/3] rounded-[3rem] overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.1)] group border border-[#1b4d32]/30">
-               <img
-                 src={aboutImage3}
-                 alt="School Student Leaders assembly"
-                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-90 sepia-[0.1]"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#05140b]/90 via-transparent to-transparent"></div>
-               
-               <div className="absolute bottom-10 left-10">
-                  <Award className="h-12 w-12 text-[#d4af37] mb-5 opacity-80" strokeWidth={1} />
-                  <p className="text-white font-serif text-2xl">Democratic Leadership</p>
-               </div>
-             </div>
-           </motion.div>
+            {/* Primary House Captains */}
+            <section className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b-2 border-[#1b4d32]/15 gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1b4d32] to-[#0a2b18] text-[#d4af37] flex items-center justify-center shadow-sm">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+                      Primary House Captains
+                    </h2>
+                    <span className="text-xs uppercase tracking-wider text-[#6c8274] font-medium">
+                      Galilee • Zion • Judah • Bethel
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
+                  8 House Leaders
+                </span>
+              </div>
 
-         </div>
-      </section>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {PRIMARY_HOUSE_CAPTAINS.map((houseGroup) => (
+                  <div
+                    key={houseGroup.house}
+                    className="bg-white rounded-3xl border border-[#e2e8f0] p-5 shadow-sm space-y-4"
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-[#f0f4f1]">
+                      <h3 className="font-serif font-bold text-lg text-[#0a2b18]">
+                        {houseGroup.house}
+                      </h3>
+                      <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${houseGroup.badge}`}>
+                        Primary
+                      </span>
+                    </div>
 
+                    <div className="space-y-4">
+                      {houseGroup.members.map((member, idx) => (
+                        <FlipLeaderCard key={member.name} leader={member} idx={idx} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ================= SENIOR WING ================= */}
+        {(activeTab === "all" || activeTab === "senior") && (
+          <div className="space-y-16">
+            {/* Senior Student Council */}
+            <section className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b-2 border-[#1b4d32]/15 gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1b4d32] to-[#0a2b18] text-[#d4af37] flex items-center justify-center shadow-sm">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+                      Senior Student Council
+                    </h2>
+                    <span className="text-xs uppercase tracking-wider text-[#6c8274] font-medium">
+                      Higher Secondary Executive Council • Classes XI – XII
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
+                  8 Council Secretaries
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {SENIOR_COUNCIL.map((leader, idx) => (
+                  <FlipLeaderCard key={leader.name + leader.role} leader={leader} idx={idx} />
+                ))}
+              </div>
+            </section>
+
+            {/* Senior House Captains */}
+            <section className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b-2 border-[#1b4d32]/15 gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1b4d32] to-[#0a2b18] text-[#d4af37] flex items-center justify-center shadow-sm">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+                      Senior House Captains
+                    </h2>
+                    <span className="text-xs uppercase tracking-wider text-[#6c8274] font-medium">
+                      St. Matthew • St. Mark • St. Luke • St. John
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
+                  8 Senior Captains
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {SENIOR_HOUSE_CAPTAINS.map((houseGroup) => (
+                  <div
+                    key={houseGroup.house}
+                    className="bg-white rounded-3xl border border-[#e2e8f0] p-5 shadow-sm space-y-4"
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-[#f0f4f1]">
+                      <h3 className="font-serif font-bold text-lg text-[#0a2b18]">
+                        {houseGroup.house}
+                      </h3>
+                      <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${houseGroup.badge}`}>
+                        Senior
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      {houseGroup.members.map((member, idx) => (
+                        <FlipLeaderCard key={member.name} leader={member} idx={idx} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Senior Student Prefects */}
+            <section className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b-2 border-[#1b4d32]/15 gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1b4d32] to-[#0a2b18] text-[#d4af37] flex items-center justify-center shadow-sm">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+                      Senior Student Prefects
+                    </h2>
+                    <span className="text-xs uppercase tracking-wider text-[#6c8274] font-medium">
+                      Discipline, Assembly & Campus Ambassadors
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
+                  4 Prefects
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {SENIOR_PREFECTS.map((leader, idx) => (
+                  <FlipLeaderCard key={leader.name} leader={leader} idx={idx} />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* Appointed Council Representatives (Dynamically populated from Admin) */}
+        {customLeaders.length > 0 && (
+          <section className="space-y-8 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b-2 border-[#1b4d32]/15 gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1b4d32] to-[#0a2b18] text-[#d4af37] flex items-center justify-center shadow-sm">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+                    Appointed Council Representatives
+                  </h2>
+                  <span className="text-xs uppercase tracking-wider text-[#6c8274] font-medium">
+                    Additional Student Leaders &amp; Prefects
+                  </span>
+                </div>
+              </div>
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
+                {customLeaders.length} Appointed Leaders
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {customLeaders.map((leader, idx) => (
+                <FlipLeaderCard
+                  key={leader.id || leader.name}
+                  leader={{
+                    role: leader.role || "Council Leader",
+                    name: leader.name,
+                    grade: leader.grade || "Brotherhood",
+                    duties:
+                      leader.duties ||
+                      "Representing student interests, organizing school events, and upholding leadership excellence.",
+                  }}
+                  idx={idx}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Leadership Responsibilities Institutional Banner */}
+        <div className="grid md:grid-cols-12 gap-8 items-center bg-gradient-to-br from-white to-[#f7faf8] border border-[#e2e8f0] rounded-[2.5rem] p-8 sm:p-12 shadow-sm">
+          <div className="md:col-span-7 space-y-4 text-[#55695d] text-sm sm:text-base leading-relaxed">
+            <h3 className="font-serif text-2xl sm:text-3xl text-[#0a2b18] font-bold">
+              Leadership Responsibilities & Code of Honor
+            </h3>
+            <p>
+              The Student Council serves as the liaison between the school administration, faculty, and student body. Student leaders play an important role in representing their fellow students and contributing to the academic, cultural and sporting activities of the school.
+            </p>
+            <p>
+              Leaders maintain school discipline during morning assemblies, coordinate house events, organize inter-school festivals, and champion eco-friendly policies across the Brotherhood campus.
+            </p>
+          </div>
+
+          <div className="md:col-span-5 rounded-2xl overflow-hidden shadow-lg border border-[#e2e8f0]">
+            <img
+              src={aboutImage3}
+              alt="School Student Leaders Assembly"
+              className="w-full h-[260px] object-cover hover:scale-105 transition-transform duration-700"
+            />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

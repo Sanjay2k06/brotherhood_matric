@@ -14,7 +14,7 @@ import campusImage2 from "../images/schooluniform.jpg";
 import campusImage3 from "../images/house.jpg";
 import sportsImage from "../images/sports.jpg";
 import artsImage from "../images/choir.jpg";
-import principalImage from "../images/Principal-Photo.jpg";
+import principalImage from "../images/Shima Picture corrected (1).jpeg";
 import facilityImage1 from "../images/result.jpg";
 import facilityImage2 from "../images/aboutimage2.jpg";
 import facilityImage3 from "../images/herosection.jpg";
@@ -61,14 +61,13 @@ function Hero() {
         <img
           src={heroImage}
           alt="Brotherhood School Campus"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-center brightness-125 contrast-105"
         />
       </motion.div>
 
-      {/* Dramatic Multi-layered Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0a2b18]/95 via-[#0a2b18]/60 to-transparent z-10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#05140b] via-transparent to-transparent z-10 opacity-90" />
-      <div className="absolute inset-0 bg-[#0a2b18]/20 mix-blend-multiply z-10" />
+      {/* Dramatic Multi-layered Overlays with enhanced brightness */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0a2b18]/75 via-[#0a2b18]/40 to-transparent z-10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#05140b]/80 via-transparent to-transparent z-10 opacity-60" />
       
       {/* Decorative Orbs for Premium feel */}
       <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-[#d4af37]/10 rounded-full blur-[90px] sm:blur-[120px] mix-blend-screen pointer-events-none z-10"></div>
@@ -79,7 +78,7 @@ function Hero() {
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="max-w-3xl space-y-6 sm:space-y-8 flex flex-col items-start"
+          className="max-w-3xl space-y-4 sm:space-y-5 flex flex-col items-start"
         >
           <motion.div variants={fadeUp} className="inline-flex items-center gap-3 sm:gap-4">
             <div className="h-[1px] w-6 sm:w-8 bg-[#d4af37]"></div>
@@ -101,8 +100,8 @@ function Hero() {
             </p>
           </motion.div>
 
-          {/* High-end interactive Buttons */}
-          <motion.div variants={fadeUp} className="pt-6 sm:pt-8 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center w-full sm:w-auto">
+          {/* High-end interactive Buttons (Shifted slightly upward) */}
+          <motion.div variants={fadeUp} className="pt-2 sm:pt-3 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center w-full sm:w-auto">
             {/* Primary Gold Button */}
             <motion.div whileHover={buttonHover} whileTap={buttonTap} className="w-full sm:w-auto">
               <Link to="/admissions" className="w-full sm:w-auto group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full overflow-hidden transition-shadow duration-300 shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]">
@@ -181,7 +180,16 @@ function AboutSchool() {
             </p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="pt-4 sm:pt-6">
+          <motion.div variants={fadeUp} className="pt-3 sm:pt-4 border-l-2 border-[#d4af37] pl-4 sm:pl-5 my-2">
+            <p className="font-serif text-xl sm:text-2xl text-[#0a2b18] font-medium leading-snug">
+              &ldquo;Every Child is a Gift of God.&rdquo;
+            </p>
+            <p className="text-[#6c8274] text-xs sm:text-sm uppercase tracking-wider font-semibold mt-1">
+              — Our Tagline
+            </p>
+          </motion.div>
+
+          <motion.div variants={fadeUp} className="pt-3 sm:pt-4">
             <Link to="/about" className="group inline-flex items-center gap-3 text-[#1b4d32] border-b border-[#1b4d32]/30 pb-1 hover:border-[#1b4d32] transition-colors duration-300">
               <span className="font-medium text-sm sm:text-base">Discover Our Story</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -200,18 +208,6 @@ function AboutSchool() {
             <img src={aboutImage} alt="Students learning" loading="lazy" decoding="async" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-[#0a2b18]/10 mix-blend-multiply"></div>
           </div>
-
-          {/* Floating Glass Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="absolute -bottom-6 left-4 sm:-bottom-10 sm:-left-6 md:-left-12 lg:-left-16 bg-white/90 backdrop-blur-xl p-5 sm:p-8 rounded-2xl shadow-[0_20px_40px_-15px_rgba(10,43,24,0.1)] max-w-[240px] sm:max-w-[280px] border border-white/50 z-10"
-          >
-            <p className="font-serif text-xl sm:text-2xl text-[#0a2b18] leading-tight mb-2">"Every Child is a Gift of God."</p>
-            <p className="text-[#6c8274] text-xs sm:text-sm uppercase tracking-wider font-semibold">— Our Tagline</p>
-          </motion.div>
         </motion.div>
       </div>
     </section>
@@ -451,10 +447,24 @@ function PrincipalMessage() {
 
         <motion.div
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}
-          className="lg:w-3/5 space-y-6 sm:space-y-8"
+          className="lg:w-3/5 space-y-6 sm:space-y-7"
         >
-          <div className="text-[#d4af37]">
-            <svg width="40" height="40" className="sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          {/* Section Eyebrow & Title */}
+          <motion.div variants={fadeUp} className="space-y-2">
+            <div className="inline-flex items-center gap-3">
+              <div className="w-8 h-[1px] bg-[#d4af37]"></div>
+              <span className="text-[#d4af37] text-xs uppercase tracking-[0.2em] font-semibold">
+                Leadership &amp; Vision
+              </span>
+              <div className="w-8 h-[1px] bg-[#d4af37]"></div>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white font-normal leading-tight">
+              Principal&apos;s <span className="italic text-[#d4af37]">Message</span>
+            </h2>
+          </motion.div>
+
+          <div className="text-[#d4af37] pt-1">
+            <svg width="36" height="36" className="sm:w-10 sm:h-10" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.017 21L16.417 14.5C16.817 13.5 17.517 11.5 17.517 9.5C17.517 6.5 15.017 4.5 11.517 4.5C11.517 4.5 11.017 4.5 10.517 4.6C11.017 3.5 12.017 2.5 13.517 2L12.517 1C10.517 1.5 8.517 3.5 7.517 6.5C6.517 9.5 6.517 12.5 6.517 12.5L8.517 12.5C8.517 12.5 9.017 12.5 9.517 12.5C9.517 12.5 10.017 12.5 10.017 14.5C10.017 16.5 8.517 17.5 8.517 17.5L7.517 21H14.017Z" />
             </svg>
           </div>
@@ -614,30 +624,39 @@ function NewsAndEvents() {
   const defaultUpcomingEvents = [
     {
       id: "1",
-      date: "15",
-      month: "AUG",
-      title: "Independence Day Celebration",
-      time: "08:00 AM - 12:30 PM",
-      location: "Main Ground",
-      category: "Celebration",
+      date: "26",
+      month: "NOV",
+      title: "Constitution Day / Social Science Association",
+      time: "09:30 AM - 12:30 PM",
+      location: "Main Auditorium",
+      category: "Activity",
     },
     {
       id: "2",
-      date: "22",
-      month: "SEP",
-      title: "Annual Science Exhibition",
-      time: "09:00 AM - 03:00 PM",
-      location: "Science Block",
-      category: "Academic",
+      date: "28",
+      month: "NOV",
+      title: "Inter House Cultural Festival",
+      time: "09:00 AM - 03:30 PM",
+      location: "School Grounds",
+      category: "Cultural",
     },
     {
       id: "3",
-      date: "10",
-      month: "OCT",
-      title: "Inter-School Sports Meet",
-      time: "07:30 AM - 04:00 PM",
-      location: "Sports Arena",
-      category: "Athletics",
+      date: "05",
+      month: "DEC",
+      title: "Christmas Programme & Annual Day",
+      time: "10:00 AM - 01:30 PM",
+      location: "Main Stage",
+      category: "Celebration",
+    },
+    {
+      id: "4",
+      date: "14",
+      month: "DEC",
+      title: "Half Yearly Exam Begins (I to XII)",
+      time: "09:00 AM - 12:30 PM",
+      location: "Examination Halls",
+      category: "Exam",
     }
   ];
 
@@ -667,21 +686,53 @@ function NewsAndEvents() {
       .then(data => {
         const eventsList = Array.isArray(data) ? data : (data.results || []);
         if (eventsList.length > 0) {
-          const mapped = eventsList.map((ev: any) => {
-            const d = new Date(ev.event_date);
-            const day = !isNaN(d.getDate()) ? String(d.getDate()).padStart(2, "0") : "15";
-            const monthStr = !isNaN(d.getMonth()) ? d.toLocaleString("en-US", { month: "short" }).toUpperCase() : "EVENT";
-            return {
-              id: String(ev.id),
-              date: day,
-              month: monthStr,
-              title: ev.title,
-              time: ev.event_time || "School Hours",
-              location: ev.venue || "Campus",
-              category: ev.category || "Academic"
-            };
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+          // Filter out past events, sort strictly chronologically ascending
+          const futureEvents = eventsList
+            .filter((ev: any) => {
+              if (!ev.event_date) return false;
+              const evDate = new Date(ev.event_date);
+              return !isNaN(evDate.getTime()) && evDate >= today;
+            })
+            .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+
+          // Identify events for this month or next month
+          const curYear = today.getFullYear();
+          const curMonth = today.getMonth();
+          const nextMonthDate = new Date(curYear, curMonth + 1, 1);
+          const nextMonth = nextMonthDate.getMonth();
+          const nextMonthYear = nextMonthDate.getFullYear();
+
+          const monthFiltered = futureEvents.filter((ev: any) => {
+            const evDate = new Date(ev.event_date);
+            const y = evDate.getFullYear();
+            const m = evDate.getMonth();
+            return (y === curYear && m === curMonth) || (y === nextMonthYear && m === nextMonth);
           });
-          setUpcomingEvents(mapped);
+
+          // Show 3 - 4 events (prefer this month & next month; fallback to immediate upcoming)
+          const candidates = monthFiltered.length >= 3 ? monthFiltered : futureEvents;
+          const topEvents = candidates.slice(0, 4);
+
+          if (topEvents.length > 0) {
+            const mapped = topEvents.map((ev: any) => {
+              const d = new Date(ev.event_date);
+              const day = !isNaN(d.getDate()) ? String(d.getDate()).padStart(2, "0") : "15";
+              const monthStr = !isNaN(d.getMonth()) ? d.toLocaleString("en-US", { month: "short" }).toUpperCase() : "EVENT";
+              return {
+                id: String(ev.id),
+                date: day,
+                month: monthStr,
+                title: ev.title,
+                time: ev.event_time || "08:45 AM - 03:30 PM",
+                location: ev.venue || "School Campus",
+                category: ev.category || "Academic"
+              };
+            });
+            setUpcomingEvents(mapped);
+          }
         }
       })
       .catch(err => console.error("Error fetching live events:", err));
@@ -728,38 +779,49 @@ function NewsAndEvents() {
                 <motion.div 
                   key={event.id} 
                   variants={fadeUp}
-                  className="group flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-[#f7faf8] border border-gray-100 hover:border-[#d4af37]/30 hover:shadow-xl transition-all duration-500 cursor-pointer"
                 >
-                  {/* Date Badge */}
-                  <div className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white shadow-sm flex flex-col items-center justify-center border border-gray-100 group-hover:bg-[#0a2b18] transition-colors duration-500">
-                    <span className="text-xs sm:text-sm font-semibold text-[#6c8274] group-hover:text-[#d4af37] transition-colors uppercase tracking-wider">{event.month}</span>
-                    <span className="text-2xl sm:text-3xl font-serif text-[#0a2b18] group-hover:text-white transition-colors mt-0.5 sm:mt-1">{event.date}</span>
-                  </div>
-                  
-                  {/* Event Info */}
-                  <div className="flex flex-col justify-center flex-grow">
-                    <span className="text-xs uppercase tracking-widest text-[#d4af37] font-semibold mb-1 sm:mb-2">{event.category}</span>
-                    <h3 className="text-lg sm:text-xl font-serif text-[#0a2b18] group-hover:text-[#1b4d32] transition-colors mb-2 sm:mb-3">{event.title}</h3>
+                  <Link
+                    to="/events"
+                    className="group flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-[#f7faf8] border border-gray-100 hover:border-[#d4af37]/40 hover:shadow-xl transition-all duration-500 cursor-pointer block"
+                  >
+                    {/* Date Badge */}
+                    <div className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white shadow-sm flex flex-col items-center justify-center border border-gray-100 group-hover:bg-[#0a2b18] transition-colors duration-500">
+                      <span className="text-xs sm:text-sm font-semibold text-[#6c8274] group-hover:text-[#d4af37] transition-colors uppercase tracking-wider">{event.month}</span>
+                      <span className="text-2xl sm:text-3xl font-serif text-[#0a2b18] group-hover:text-white transition-colors mt-0.5 sm:mt-1">{event.date}</span>
+                    </div>
                     
-                    <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm text-[#6c8274]">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 opacity-70" />
-                        <span>{event.time}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4 opacity-70" />
-                        <span>{event.location}</span>
+                    {/* Event Info */}
+                    <div className="flex flex-col justify-center flex-grow">
+                      <span className="text-xs uppercase tracking-widest text-[#d4af37] font-semibold mb-1 sm:mb-2">{event.category}</span>
+                      <h3 className="text-lg sm:text-xl font-serif text-[#0a2b18] group-hover:text-[#1b4d32] transition-colors mb-2 sm:mb-3 leading-snug">{event.title}</h3>
+                      
+                      <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm text-[#6c8274]">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 opacity-70" />
+                          <span>{event.time}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="w-4 h-4 opacity-70" />
+                          <span>{event.location}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </motion.div>
               ))}
             </motion.div>
             
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="pt-2">
-              <Link to="/events" className="inline-flex items-center gap-2 text-[#0a2b18] font-medium border-b border-[#0a2b18]/30 pb-1 hover:border-[#0a2b18] hover:gap-3 transition-all duration-300">
-                View Academic Calendar <ArrowRight className="w-4 h-4" />
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="pt-2 flex flex-col sm:flex-row sm:items-center gap-4">
+              <Link 
+                to="/events" 
+                className="group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full bg-[#0a2b18] text-[#d4af37] hover:bg-[#1b4d32] hover:text-white transition-all duration-300 shadow-md font-semibold text-xs sm:text-sm uppercase tracking-wider w-fit"
+              >
+                <span>View Full Calendar &amp; All Events</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
               </Link>
+              <span className="text-xs text-[#6c8274] italic">
+                Showing upcoming events for this month &amp; next month
+              </span>
             </motion.div>
           </div>
 
@@ -797,16 +859,6 @@ function NewsAndEvents() {
                   </div>
                 </motion.div>
               ))}
-            </motion.div>
-
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="p-6 sm:p-8 bg-[#f7faf8] rounded-2xl sm:rounded-[2rem] border border-gray-100 flex items-center justify-between group cursor-pointer hover:shadow-xl transition-all duration-500">
-              <div>
-                <h4 className="font-serif text-lg sm:text-xl text-[#0a2b18] mb-1">Newsletter</h4>
-                <p className="text-xs sm:text-sm text-[#6c8274]">Subscribe to our monthly updates</p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:bg-[#0a2b18] group-hover:text-white transition-colors duration-500 text-[#0a2b18] shrink-0">
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
             </motion.div>
           </div>
 

@@ -3,7 +3,6 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import correspondentImage from "../../images/correspondent_image.jpeg"; 
-import heroImage from "../../images/aboutimage3.jpg"; 
 import { PageHeader } from "@/components/PageHeader";
 import { fadeUp, staggerContainer } from "../../lib/motion";
 import { API_BASE } from "@/config";
@@ -43,10 +42,9 @@ function CorrespondentMessagePage() {
       
       {/* 1. Hero Banner */}
       <PageHeader 
-        eyebrow="Correspondent"
+        eyebrow="Correspondent's Message"
         title={heroTitle}
         subtitle={heroSubtitle}
-        backgroundImage={heroImage}
       />
 
       {/* 2. Profile section */}
@@ -85,12 +83,6 @@ function CorrespondentMessagePage() {
             <motion.p variants={fadeUp} className="text-[#4a5568] text-lg font-light leading-relaxed">
               {introText}
             </motion.p>
-            
-            <motion.div variants={fadeUp} className="pt-4">
-              <div className="font-serif italic text-3xl text-[#0a2b18]/70" style={{ fontFamily: 'Georgia, serif', transform: 'rotate(-2deg)' }}>
-                Mr. J. Jeyakumar
-              </div>
-            </motion.div>
           </motion.div>
 
         </div>
@@ -134,13 +126,11 @@ function CorrespondentMessagePage() {
               {messageP2}
             </motion.p>
             
-            {/* 5. Signature Block */}
+            {/* 5. Sign-off Block */}
             <motion.div variants={fadeUp} className="mt-20 pt-12 border-t border-[#e2e8f0] flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="font-serif italic text-4xl text-[#0a2b18] mb-4 opacity-90" style={{ fontFamily: 'Georgia, serif', transform: 'rotate(-2deg)' }}>
-                J. Jeyakumar
-              </div>
-              <p className="text-[#0a2b18] font-medium text-lg">Correspondent</p>
-              <p className="text-[#718096] text-sm uppercase tracking-widest mt-1">Brotherhood Matriculation Higher Secondary School</p>
+              <p className="text-[#0a2b18] font-serif font-semibold text-2xl">Mr. J. Jeyakumar</p>
+              <p className="text-[#d4af37] font-medium text-sm uppercase tracking-widest mt-1">Correspondent</p>
+              <p className="text-[#718096] text-xs uppercase tracking-wider mt-1">Brotherhood Matriculation Higher Secondary School</p>
             </motion.div>
           </motion.div>
         </div>

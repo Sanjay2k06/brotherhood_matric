@@ -20,39 +20,39 @@ function AcademicAchievementsPage() {
   ];
 
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <PageHeader
         eyebrow="Academic Honors"
         title="Academic Achievements"
         subtitle="Celebrating outstanding scholastic ranks, subject centums, and board toppers."
       />
 
-      <section className="max-w-5xl mx-auto px-6 py-20 space-y-16">
+      <section className="max-w-5xl mx-auto px-6 py-20 space-y-16 bg-white text-[#0a2b18]">
         {/* Board Toppers Section */}
         <div className="space-y-8">
-          <h2 className="font-display text-3xl text-primary font-bold text-center">Board Examination Toppers (2025)</h2>
+          <h2 className="font-serif text-3xl text-[#0a2b18] font-bold text-center">Board Examination Toppers (2025)</h2>
           <div className="grid gap-6 md:grid-cols-3">
             {boardToppers.map((topper) => (
-              <div key={topper.name} className="bg-card border border-border rounded-3xl p-8 text-center shadow-sm hover:border-gold/60 transition duration-300">
+              <div key={topper.name} className="bg-white border border-[#e2e8f0] rounded-3xl p-8 text-center shadow-sm hover:border-[#d4af37]/60 hover:shadow-lg transition duration-300">
                 <div className="flex justify-center mb-6">
-                  <div className="h-12 w-12 rounded-full bg-gradient-gold grid place-items-center shadow-gold">
-                    <Star className="h-5 w-5 text-navy-deep" />
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#0a2b18] to-[#1b4d32] border border-[#d4af37] grid place-items-center shadow-md">
+                    <Star className="h-5 w-5 text-[#d4af37]" />
                   </div>
                 </div>
-                <h4 className="text-xs uppercase tracking-widest text-gold font-semibold mb-2">{topper.rank}</h4>
-                <h3 className="font-display text-2xl text-primary font-bold mb-1">{topper.name}</h3>
-                <div className="text-lg font-bold text-primary mt-2">{topper.score}</div>
-                <p className="text-xs text-muted-foreground mt-1">{topper.stream}</p>
+                <h4 className="text-xs uppercase tracking-widest text-[#d4af37] font-semibold mb-2">{topper.rank}</h4>
+                <h3 className="font-serif text-2xl text-[#0a2b18] font-bold mb-1">{topper.name}</h3>
+                <div className="text-xl font-bold text-[#1b4d32] mt-2">{topper.score}</div>
+                <p className="text-xs text-[#718096] mt-1">{topper.stream}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Scholarships and Quizzes with Image */}
-        <div className="grid md:grid-cols-12 gap-8 items-center rounded-3xl border border-border bg-muted/20 p-8 sm:p-12 mt-12">
-          <div className="md:col-span-7 text-muted-foreground leading-relaxed space-y-4">
-            <h3 className="font-display text-2xl text-primary font-bold flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-gold" /> Science & Mathematics Olympiad Winners
+        <div className="grid md:grid-cols-12 gap-8 items-center rounded-3xl border border-[#e2e8f0] bg-white p-8 sm:p-12 mt-12 shadow-sm">
+          <div className="md:col-span-7 text-[#55695d] leading-relaxed space-y-4">
+            <h3 className="font-serif text-2xl text-[#0a2b18] font-bold flex items-center gap-2">
+              <BookOpen className="h-6 w-6 text-[#d4af37]" /> Science &amp; Mathematics Olympiad Winners
             </h3>
             <p>
               Three of our high school students secured top 50 national ranks in the National Science Olympiad (NSO) and International Mathematics Olympiad (IMO) in 2025, receiving gold medals and research scholarships.
@@ -62,14 +62,13 @@ function AcademicAchievementsPage() {
             </p>
           </div>
           <div className="md:col-span-5">
-            <div className="relative group rounded-2xl overflow-hidden border border-gold/30 shadow-elegant bg-gradient-to-br from-navy-deep to-primary/20 flex flex-col items-center justify-center p-6 min-h-[250px] animate-float">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.7679_0.1778_81.65/0.12),transparent_65%)]" />
-              <BookOpen className="h-24 w-24 text-gold drop-shadow-[0_4px_12px_rgba(212,175,55,0.35)]" />
-              <span className="text-xs tracking-widest uppercase text-white/50 mt-4 font-semibold">Scholastic Honors</span>
+            <div className="relative group rounded-2xl overflow-hidden border border-[#d4af37]/30 shadow-lg bg-gradient-to-br from-[#0a2b18] to-[#1b4d32] flex flex-col items-center justify-center p-6 min-h-[250px]">
+              <BookOpen className="h-24 w-24 text-[#d4af37] drop-shadow-[0_4px_12px_rgba(212,175,55,0.35)]" />
+              <span className="text-xs tracking-widest uppercase text-white/70 mt-4 font-semibold">Scholastic Honors</span>
             </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

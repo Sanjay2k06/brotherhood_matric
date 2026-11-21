@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { 
   Lock, User, Mail, Calendar, Upload, Plus, Edit, Trash2, Check, X, 
   Sparkles, Award, Users, Image as ImageIcon, Bell, MessageSquare, Briefcase, FileText, LayoutDashboard, LogOut, Trophy, Megaphone,
-  Shirt, Flag, UserCheck, Home, BookOpen, GraduationCap
+  Shirt, Flag, UserCheck, Home, BookOpen, GraduationCap, Search, Filter,
+  Folder, FolderOpen, FolderPlus, ArrowLeft, ChevronRight
 } from "lucide-react";
 import { toast } from "sonner";
 import FlowingMenu from "@/components/FlowingMenu";
@@ -41,6 +42,7 @@ interface UserProfile {
 }
 
 import { API_BASE } from "@/config";
+import { getMergedGalleryFolders, toFolderId, DEFAULT_GALLERY_FOLDERS } from "@/lib/galleryData";
 
 function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -92,7 +94,7 @@ function AdminPage() {
     title: "", message: "", priority: "Medium", status: "Active"
   });
   const [eventForm, setEventForm] = useState({
-    title: "", description: "", cover_image: "", event_date: "", category: "Academic", status: "Published"
+    title: "", description: "", cover_image: "", event_date: "", event_time: "08:45 AM - 03:30 PM", venue: "School Campus", category: "Celebration", status: "Published"
   });
   const [teacherForm, setTeacherForm] = useState({
     name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: ""
@@ -101,7 +103,40 @@ function AdminPage() {
     title: "", name: "", grade: "", reason: "", image: ""
   });
   const [galleryForm, setGalleryForm] = useState({
-    title: "", description: "", category: "Events", image: ""
+    title: "", description: "", category: "Christmas Celebration", image: ""
+  });
+
+  // Gallery Folders State
+  const [selectedGalleryFolder, setSelectedGalleryFolder] = useState<string | null>(null);
+  const [galleryFolderSearch, setGalleryFolderSearch] = useState<string>("");
+  const [deletedFolderIds, setDeletedFolderIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("brotherhood_deleted_folders") || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const [customFolderMeta, setCustomFolderMeta] = useState<Record<string, any>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("brotherhood_custom_folders") || "{}");
+    } catch {
+      return {};
+    }
+  });
+  const [deletedPhotoIds, setDeletedPhotoIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("brotherhood_deleted_photos") || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const [newFolderForm, setNewFolderForm] = useState({
+    name: "",
+    description: "",
+    date: "",
+    photoTitle: "",
+    photoDescription: "",
+    image: ""
   });
   const [uniformForm, setUniformForm] = useState({
     section: "", boys_uniform: "", girls_uniform: ""
@@ -123,13 +158,26 @@ function AdminPage() {
     name: "", email: "", phone: "", vacancy: "" as string | number, cover_letter: "", resume: ""
   });
 
-  // Check auth on mount
+  // Table Search & Filter States
+  const [teacherDeptFilter, setTeacherDeptFilter] = useState<string>("All");
+  const [teacherSearch, setTeacherSearch] = useState<string>("");
+  const [eventCategoryFilter, setEventCategoryFilter] = useState<string>("All");
+  const [eventSearch, setEventSearch] = useState<string>("");
+
+  // Check auth and pre-fetch gallery on mount
   useEffect(() => {
     const savedToken = localStorage.getItem("admin_token");
     if (savedToken) {
       setToken(savedToken);
       fetchUserProfile(savedToken);
     }
+    // Pre-fetch gallery images
+    fetch(`${API_BASE}/gallery-images/`)
+      .then(res => res.ok ? res.json() : [])
+      .then(d => {
+        if (Array.isArray(d) && d.length > 0) setGalleryImages(d.results || d);
+      })
+      .catch(() => {});
   }, []);
 
   // Fetch all lists when authenticated
@@ -323,6 +371,7 @@ function AdminPage() {
         if (targetForm === "teacher") setTeacherForm(prev => ({ ...prev, image: data.url }));
         if (targetForm === "student") setStudentForm(prev => ({ ...prev, image: data.url }));
         if (targetForm === "gallery") setGalleryForm(prev => ({ ...prev, image: data.url }));
+        if (targetForm === "new_folder") setNewFolderForm(prev => ({ ...prev, image: data.url }));
       } else {
         toast.dismiss(uploadToast);
         toast.error("Failed to upload image. Fallback filesystem error.");
@@ -335,7 +384,7 @@ function AdminPage() {
   };
 
   // DELETE operation helper
-  const handleDelete = async (endpoint: string, id: number) => {
+  const handleDelete = async (endpoint: string, id: any) => {
     if (!confirm("Are you sure you want to delete this content item? This action is permanent.")) return;
     try {
       const res = await fetch(`${API_BASE}/${endpoint}/${id}/`, {
@@ -686,6 +735,11 @@ function AdminPage() {
     const url = isEdit ? `${API_BASE}/gallery-images/${editItem.id}/` : `${API_BASE}/gallery-images/`;
     const method = isEdit ? "PUT" : "POST";
 
+    if (!galleryForm.image) {
+      toast.error("Please upload or provide an image file.");
+      return;
+    }
+
     try {
       const res = await fetch(url, {
         method,
@@ -696,17 +750,158 @@ function AdminPage() {
         body: JSON.stringify(galleryForm)
       });
       if (res.ok) {
-        toast.success(isEdit ? "Gallery photo added!" : "Gallery photo added!");
-        setGalleryForm({ title: "", description: "", category: "Events", image: "" });
+        toast.success(isEdit ? "Photo updated!" : `Photo uploaded to "${galleryForm.category}"!`);
+        setGalleryForm({ title: "", description: "", category: selectedGalleryFolder || "Christmas Celebration", image: "" });
         setEditItem(null);
         setActiveDialog(null);
         fetchAllData();
       } else {
-        toast.error("Failed to add gallery photo.");
+        toast.error("Failed to save gallery photo.");
       }
     } catch (err) {
       console.error(err);
       toast.error("Network error.");
+    }
+  };
+
+  const handleNewFolderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const folderName = newFolderForm.name.trim();
+    if (!folderName) {
+      toast.error("Please enter a folder name.");
+      return;
+    }
+
+    try {
+      // 1. If an initial image is provided, upload it to gallery-images with this folder name
+      if (newFolderForm.image) {
+        const res = await fetch(`${API_BASE}/gallery-images/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            title: newFolderForm.photoTitle.trim() || `${folderName} Photo`,
+            description: newFolderForm.photoDescription.trim() || newFolderForm.description.trim() || "Brotherhood School Celebration",
+            category: folderName,
+            image: newFolderForm.image
+          })
+        });
+        if (!res.ok) {
+          toast.error("Failed to upload initial folder image.");
+          return;
+        }
+      }
+
+      // 2. Save custom folder metadata to localStorage
+      const updatedMeta = {
+        ...customFolderMeta,
+        [folderName]: {
+          name: folderName,
+          description: newFolderForm.description.trim() || "Celebration and event photographic archive",
+          date: newFolderForm.date.trim() || new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })
+        }
+      };
+      setCustomFolderMeta(updatedMeta);
+      try {
+        localStorage.setItem("brotherhood_custom_folders", JSON.stringify(updatedMeta));
+      } catch (err) {}
+
+      // 3. Remove folderName and slug from deletedFolderIds if present
+      const slug = toFolderId(folderName);
+      const updatedDeleted = deletedFolderIds.filter(d => 
+        d.toLowerCase() !== folderName.toLowerCase() && d.toLowerCase() !== slug
+      );
+      setDeletedFolderIds(updatedDeleted);
+      try {
+        localStorage.setItem("brotherhood_deleted_folders", JSON.stringify(updatedDeleted));
+      } catch (err) {}
+
+      toast.success(`Folder "${folderName}" created successfully!`);
+      setNewFolderForm({ name: "", description: "", date: "", photoTitle: "", photoDescription: "", image: "" });
+      setActiveDialog(null);
+      setSelectedGalleryFolder(folderName);
+      fetchAllData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to create folder.");
+    }
+  };
+
+  const handleDeleteFolder = async (folderName: string, folderId: string) => {
+    if (!confirm(`Are you sure you want to delete the folder "${folderName}" and all of its images? This action is permanent.`)) {
+      return;
+    }
+
+    const tId = toast.loading(`Deleting folder "${folderName}"...`);
+    try {
+      const slug = toFolderId(folderName);
+      const imagesToDelete = galleryImages.filter(img => {
+        const cat = (img.category || "").trim().toLowerCase();
+        return cat === folderName.toLowerCase() || cat === folderId.toLowerCase() || cat === slug;
+      });
+
+      await Promise.all(
+        imagesToDelete.map(img =>
+          fetch(`${API_BASE}/gallery-images/${img.id}/`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+          })
+        )
+      );
+
+      const updatedDeleted = Array.from(new Set([...deletedFolderIds, folderId, folderName, slug]));
+      setDeletedFolderIds(updatedDeleted);
+      try {
+        localStorage.setItem("brotherhood_deleted_folders", JSON.stringify(updatedDeleted));
+      } catch (err) {}
+
+      const updatedMeta = { ...customFolderMeta };
+      delete updatedMeta[folderName];
+      setCustomFolderMeta(updatedMeta);
+      try {
+        localStorage.setItem("brotherhood_custom_folders", JSON.stringify(updatedMeta));
+      } catch (err) {}
+
+      if (selectedGalleryFolder === folderName || selectedGalleryFolder === folderId) {
+        setSelectedGalleryFolder(null);
+      }
+
+      toast.dismiss(tId);
+      toast.success(`Folder "${folderName}" deleted successfully!`);
+      fetchAllData();
+    } catch (err) {
+      console.error(err);
+      toast.dismiss(tId);
+      toast.error("Failed to delete folder.");
+    }
+  };
+
+  const handleDeleteGalleryImage = async (imgId: any, imgTitle?: string) => {
+    if (!confirm(`Are you sure you want to delete this photo${imgTitle ? ` "${imgTitle}"` : ""}? This cannot be undone.`)) return;
+    try {
+      if (imgId) {
+        await fetch(`${API_BASE}/gallery-images/${imgId}/`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+      }
+
+      const identifier = String(imgId || imgTitle || "");
+      if (identifier) {
+        const updated = Array.from(new Set([...deletedPhotoIds, identifier, imgTitle || ""]));
+        setDeletedPhotoIds(updated);
+        try {
+          localStorage.setItem("brotherhood_deleted_photos", JSON.stringify(updated));
+        } catch {}
+      }
+
+      toast.success("Photo deleted successfully!");
+      fetchAllData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error deleting photo.");
     }
   };
 
@@ -917,6 +1112,8 @@ function AdminPage() {
       description: item.description,
       cover_image: item.cover_image || "",
       event_date: item.event_date,
+      event_time: item.event_time || "08:45 AM - 03:30 PM",
+      venue: item.venue || "School Campus",
       category: item.category,
       status: item.status
     });
@@ -1146,18 +1343,18 @@ function AdminPage() {
       <div className="max-w-7xl mx-auto px-6 mt-10">
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="bg-card border border-border p-1 rounded-2xl flex flex-wrap h-auto gap-1">
-            <TabsTrigger value="dashboard" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><LayoutDashboard className="h-4.5 w-4.5" /> Stats Overview</TabsTrigger>
-            <TabsTrigger value="announcements" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Bell className="h-4.5 w-4.5" /> Announcements</TabsTrigger>
-            <TabsTrigger value="events" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Calendar className="h-4.5 w-4.5" /> Events Timeline</TabsTrigger>
-            <TabsTrigger value="teachers" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Users className="h-4.5 w-4.5" /> Educators Directory</TabsTrigger>
-            <TabsTrigger value="best-students" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Award className="h-4.5 w-4.5" /> Best Students</TabsTrigger>
-            <TabsTrigger value="achievements" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Trophy className="h-4.5 w-4.5" /> Results & Achievements</TabsTrigger>
-            <TabsTrigger value="uniforms" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Shirt className="h-4.5 w-4.5" /> School Uniform</TabsTrigger>
-            <TabsTrigger value="houses" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Flag className="h-4.5 w-4.5" /> School Houses</TabsTrigger>
-            <TabsTrigger value="leaders" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><UserCheck className="h-4.5 w-4.5" /> Student Leaders</TabsTrigger>
-            <TabsTrigger value="gallery" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><ImageIcon className="h-4.5 w-4.5" /> Photo Gallery</TabsTrigger>
-            <TabsTrigger value="submissions" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><MessageSquare className="h-4.5 w-4.5" /> User Inbox</TabsTrigger>
-            <TabsTrigger value="live-editor" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Sparkles className="h-4.5 w-4.5 text-gold" /> Live Page Editor</TabsTrigger>
+            <TabsTrigger value="dashboard" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><LayoutDashboard className="h-4.5 w-4.5" /> Dashboard Overview</TabsTrigger>
+            <TabsTrigger value="announcements" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Bell className="h-4.5 w-4.5" /> Home Page Announcements</TabsTrigger>
+            <TabsTrigger value="events" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Calendar className="h-4.5 w-4.5" /> Calendar &amp; Events Page</TabsTrigger>
+            <TabsTrigger value="teachers" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Users className="h-4.5 w-4.5" /> Teachers Page</TabsTrigger>
+            <TabsTrigger value="best-students" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Award className="h-4.5 w-4.5" /> Best Students Page</TabsTrigger>
+            <TabsTrigger value="achievements" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Trophy className="h-4.5 w-4.5" /> Results &amp; Achievements Page</TabsTrigger>
+            <TabsTrigger value="uniforms" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Shirt className="h-4.5 w-4.5" /> School Uniform Page</TabsTrigger>
+            <TabsTrigger value="houses" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Flag className="h-4.5 w-4.5" /> School Houses Page</TabsTrigger>
+            <TabsTrigger value="leaders" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><UserCheck className="h-4.5 w-4.5" /> Student Leaders Page</TabsTrigger>
+            <TabsTrigger value="gallery" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><ImageIcon className="h-4.5 w-4.5" /> Photo Gallery Page</TabsTrigger>
+            <TabsTrigger value="submissions" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><MessageSquare className="h-4.5 w-4.5" /> Contact &amp; Admissions Inbox</TabsTrigger>
+            <TabsTrigger value="live-editor" className="rounded-xl px-4 py-2.5 text-xs font-bold gap-1.5"><Sparkles className="h-4.5 w-4.5 text-gold" /> Website Pages Editor</TabsTrigger>
           </TabsList>
 
           {/* TAB 1: OVERVIEW STATISTICS */}
@@ -1208,23 +1405,23 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader>
                 <CardTitle className="font-display text-xl text-primary font-bold">Quick Administrative Tools</CardTitle>
-                <CardDescription>Select actions below to post updates directly to the live website.</CardDescription>
+                <CardDescription>Select actions below to post updates directly to specific website pages.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-4 pt-2">
                 <Button onClick={() => { setEditItem(null); setAnnouncementForm({ title: "", message: "", priority: "Medium", status: "Active" }); setActiveDialog("announce"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                  <Plus className="h-4.5 w-4.5" /> Post Announcement
+                  <Plus className="h-4.5 w-4.5" /> Post Home Announcement
                 </Button>
                 <Button onClick={() => { setEditItem(null); setEventForm({ title: "", description: "", cover_image: "", event_date: "", category: "Academic", status: "Published" }); setActiveDialog("event"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                  <Plus className="h-4.5 w-4.5" /> Add Campus Event
+                  <Plus className="h-4.5 w-4.5" /> Add Calendar Event (/events)
                 </Button>
                 <Button onClick={() => { setEditItem(null); setTeacherForm({ name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: "" }); setActiveDialog("teacher"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                  <Plus className="h-4.5 w-4.5" /> Add Educator Profile
+                  <Plus className="h-4.5 w-4.5" /> Add Teacher Profile (/teachers)
                 </Button>
                 <Button onClick={() => { setEditItem(null); setStudentForm({ title: "", name: "", grade: "", reason: "", image: "" }); setActiveDialog("student"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                  <Plus className="h-4.5 w-4.5" /> Award Student Honor
+                  <Plus className="h-4.5 w-4.5" /> Nominate Best Student (/students/best-student)
                 </Button>
                 <Button onClick={() => { setEditItem(null); setGalleryForm({ title: "", description: "", category: "Events", image: "" }); setActiveDialog("gallery"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                  <Plus className="h-4.5 w-4.5" /> Upload to Gallery
+                  <Plus className="h-4.5 w-4.5" /> Upload Gallery Photo (/gallery)
                 </Button>
               </CardContent>
             </Card>
@@ -1235,15 +1432,12 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Broadcast Bulletins</CardTitle>
-                  <CardDescription>Manage recent announcements, school closures, or admission alerts.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">Home Page Announcements &amp; Notices</CardTitle>
+                  <CardDescription>Manage breaking news, marquee alerts, and pop-up notices shown on the Home Page and Notice Board.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={() => { setEditItem(null); setAnnouncementForm({ title: "", message: "", priority: "Medium", status: "Active" }); setActiveDialog("announce"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Add Announcement
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("announcements")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                    <Plus className="h-4.5 w-4.5" /> Add Home Announcement
                   </Button>
                 </div>
               </CardHeader>
@@ -1300,63 +1494,134 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Campus Events Calendar</CardTitle>
-                  <CardDescription>Configure events. Dates in the future will automatically list as 'Upcoming Events'.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">Calendar &amp; Events Page (/events)</CardTitle>
+                  <CardDescription>Manage academic calendar dates, holidays, examinations, and celebrations shown on the Calendar &amp; Events page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={() => { setEditItem(null); setEventForm({ title: "", description: "", cover_image: "", event_date: "", category: "Academic", status: "Published" }); setActiveDialog("event"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Add Event
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("events")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                  <Button onClick={() => { setEditItem(null); setEventForm({ title: "", description: "", cover_image: "", event_date: "", event_time: "08:45 AM - 03:30 PM", venue: "School Campus", category: "Celebration", status: "Published" }); setActiveDialog("event"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
+                    <Plus className="h-4.5 w-4.5" /> Add Calendar Event
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                {/* Search & Filter Toolbar */}
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-muted/30 p-3 rounded-2xl border border-border/50">
+                  <div className="flex flex-1 gap-2 items-center">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search event title, venue, or date..."
+                        value={eventSearch}
+                        onChange={(e) => setEventSearch(e.target.value)}
+                        className="pl-9 h-9 rounded-xl bg-background"
+                      />
+                    </div>
+                    <Select value={eventCategoryFilter} onValueChange={setEventCategoryFilter}>
+                      <SelectTrigger className="w-[180px] h-9 rounded-xl bg-background">
+                        <SelectValue placeholder="Category" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 overflow-y-auto">
+                        <SelectItem value="All">All Categories</SelectItem>
+                        <SelectItem value="Celebration">Celebration</SelectItem>
+                        <SelectItem value="Exam">Examination</SelectItem>
+                        <SelectItem value="Holiday">Holiday</SelectItem>
+                        <SelectItem value="Field Trip">Field Trip / Tour</SelectItem>
+                        <SelectItem value="Activity">Activity / Club</SelectItem>
+                        <SelectItem value="Competition">Competition</SelectItem>
+                        <SelectItem value="Workshop">Workshop</SelectItem>
+                        <SelectItem value="Meeting">Meeting / Open Day</SelectItem>
+                        <SelectItem value="Reopening">Reopening</SelectItem>
+                        <SelectItem value="Academic">Academic</SelectItem>
+                        <SelectItem value="Sports">Sports</SelectItem>
+                        <SelectItem value="Cultural">Cultural</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="text-xs font-semibold text-muted-foreground px-2">
+                    {(() => {
+                      const count = events
+                        .filter((ev) => {
+                          const matchesCat = eventCategoryFilter === "All" || (ev.category && ev.category.toLowerCase() === eventCategoryFilter.toLowerCase());
+                          const query = eventSearch.toLowerCase().trim();
+                          const matchesSearch = !query || 
+                            (ev.title && ev.title.toLowerCase().includes(query)) ||
+                            (ev.description && ev.description.toLowerCase().includes(query)) ||
+                            (ev.venue && ev.venue.toLowerCase().includes(query)) ||
+                            (ev.event_date && ev.event_date.includes(query));
+                          return matchesCat && matchesSearch;
+                        }).length;
+                      return `Showing ${count} of ${events.length} events (Chronological Order)`;
+                    })()}
+                  </div>
+                </div>
+
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Cover</TableHead>
                       <TableHead>Title</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead>Date &amp; Time</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Timeline Segment</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {events.map((ev) => {
-                      const isUpcoming = new Date(ev.event_date) > new Date();
-                      return (
-                        <TableRow key={ev.id}>
-                          <TableCell>
-                            {ev.cover_image ? (
-                              <div className="h-10 w-14 rounded-md bg-cover bg-center border border-border" style={{ backgroundImage: `url(${ev.cover_image})` }} />
-                            ) : (
-                              <div className="h-10 w-14 rounded-md border border-gold/20 bg-gold/10 flex items-center justify-center text-gold">
-                                <Calendar className="h-5 w-5" />
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="font-semibold">{ev.title}</TableCell>
-                          <TableCell>{ev.event_date}</TableCell>
-                          <TableCell>{ev.category}</TableCell>
-                          <TableCell>
-                            <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              isUpcoming ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
-                            }`}>{isUpcoming ? "Upcoming" : "Latest Event"}</span>
-                          </TableCell>
-                          <TableCell className="text-right space-x-1.5">
-                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditEvent(ev)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("events", ev.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                    {events
+                      .slice()
+                      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+                      .filter((ev) => {
+                        const matchesCat = eventCategoryFilter === "All" || (ev.category && ev.category.toLowerCase() === eventCategoryFilter.toLowerCase());
+                        const query = eventSearch.toLowerCase().trim();
+                        const matchesSearch = !query || 
+                          (ev.title && ev.title.toLowerCase().includes(query)) ||
+                          (ev.description && ev.description.toLowerCase().includes(query)) ||
+                          (ev.venue && ev.venue.toLowerCase().includes(query)) ||
+                          (ev.event_date && ev.event_date.includes(query));
+                        return matchesCat && matchesSearch;
+                      })
+                      .map((ev) => {
+                        const isUpcoming = new Date(ev.event_date) >= new Date(new Date().setHours(0,0,0,0));
+                        return (
+                          <TableRow key={ev.id}>
+                            <TableCell>
+                              {ev.cover_image ? (
+                                <div className="h-10 w-14 rounded-md bg-cover bg-center border border-border" style={{ backgroundImage: `url(${ev.cover_image})` }} />
+                              ) : (
+                                <div className="h-10 w-14 rounded-md border border-gold/20 bg-gold/10 flex items-center justify-center text-gold">
+                                  <Calendar className="h-5 w-5" />
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell className="font-semibold">
+                              <div>{ev.title}</div>
+                              {ev.venue && <div className="text-xs text-muted-foreground">{ev.venue}</div>}
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{ev.event_date}</div>
+                              {ev.event_time && <div className="text-xs text-muted-foreground">{ev.event_time}</div>}
+                            </TableCell>
+                            <TableCell>
+                              <span className="inline-block rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary">
+                                {ev.category}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                isUpcoming ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
+                              }`}>{isUpcoming ? "Upcoming" : "Past Event"}</span>
+                            </TableCell>
+                            <TableCell className="text-right space-x-1.5">
+                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditEvent(ev)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("events", ev.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     {events.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground py-10">No events registered yet.</TableCell>
@@ -1373,56 +1638,134 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Faculty Management</CardTitle>
-                  <CardDescription>Add, modify, or remove teachers appearing in the Faculty Directory.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">Teachers Directory Page (/teachers)</CardTitle>
+                  <CardDescription>Add, edit, or remove teaching faculty members and department heads displayed on the Teachers page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={() => { setEditItem(null); setTeacherForm({ name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: "" }); setActiveDialog("teacher"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Add Educator
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("teachers")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                  <Button onClick={() => { setEditItem(null); setTeacherForm({ name: "", designation: "", subject: "Mathematics", qualification: "", experience: "", description: "", image: "" }); setActiveDialog("teacher"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
+                    <Plus className="h-4.5 w-4.5" /> Add Teacher Profile
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                {/* Department Filter & Search Bar */}
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-muted/30 p-3 rounded-2xl border border-border/50">
+                  <div className="flex flex-1 gap-2 items-center">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search faculty name, role, or qualification..."
+                        value={teacherSearch}
+                        onChange={(e) => setTeacherSearch(e.target.value)}
+                        className="pl-9 h-9 rounded-xl bg-background"
+                      />
+                    </div>
+                    <Select value={teacherDeptFilter} onValueChange={setTeacherDeptFilter}>
+                      <SelectTrigger className="w-[200px] h-9 rounded-xl bg-background">
+                        <SelectValue placeholder="Department" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 overflow-y-auto">
+                        <SelectItem value="All">All Departments</SelectItem>
+                        <SelectItem value="Mathematics">Mathematics</SelectItem>
+                        <SelectItem value="Physics">Physics</SelectItem>
+                        <SelectItem value="Chemistry">Chemistry</SelectItem>
+                        <SelectItem value="Biology">Biology</SelectItem>
+                        <SelectItem value="Computer Science">Computer Science</SelectItem>
+                        <SelectItem value="English">English</SelectItem>
+                        <SelectItem value="Tamil">Tamil</SelectItem>
+                        <SelectItem value="Economics">Economics</SelectItem>
+                        <SelectItem value="Commerce">Commerce &amp; Accountancy</SelectItem>
+                        <SelectItem value="History">History &amp; Social Science</SelectItem>
+                        <SelectItem value="Hindi">Hindi</SelectItem>
+                        <SelectItem value="French">French</SelectItem>
+                        <SelectItem value="Physical Education">Physical Education</SelectItem>
+                        <SelectItem value="Art">Art &amp; Library</SelectItem>
+                        <SelectItem value="Kindergarten">Kindergarten</SelectItem>
+                        <SelectItem value="Administration">Administration</SelectItem>
+                        <SelectItem value="General">General</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="text-xs font-semibold text-muted-foreground px-2">
+                    {(() => {
+                      const count = teachers.filter((teach) => {
+                        const dept = teacherDeptFilter.toLowerCase().trim();
+                        const matchesDept = teacherDeptFilter === "All" ||
+                          (teach.subject && teach.subject.toLowerCase().trim() === dept) ||
+                          (dept === "kindergarten" && (teach.subject?.toLowerCase().includes("kindergarten") || teach.designation?.toLowerCase().includes("kindergarten"))) ||
+                          (dept === "physical education" && (teach.subject?.toLowerCase().includes("physical") || teach.designation?.toLowerCase().includes("physical")));
+                        const query = teacherSearch.toLowerCase().trim();
+                        const matchesSearch = !query ||
+                          (teach.name && teach.name.toLowerCase().includes(query)) ||
+                          (teach.designation && teach.designation.toLowerCase().includes(query)) ||
+                          (teach.subject && teach.subject.toLowerCase().includes(query)) ||
+                          (teach.qualification && teach.qualification.toLowerCase().includes(query));
+                        return matchesDept && matchesSearch;
+                      }).length;
+                      return `Showing ${count} of ${teachers.length} faculty members`;
+                    })()}
+                  </div>
+                </div>
+
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Photo</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Role</TableHead>
-                      <TableHead>Subject</TableHead>
+                      <TableHead>Department</TableHead>
                       <TableHead>Experience</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {teachers.map((teach) => (
-                      <TableRow key={teach.id}>
-                        <TableCell>
-                          {teach.image ? (
-                            <div className="h-10 w-10 rounded-full bg-cover bg-center border border-border" style={{ backgroundImage: `url(${teach.image})` }} />
-                          ) : (
-                            <div className="h-10 w-10 rounded-full border border-gold/25 bg-navy-deep text-white flex items-center justify-center font-display text-[10px] font-bold">
-                              {teach.name.split(" ").map((n: string) => n[0]).join("")}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="font-semibold">{teach.name}</TableCell>
-                        <TableCell>{teach.designation}</TableCell>
-                        <TableCell>{teach.subject}</TableCell>
-                        <TableCell>{teach.experience}</TableCell>
-                        <TableCell className="text-right space-x-1.5">
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditTeacher(teach)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("teachers", teach.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {teachers
+                      .filter((teach) => {
+                        const dept = teacherDeptFilter.toLowerCase().trim();
+                        const matchesDept = teacherDeptFilter === "All" ||
+                          (teach.subject && teach.subject.toLowerCase().trim() === dept) ||
+                          (dept === "kindergarten" && (teach.subject?.toLowerCase().includes("kindergarten") || teach.designation?.toLowerCase().includes("kindergarten"))) ||
+                          (dept === "physical education" && (teach.subject?.toLowerCase().includes("physical") || teach.designation?.toLowerCase().includes("physical")));
+                        const query = teacherSearch.toLowerCase().trim();
+                        const matchesSearch = !query ||
+                          (teach.name && teach.name.toLowerCase().includes(query)) ||
+                          (teach.designation && teach.designation.toLowerCase().includes(query)) ||
+                          (teach.subject && teach.subject.toLowerCase().includes(query)) ||
+                          (teach.qualification && teach.qualification.toLowerCase().includes(query));
+                        return matchesDept && matchesSearch;
+                      })
+                      .map((teach) => (
+                        <TableRow key={teach.id}>
+                          <TableCell>
+                            {teach.image ? (
+                              <div className="h-10 w-10 rounded-full bg-cover bg-center border border-border" style={{ backgroundImage: `url(${teach.image})` }} />
+                            ) : (
+                              <div className="h-10 w-10 rounded-full border border-gold/25 bg-navy-deep text-white flex items-center justify-center font-display text-[10px] font-bold">
+                                {teach.name.split(" ").map((n: string) => n[0]).join("")}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-semibold">
+                            <div>{teach.name}</div>
+                            {teach.qualification && <div className="text-xs text-muted-foreground">{teach.qualification}</div>}
+                          </TableCell>
+                          <TableCell>{teach.designation}</TableCell>
+                          <TableCell>
+                            <span className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary">
+                              {teach.subject}
+                            </span>
+                          </TableCell>
+                          <TableCell>{teach.experience}</TableCell>
+                          <TableCell className="text-right space-x-1.5">
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditTeacher(teach)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("teachers", teach.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     {teachers.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground py-10">No educator records found.</TableCell>
@@ -1439,15 +1782,12 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Best Student Awards</CardTitle>
-                  <CardDescription>Nominate Best Students of the month or review outstanding academic/volunteering character awards.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">Best Students Page (/students/best-student)</CardTitle>
+                  <CardDescription>Nominate Best Students of the month and star pupils showcased on the Best Students page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={startAddBestStudent} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Nominate Student
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("student-achievements")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                    <Plus className="h-4.5 w-4.5" /> Nominate Best Student
                   </Button>
                 </div>
               </CardHeader>
@@ -1503,15 +1843,12 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Results & Achievements</CardTitle>
-                  <CardDescription>Configure state board toppers, subject centum holders, or zonal sports achievements.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">Results &amp; Achievements Page (/students/achievements)</CardTitle>
+                  <CardDescription>Manage 10th &amp; 12th state board toppers, subject centum holders, and sports achievements shown on the Achievements page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={startAddResultAchievement} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Add Result/Achievement
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("student-achievements")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                    <Plus className="h-4.5 w-4.5" /> Add Result / Achievement
                   </Button>
                 </div>
               </CardHeader>
@@ -1599,15 +1936,12 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">School Uniform Standards</CardTitle>
-                  <CardDescription>Manage daily uniforms dress code and footwear specifications by grade level.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">School Uniform Page (/students/school-uniform)</CardTitle>
+                  <CardDescription>Manage daily uniform dress codes and footwear specifications shown on the School Uniform page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={startAddUniform} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
                     <Plus className="h-4.5 w-4.5" /> Add Uniform Rule
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("school-uniforms")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
                   </Button>
                 </div>
               </CardHeader>
@@ -1653,15 +1987,12 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">School Houses</CardTitle>
-                  <CardDescription>Monitor school houses mottos, color code tags, and current sports/extra-curricular points.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">School Houses Page (/students/houses)</CardTitle>
+                  <CardDescription>Manage school houses (Red, Blue, Green, Yellow), mottos, color codes, and scoreboard points shown on the School Houses page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={startAddHouse} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Add House
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("student-houses")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                    <Plus className="h-4.5 w-4.5" /> Add School House
                   </Button>
                 </div>
               </CardHeader>
@@ -1715,15 +2046,12 @@ function AdminPage() {
             <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
               <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
                 <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Student Council Leaders</CardTitle>
-                  <CardDescription>Nominate Student Captains, Head Boy / Head Girl, and track role assignments.</CardDescription>
+                  <CardTitle className="font-display text-xl text-primary font-bold">Student Leaders Page (/students/student-leaders)</CardTitle>
+                  <CardDescription>Nominate Student Captains, Head Boy, Head Girl, and House Prefects shown on the Student Leaders page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={startAddLeader} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Add Nominee
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("student-leaders")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
+                    <Plus className="h-4.5 w-4.5" /> Add Student Leader
                   </Button>
                 </div>
               </CardHeader>
@@ -1764,67 +2092,331 @@ function AdminPage() {
             </Card>
           </TabsContent>
 
-          {/* TAB 6: GALLERY MANAGER */}
-          <TabsContent value="gallery" className="animate-fade-in">
-            <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
-              <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6">
-                <div>
-                  <CardTitle className="font-display text-xl text-primary font-bold">Media Library Manager</CardTitle>
-                  <CardDescription>Delete or upload photos shown in the Photo Gallery page grid.</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={() => { setEditItem(null); setGalleryForm({ title: "", description: "", category: "Events", image: "" }); setActiveDialog("gallery"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                    <Plus className="h-4.5 w-4.5" /> Upload Photo
-                  </Button>
-                  <Button variant="destructive" onClick={() => handleDeleteAll("gallery-images")} className="rounded-full font-bold gap-1.5">
-                    <Trash2 className="h-4.5 w-4.5" /> Delete All
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                  {galleryImages.map((img) => (
-                    <div key={img.id} className="relative group rounded-xl overflow-hidden border border-border aspect-square bg-card shadow-sm hover:border-gold transition duration-200">
-                      <img src={img.image} alt={img.title} className="h-full w-full object-cover" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition duration-150 flex flex-col justify-between p-3 text-white">
-                        <div className="text-[10px] font-bold text-gold uppercase">{img.category}</div>
-                        <div className="text-xs font-semibold truncate">{img.title || "No Title"}</div>
-                        <Button size="icon" variant="destructive" className="h-8 w-8 mt-2 mx-auto rounded-full" onClick={() => handleDelete("gallery-images", img.id)}>
-                          <Trash2 className="h-4 w-4" />
+          {/* TAB 6: GALLERY MANAGER (FOLDER-BASED) */}
+          <TabsContent value="gallery" className="animate-fade-in space-y-6">
+            {(() => {
+              const allDisplayFolders = getMergedGalleryFolders(galleryImages, deletedFolderIds, customFolderMeta, deletedPhotoIds);
+
+              if (selectedGalleryFolder === null) {
+                // LEVEL 1: FOLDERS DIRECTORY VIEW
+                return (
+                  <Card className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm">
+                    <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 px-0 pt-0">
+                      <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs uppercase tracking-wider font-bold mb-2">
+                          <Folder className="w-3.5 h-3.5 text-gold" />
+                          <span>Album Directory • {allDisplayFolders.length} Folders</span>
+                        </div>
+                        <CardTitle className="font-display text-2xl text-primary font-bold">Photo Gallery Folders (/gallery)</CardTitle>
+                        <CardDescription>
+                          Browse celebration folders, upload photographs directly into existing folders, or create new folders.
+                        </CardDescription>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Button 
+                          onClick={() => {
+                            setNewFolderForm({ name: "", description: "", date: "", photoTitle: "", photoDescription: "", image: "" });
+                            setActiveDialog("new_folder");
+                          }} 
+                          variant="outline" 
+                          className="rounded-full border-gold text-gold font-bold hover:bg-gold/10 gap-1.5"
+                        >
+                          <FolderPlus className="h-4.5 w-4.5" /> Create New Folder
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            setEditItem(null);
+                            setGalleryForm({
+                              title: "",
+                              description: "",
+                              category: allDisplayFolders[0]?.name || "Christmas Celebration",
+                              image: ""
+                            });
+                            setActiveDialog("gallery");
+                          }} 
+                          className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 shadow-md"
+                        >
+                          <Plus className="h-4.5 w-4.5" /> Upload Photo
                         </Button>
                       </div>
+                    </CardHeader>
+
+                    <div className="mb-6 max-w-sm">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          placeholder="Search celebration folders..." 
+                          value={galleryFolderSearch}
+                          onChange={(e) => setGalleryFolderSearch(e.target.value)}
+                          className="pl-9 rounded-full bg-background"
+                        />
+                      </div>
                     </div>
-                  ))}
-                  {galleryImages.length === 0 && (
-                    <div className="col-span-full text-center text-muted-foreground py-16 bg-muted/10 border rounded-2xl">
-                      No media files uploaded yet. Add photos above!
+
+                    <CardContent className="px-0 pb-0">
+                      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                        {allDisplayFolders
+                          .filter(f => !galleryFolderSearch || f.name.toLowerCase().includes(galleryFolderSearch.toLowerCase()) || f.description.toLowerCase().includes(galleryFolderSearch.toLowerCase()))
+                          .map((folder) => {
+                            const coverImg = folder.photos[0]?.src || "/images/gallery photos/christmas programme.JPG";
+                            return (
+                              <div 
+                                key={folder.id} 
+                                className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md hover:border-gold/60 transition-all duration-300 flex flex-col group"
+                              >
+                                {/* Folder Cover Frame */}
+                                <div 
+                                  onClick={() => setSelectedGalleryFolder(folder.name)}
+                                  className="relative aspect-[16/10] overflow-hidden bg-muted/40 cursor-pointer"
+                                >
+                                  <img 
+                                    src={coverImg} 
+                                    alt={folder.name} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
+                                  
+                                  {/* Photo Count Badge */}
+                                  <div className="absolute top-3 left-3 z-10">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-black/60 text-gold border border-gold/30 backdrop-blur-md">
+                                      <Folder className="w-3 h-3 text-gold" />
+                                      <span>{folder.photos.length} {folder.photos.length === 1 ? "Photo" : "Photos"}</span>
+                                    </span>
+                                  </div>
+
+                                  {folder.date && (
+                                    <div className="absolute top-3 right-3 z-10">
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/80 text-foreground backdrop-blur-md">
+                                        {folder.date}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Card Content */}
+                                <div className="p-5 flex flex-col flex-1 justify-between gap-4">
+                                  <div>
+                                    <h3 
+                                      onClick={() => setSelectedGalleryFolder(folder.name)}
+                                      className="font-serif text-lg font-bold text-foreground group-hover:text-primary transition-colors cursor-pointer"
+                                    >
+                                      {folder.name}
+                                    </h3>
+                                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                                      {folder.description}
+                                    </p>
+                                  </div>
+
+                                  {/* Card Action Footer */}
+                                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => setSelectedGalleryFolder(folder.name)}
+                                      className="text-xs font-bold text-primary hover:text-gold gap-1 p-0 h-auto"
+                                    >
+                                      <span>View {folder.photos.length} Photos</span>
+                                      <ChevronRight className="w-3.5 h-3.5" />
+                                    </Button>
+
+                                    <div className="flex items-center gap-1.5">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-8 text-xs rounded-full border-primary/30 text-primary hover:bg-primary/10 gap-1 px-3"
+                                        onClick={() => {
+                                          setEditItem(null);
+                                          setGalleryForm({
+                                            title: "",
+                                            description: "",
+                                            category: folder.name,
+                                            image: ""
+                                          });
+                                          setActiveDialog("gallery");
+                                        }}
+                                      >
+                                        <Plus className="h-3 w-3" /> Add
+                                      </Button>
+                                      <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10"
+                                        title={`Delete folder "${folder.name}"`}
+                                        onClick={() => handleDeleteFolder(folder.name, folder.id)}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                        {allDisplayFolders.length === 0 && (
+                          <div className="col-span-full text-center text-muted-foreground py-16 bg-muted/10 border rounded-3xl">
+                            <Folder className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
+                            <p className="font-semibold text-lg">No gallery folders found</p>
+                            <p className="text-xs text-muted-foreground mt-1">Create a new folder or restore default celebration folders.</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              // LEVEL 2: INSIDE FOLDER VIEW
+              const currentFolder = allDisplayFolders.find(
+                f => f.name.toLowerCase() === selectedGalleryFolder.toLowerCase() || f.id === toFolderId(selectedGalleryFolder)
+              );
+              const folderName = currentFolder?.name || selectedGalleryFolder;
+              const folderPhotos = currentFolder?.photos || [];
+
+              return (
+                <div className="space-y-6">
+                  {/* Top Breadcrumb Navigation */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 bg-card border border-border p-4 rounded-2xl shadow-sm">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setSelectedGalleryFolder(null)}
+                        className="gap-1.5 text-primary hover:text-gold font-bold p-0 h-auto"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>All Folders</span>
+                      </Button>
+                      <span className="text-muted-foreground">/</span>
+                      <div className="flex items-center gap-1.5 text-foreground font-bold">
+                        <FolderOpen className="w-4 h-4 text-gold" />
+                        <span>{folderName}</span>
+                      </div>
                     </div>
-                  )}
+
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        onClick={() => {
+                          setEditItem(null);
+                          setGalleryForm({
+                            title: "",
+                            description: "",
+                            category: folderName,
+                            image: ""
+                          });
+                          setActiveDialog("gallery");
+                        }} 
+                        className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 text-xs gap-1.5 shadow-sm"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Upload Photo to This Folder
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDeleteFolder(folderName, currentFolder?.id || toFolderId(folderName))}
+                        className="rounded-full border-destructive/40 text-destructive hover:bg-destructive/10 text-xs gap-1.5"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Delete Folder
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Folder Header Banner */}
+                  <div className="rounded-3xl border border-gold/30 bg-gradient-to-r from-[#0a2b18] to-[#164e2e] text-white p-6 sm:p-8 shadow-md">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-gold text-xs uppercase tracking-wider font-bold">
+                          <FolderOpen className="w-3.5 h-3.5 text-gold" />
+                          <span>{folderPhotos.length} {folderPhotos.length === 1 ? "Photo" : "Photos"}</span>
+                          {currentFolder?.date && <span>• {currentFolder.date}</span>}
+                        </div>
+                        <h2 className="font-serif text-2xl sm:text-3xl text-white font-bold">{folderName}</h2>
+                        {currentFolder?.description && (
+                          <p className="text-white/80 text-xs sm:text-sm max-w-2xl">{currentFolder.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inside Folder: Photos Grid */}
+                  <Card className="bg-card border border-border rounded-3xl p-6 shadow-sm">
+                    <CardHeader className="px-0 pt-0 pb-4">
+                      <CardTitle className="font-display text-lg text-primary font-bold">
+                        Photographs in {folderName} ({folderPhotos.length})
+                      </CardTitle>
+                      <CardDescription>
+                        Hover over any image to view details or delete it from this celebration folder.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="px-0 pb-0">
+                      <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                        {folderPhotos.map((photo, pIdx) => (
+                          <div 
+                            key={photo.id || pIdx} 
+                            className="relative group rounded-xl overflow-hidden border border-border aspect-square bg-card shadow-sm hover:border-gold transition duration-200"
+                          >
+                            <img src={photo.src} alt={photo.title} className="h-full w-full object-cover" />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition duration-150 flex flex-col justify-between p-3 text-white">
+                              <div className="text-[10px] font-bold text-gold uppercase truncate">{photo.folderName || folderName}</div>
+                              <div className="text-xs font-semibold line-clamp-2">{photo.title || "Untitled Photo"}</div>
+                              <Button 
+                                size="icon" 
+                                variant="destructive" 
+                                className="h-8 w-8 mt-2 mx-auto rounded-full" 
+                                onClick={() => handleDeleteGalleryImage(photo.id, photo.title)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+
+                        {folderPhotos.length === 0 && (
+                          <div className="col-span-full text-center text-muted-foreground py-16 bg-muted/10 border rounded-2xl">
+                            <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/30 mb-2" />
+                            <p className="font-semibold text-sm">No photos in this folder yet.</p>
+                            <Button 
+                              onClick={() => {
+                                setEditItem(null);
+                                setGalleryForm({
+                                  title: "",
+                                  description: "",
+                                  category: folderName,
+                                  image: ""
+                                });
+                                setActiveDialog("gallery");
+                              }} 
+                              className="mt-3 rounded-full bg-primary text-primary-foreground text-xs font-bold"
+                            >
+                              + Upload First Photo
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              );
+            })()}
           </TabsContent>
 
           {/* TAB 7: USER SUBMISSIONS VIEWER */}
           <TabsContent value="submissions" className="animate-fade-in">
             <Tabs defaultValue="admissions" className="space-y-6">
               <TabsList className="bg-muted border p-1 rounded-xl flex gap-1 h-auto w-fit">
-                <TabsTrigger value="admissions" className="rounded-lg px-4 py-2 text-xs font-bold gap-1.5"><FileText className="h-4 w-4" /> Admission Inquiries</TabsTrigger>
-                <TabsTrigger value="contacts" className="rounded-lg px-4 py-2 text-xs font-bold gap-1.5"><MessageSquare className="h-4 w-4" /> Contact Forms</TabsTrigger>
-                <TabsTrigger value="jobs" className="rounded-lg px-4 py-2 text-xs font-bold gap-1.5"><Briefcase className="h-4 w-4" /> Job Applications</TabsTrigger>
+                <TabsTrigger value="admissions" className="rounded-lg px-4 py-2 text-xs font-bold gap-1.5"><FileText className="h-4 w-4" /> Admissions Inquiries (/admissions)</TabsTrigger>
+                <TabsTrigger value="contacts" className="rounded-lg px-4 py-2 text-xs font-bold gap-1.5"><MessageSquare className="h-4 w-4" /> Contact Forms (/contact)</TabsTrigger>
+                <TabsTrigger value="jobs" className="rounded-lg px-4 py-2 text-xs font-bold gap-1.5"><Briefcase className="h-4 w-4" /> Job Applications (/careers)</TabsTrigger>
               </TabsList>
 
               {/* Admission Queries */}
               <TabsContent value="admissions" className="animate-fade-in">
                 <Card className="bg-card border border-border rounded-2xl p-6 shadow-sm">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-display text-lg font-bold text-primary">Admission Inquiries</h3>
+                    <h3 className="font-display text-lg font-bold text-primary">Admissions Inquiries Inbox (/admissions)</h3>
                     <div className="flex gap-2">
                       <Button onClick={startAddAdmission} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
                         <Plus className="h-3.5 w-3.5" /> Create Inquiry
-                      </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteAll("admission-queries")} className="rounded-full font-bold gap-1.5 text-xs py-1 h-8">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete All
                       </Button>
                     </div>
                   </div>
@@ -1884,13 +2476,13 @@ function AdminPage() {
               <TabsContent value="contacts" className="animate-fade-in">
                 <Card className="bg-card border border-border rounded-2xl p-6 shadow-sm">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-display text-lg font-bold text-primary">Contact Messages</h3>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-primary">Contact Messages Inbox (/contact)</h3>
+                      <p className="text-xs text-muted-foreground">General inquiries and messages submitted via the Contact Us page.</p>
+                    </div>
                     <div className="flex gap-2">
                       <Button onClick={startAddContact} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
                         <Plus className="h-3.5 w-3.5" /> Create Message
-                      </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteAll("contact-messages")} className="rounded-full font-bold gap-1.5 text-xs py-1 h-8">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete All
                       </Button>
                     </div>
                   </div>
@@ -1944,13 +2536,13 @@ function AdminPage() {
               <TabsContent value="jobs" className="animate-fade-in">
                 <Card className="bg-card border border-border rounded-2xl p-6 shadow-sm">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-display text-lg font-bold text-primary">Job Applications</h3>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-primary">Job Applications Inbox (/careers)</h3>
+                      <p className="text-xs text-muted-foreground">Teaching and administrative staff applications received.</p>
+                    </div>
                     <div className="flex gap-2">
                       <Button onClick={startAddJob} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
                         <Plus className="h-3.5 w-3.5" /> Create Application
-                      </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteAll("job-applications")} className="rounded-full font-bold gap-1.5 text-xs py-1 h-8">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete All
                       </Button>
                     </div>
                   </div>
@@ -2146,9 +2738,6 @@ function AdminPage() {
                       <div className="flex justify-end gap-2 text-xs">
                         <Button size="sm" onClick={() => { setEditItem(null); setAnnouncementForm({ title: "", message: "", priority: "Medium", status: "Active" }); setActiveDialog("announce"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1">
                           <Plus className="h-3.5 w-3.5" /> Add Notice
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteAll("announcements")} className="rounded-full font-bold gap-1">
-                          <Trash2 className="h-3.5 w-3.5" /> Delete All
                         </Button>
                       </div>
                     </div>
@@ -2420,9 +3009,6 @@ function AdminPage() {
                       <Button onClick={() => { setEditItem(null); setUniformForm({ section: "", boys_uniform: "", girls_uniform: "" }); setActiveDialog("uniform"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
                         <Plus className="h-3.5 w-3.5" /> Add Uniform Rule
                       </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteAll("school-uniforms")} className="rounded-full font-bold gap-1.5 text-xs py-1 h-8">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete All
-                      </Button>
                     </div>
                   </div>
 
@@ -2463,9 +3049,6 @@ function AdminPage() {
                     <div className="flex gap-2">
                       <Button onClick={() => { setEditItem(null); setHouseForm({ name: "", motto: "", color_code: "bg-red-500", description: "", points: 0 }); setActiveDialog("house"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
                         <Plus className="h-3.5 w-3.5" /> Add House
-                      </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteAll("student-houses")} className="rounded-full font-bold gap-1.5 text-xs py-1 h-8">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete All
                       </Button>
                     </div>
                   </div>
@@ -2513,9 +3096,6 @@ function AdminPage() {
                     <div className="flex gap-2">
                       <Button onClick={() => { setEditItem(null); setLeaderForm({ role: "", name: "", grade: "" }); setActiveDialog("leader"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
                         <Plus className="h-3.5 w-3.5" /> Add Leader
-                      </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteAll("student-leaders")} className="rounded-full font-bold gap-1.5 text-xs py-1 h-8">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete All
                       </Button>
                     </div>
                   </div>
@@ -3138,14 +3718,31 @@ function AdminPage() {
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground">Category</Label>
                 <Select value={eventForm.category} onValueChange={(val) => setEventForm(prev => ({ ...prev, category: val }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60 overflow-y-auto">
+                    <SelectItem value="Celebration">Celebration</SelectItem>
+                    <SelectItem value="Exam">Examination</SelectItem>
+                    <SelectItem value="Holiday">Holiday</SelectItem>
+                    <SelectItem value="Field Trip">Field Trip / Tour</SelectItem>
+                    <SelectItem value="Activity">Activity / Club</SelectItem>
+                    <SelectItem value="Competition">Competition</SelectItem>
+                    <SelectItem value="Workshop">Workshop</SelectItem>
+                    <SelectItem value="Meeting">Meeting / Open Day</SelectItem>
+                    <SelectItem value="Reopening">Reopening</SelectItem>
                     <SelectItem value="Academic">Academic</SelectItem>
                     <SelectItem value="Sports">Sports</SelectItem>
                     <SelectItem value="Cultural">Cultural</SelectItem>
-                    <SelectItem value="Annual Day">Annual Day</SelectItem>
-                    <SelectItem value="Celebration">Celebration</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="ev-time" className="text-xs uppercase tracking-wide text-muted-foreground">Time Schedule</Label>
+                <Input id="ev-time" placeholder="e.g. 08:45 AM - 03:30 PM" value={eventForm.event_time} onChange={(e) => setEventForm(prev => ({ ...prev, event_time: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="ev-venue" className="text-xs uppercase tracking-wide text-muted-foreground">Venue / Location</Label>
+                <Input id="ev-venue" placeholder="e.g. Main Auditorium" value={eventForm.venue} onChange={(e) => setEventForm(prev => ({ ...prev, venue: e.target.value }))} />
               </div>
             </div>
             <div className="space-y-1">
@@ -3191,15 +3788,27 @@ function AdminPage() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Subject Stream</Label>
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Department / Subject Stream</Label>
               <Select value={teacherForm.subject} onValueChange={(val) => setTeacherForm(prev => ({ ...prev, subject: val }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="English">English</SelectItem>
+                <SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
                   <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  <SelectItem value="Science">Science</SelectItem>
-                  <SelectItem value="Languages">Languages</SelectItem>
+                  <SelectItem value="Physics">Physics</SelectItem>
+                  <SelectItem value="Chemistry">Chemistry</SelectItem>
+                  <SelectItem value="Biology">Biology</SelectItem>
                   <SelectItem value="Computer Science">Computer Science</SelectItem>
+                  <SelectItem value="English">English</SelectItem>
+                  <SelectItem value="Tamil">Tamil</SelectItem>
+                  <SelectItem value="Economics">Economics</SelectItem>
+                  <SelectItem value="Commerce">Commerce &amp; Accountancy</SelectItem>
+                  <SelectItem value="History">History &amp; Social Science</SelectItem>
+                  <SelectItem value="Hindi">Hindi</SelectItem>
+                  <SelectItem value="French">French</SelectItem>
+                  <SelectItem value="Physical Education">Physical Education</SelectItem>
+                  <SelectItem value="Art">Art &amp; Library</SelectItem>
+                  <SelectItem value="Kindergarten">Kindergarten</SelectItem>
+                  <SelectItem value="Administration">Administration</SelectItem>
+                  <SelectItem value="General">General</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -3343,43 +3952,117 @@ function AdminPage() {
         </DialogContent>
       </Dialog>
 
-      {/* 5. Gallery Dialog */}
+      {/* 5. Gallery Photo Upload Dialog */}
       <Dialog open={activeDialog === "gallery"} onOpenChange={(open) => { if (!open) setEditItem(null); setActiveDialog(open ? "gallery" : null); }}>
         <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl text-primary font-bold">Add Photo to Gallery</DialogTitle>
-            <DialogDescription>Select categorised photos to show in the media archive grid.</DialogDescription>
+            <DialogTitle className="font-display text-xl text-primary font-bold">
+              {editItem ? "Edit Gallery Photo" : "Upload Photo to Celebration Folder"}
+            </DialogTitle>
+            <DialogDescription>
+              Select the event folder and upload high-resolution celebration photographs.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleGallerySubmit} className="space-y-4 pt-3">
             <div className="space-y-1">
-              <Label htmlFor="g-title" className="text-xs uppercase tracking-wide text-muted-foreground">Photo Title</Label>
-              <Input id="g-title" value={galleryForm.title} onChange={(e) => setGalleryForm(prev => ({ ...prev, title: e.target.value }))} required />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="g-desc" className="text-xs uppercase tracking-wide text-muted-foreground">Description</Label>
-              <Textarea id="g-desc" value={galleryForm.description} onChange={(e) => setGalleryForm(prev => ({ ...prev, description: e.target.value }))} required />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Category Block</Label>
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Select Celebration Folder</Label>
               <Select value={galleryForm.category} onValueChange={(val) => setGalleryForm(prev => ({ ...prev, category: val }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Academics">Campus / Academics</SelectItem>
-                  <SelectItem value="Events">Events</SelectItem>
-                  <SelectItem value="Sports">Sports</SelectItem>
-                  <SelectItem value="Celebrations">Celebrations</SelectItem>
+                <SelectTrigger className="bg-background"><SelectValue placeholder="Choose a celebration folder" /></SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  {getMergedGalleryFolders(galleryImages, deletedFolderIds, customFolderMeta, deletedPhotoIds).map((folder) => (
+                    <SelectItem key={folder.id} value={folder.name}>
+                      📁 {folder.name} ({folder.photos.length} photos)
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
+              <Label htmlFor="g-title" className="text-xs uppercase tracking-wide text-muted-foreground">Photo Title</Label>
+              <Input id="g-title" placeholder="e.g. Choir Ensemble Recital" value={galleryForm.title} onChange={(e) => setGalleryForm(prev => ({ ...prev, title: e.target.value }))} required />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="g-desc" className="text-xs uppercase tracking-wide text-muted-foreground">Description / Caption</Label>
+              <Textarea id="g-desc" placeholder="Describe the moment or student performance..." value={galleryForm.description} onChange={(e) => setGalleryForm(prev => ({ ...prev, description: e.target.value }))} required />
+            </div>
+            <div className="space-y-1">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Image File</Label>
               <div className="flex gap-3">
-                <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "gallery")} required={!editItem} />
+                <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "gallery")} required={!editItem && !galleryForm.image} />
                 {galleryForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${galleryForm.image})` }} />}
               </div>
             </div>
             <DialogFooter className="pt-4">
-              <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">Add to Archives</Button>
+              <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                {editItem ? "Save Photo Changes" : "Upload to Folder"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 5B. Create New Folder Dialog */}
+      <Dialog open={activeDialog === "new_folder"} onOpenChange={(open) => setActiveDialog(open ? "new_folder" : null)}>
+        <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl text-primary font-bold">
+              Create New Celebration Folder
+            </DialogTitle>
+            <DialogDescription>
+              Create a dedicated photo album folder for school events, ceremonies, or activities.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleNewFolderSubmit} className="space-y-4 pt-3">
+            <div className="space-y-1">
+              <Label htmlFor="nf-name" className="text-xs uppercase tracking-wide text-muted-foreground">Folder Name</Label>
+              <Input 
+                id="nf-name" 
+                placeholder="e.g. Sports Day 2026 or Science Fair" 
+                value={newFolderForm.name} 
+                onChange={(e) => setNewFolderForm(prev => ({ ...prev, name: e.target.value }))} 
+                required 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="nf-desc" className="text-xs uppercase tracking-wide text-muted-foreground">Folder Description</Label>
+              <Textarea 
+                id="nf-desc" 
+                placeholder="Describe the celebrations, activities, and memories in this album..." 
+                value={newFolderForm.description} 
+                onChange={(e) => setNewFolderForm(prev => ({ ...prev, description: e.target.value }))} 
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="nf-date" className="text-xs uppercase tracking-wide text-muted-foreground">Celebration Date / Month</Label>
+              <Input 
+                id="nf-date" 
+                placeholder="e.g. February 2026" 
+                value={newFolderForm.date} 
+                onChange={(e) => setNewFolderForm(prev => ({ ...prev, date: e.target.value }))} 
+              />
+            </div>
+            <div className="space-y-1 pt-2 border-t border-border">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Cover / Initial Photo (Optional)</Label>
+              <div className="flex gap-3">
+                <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "new_folder")} />
+                {newFolderForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${newFolderForm.image})` }} />}
+              </div>
+            </div>
+            {newFolderForm.image && (
+              <div className="space-y-1">
+                <Label htmlFor="nf-img-title" className="text-xs uppercase tracking-wide text-muted-foreground">Cover Photo Title</Label>
+                <Input 
+                  id="nf-img-title" 
+                  placeholder="e.g. Opening March Past Ceremony" 
+                  value={newFolderForm.photoTitle} 
+                  onChange={(e) => setNewFolderForm(prev => ({ ...prev, photoTitle: e.target.value }))} 
+                />
+              </div>
+            )}
+            <DialogFooter className="pt-4">
+              <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                Create Folder
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

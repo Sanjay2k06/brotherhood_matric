@@ -16,8 +16,10 @@ import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdmissionsRouteImport } from './routes/admissions'
 import { Route as AssociationRouteImport } from './routes/association'
+import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CoCurricularRouteImport } from './routes/co-curricular'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as ScrollStackDemoRouteImport } from './routes/scroll-stack-demo'
@@ -34,7 +36,6 @@ import { Route as AcademicsIndexRouteImport } from './routes/academics/index'
 import { Route as AcademicsAdmissionRouteImport } from './routes/academics/admission'
 import { Route as AcademicsCoursesOfferedRouteImport } from './routes/academics/courses-offered'
 import { Route as AcademicsCurriculumRouteImport } from './routes/academics/curriculum'
-import { Route as AcademicsFatherCruzeProfileRouteImport } from './routes/academics/father-cruze-profile'
 import { Route as AcademicsFounderMessageRouteImport } from './routes/academics/founder-message'
 import { Route as AcademicsManagementCommitteeRouteImport } from './routes/academics/management-committee'
 import { Route as AcademicsSchoolFeesRouteImport } from './routes/academics/school-fees'
@@ -115,6 +116,11 @@ const AssociationRoute = AssociationRouteImport.update({
   path: '/association',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoCurricularRoute = CoCurricularRouteImport.update({
   id: '/co-curricular',
   path: '/co-curricular',
@@ -123,6 +129,11 @@ const CoCurricularRoute = CoCurricularRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -206,12 +217,6 @@ const AcademicsCurriculumRoute = AcademicsCurriculumRouteImport.update({
   path: '/curriculum',
   getParentRoute: () => AcademicsRoute,
 } as any)
-const AcademicsFatherCruzeProfileRoute =
-  AcademicsFatherCruzeProfileRouteImport.update({
-    id: '/father-cruze-profile',
-    path: '/father-cruze-profile',
-    getParentRoute: () => AcademicsRoute,
-  } as any)
 const AcademicsFounderMessageRoute = AcademicsFounderMessageRouteImport.update({
   id: '/founder-message',
   path: '/founder-message',
@@ -447,8 +452,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/admissions': typeof AdmissionsRouteWithChildren
   '/association': typeof AssociationRouteWithChildren
+  '/calendar': typeof CalendarRoute
   '/co-curricular': typeof CoCurricularRouteWithChildren
   '/contact': typeof ContactRouteWithChildren
+  '/events': typeof EventsRoute
   '/features': typeof FeaturesRoute
   '/gallery': typeof GalleryRouteWithChildren
   '/scroll-stack-demo': typeof ScrollStackDemoRoute
@@ -463,7 +470,6 @@ export interface FileRoutesByFullPath {
   '/academics/admission': typeof AcademicsAdmissionRoute
   '/academics/courses-offered': typeof AcademicsCoursesOfferedRoute
   '/academics/curriculum': typeof AcademicsCurriculumRoute
-  '/academics/father-cruze-profile': typeof AcademicsFatherCruzeProfileRoute
   '/academics/founder-message': typeof AcademicsFounderMessageRoute
   '/academics/management-committee': typeof AcademicsManagementCommitteeRoute
   '/academics/school-fees': typeof AcademicsSchoolFeesRoute
@@ -514,6 +520,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/calendar': typeof CalendarRoute
+  '/events': typeof EventsRoute
   '/features': typeof FeaturesRoute
   '/scroll-stack-demo': typeof ScrollStackDemoRoute
   '/teachers': typeof TeachersRoute
@@ -525,7 +533,6 @@ export interface FileRoutesByTo {
   '/academics/admission': typeof AcademicsAdmissionRoute
   '/academics/courses-offered': typeof AcademicsCoursesOfferedRoute
   '/academics/curriculum': typeof AcademicsCurriculumRoute
-  '/academics/father-cruze-profile': typeof AcademicsFatherCruzeProfileRoute
   '/academics/founder-message': typeof AcademicsFounderMessageRoute
   '/academics/management-committee': typeof AcademicsManagementCommitteeRoute
   '/academics/school-fees': typeof AcademicsSchoolFeesRoute
@@ -582,8 +589,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/admissions': typeof AdmissionsRouteWithChildren
   '/association': typeof AssociationRouteWithChildren
+  '/calendar': typeof CalendarRoute
   '/co-curricular': typeof CoCurricularRouteWithChildren
   '/contact': typeof ContactRouteWithChildren
+  '/events': typeof EventsRoute
   '/features': typeof FeaturesRoute
   '/gallery': typeof GalleryRouteWithChildren
   '/scroll-stack-demo': typeof ScrollStackDemoRoute
@@ -598,7 +607,6 @@ export interface FileRoutesById {
   '/academics/admission': typeof AcademicsAdmissionRoute
   '/academics/courses-offered': typeof AcademicsCoursesOfferedRoute
   '/academics/curriculum': typeof AcademicsCurriculumRoute
-  '/academics/father-cruze-profile': typeof AcademicsFatherCruzeProfileRoute
   '/academics/founder-message': typeof AcademicsFounderMessageRoute
   '/academics/management-committee': typeof AcademicsManagementCommitteeRoute
   '/academics/school-fees': typeof AcademicsSchoolFeesRoute
@@ -656,8 +664,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admissions'
     | '/association'
+    | '/calendar'
     | '/co-curricular'
     | '/contact'
+    | '/events'
     | '/features'
     | '/gallery'
     | '/scroll-stack-demo'
@@ -672,7 +682,6 @@ export interface FileRouteTypes {
     | '/academics/admission'
     | '/academics/courses-offered'
     | '/academics/curriculum'
-    | '/academics/father-cruze-profile'
     | '/academics/founder-message'
     | '/academics/management-committee'
     | '/academics/school-fees'
@@ -723,6 +732,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/calendar'
+    | '/events'
     | '/features'
     | '/scroll-stack-demo'
     | '/teachers'
@@ -734,7 +745,6 @@ export interface FileRouteTypes {
     | '/academics/admission'
     | '/academics/courses-offered'
     | '/academics/curriculum'
-    | '/academics/father-cruze-profile'
     | '/academics/founder-message'
     | '/academics/management-committee'
     | '/academics/school-fees'
@@ -790,8 +800,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admissions'
     | '/association'
+    | '/calendar'
     | '/co-curricular'
     | '/contact'
+    | '/events'
     | '/features'
     | '/gallery'
     | '/scroll-stack-demo'
@@ -806,7 +818,6 @@ export interface FileRouteTypes {
     | '/academics/admission'
     | '/academics/courses-offered'
     | '/academics/curriculum'
-    | '/academics/father-cruze-profile'
     | '/academics/founder-message'
     | '/academics/management-committee'
     | '/academics/school-fees'
@@ -863,8 +874,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AdmissionsRoute: typeof AdmissionsRouteWithChildren
   AssociationRoute: typeof AssociationRouteWithChildren
+  CalendarRoute: typeof CalendarRoute
   CoCurricularRoute: typeof CoCurricularRouteWithChildren
   ContactRoute: typeof ContactRouteWithChildren
+  EventsRoute: typeof EventsRoute
   FeaturesRoute: typeof FeaturesRoute
   GalleryRoute: typeof GalleryRouteWithChildren
   ScrollStackDemoRoute: typeof ScrollStackDemoRoute
@@ -924,6 +937,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssociationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/co-curricular': {
       id: '/co-curricular'
       path: '/co-curricular'
@@ -936,6 +956,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -1048,13 +1075,6 @@ declare module '@tanstack/react-router' {
       path: '/curriculum'
       fullPath: '/academics/curriculum'
       preLoaderRoute: typeof AcademicsCurriculumRouteImport
-      parentRoute: typeof AcademicsRoute
-    }
-    '/academics/father-cruze-profile': {
-      id: '/academics/father-cruze-profile'
-      path: '/father-cruze-profile'
-      fullPath: '/academics/father-cruze-profile'
-      preLoaderRoute: typeof AcademicsFatherCruzeProfileRouteImport
       parentRoute: typeof AcademicsRoute
     }
     '/academics/founder-message': {
@@ -1392,7 +1412,6 @@ interface AcademicsRouteChildren {
   AcademicsAdmissionRoute: typeof AcademicsAdmissionRoute
   AcademicsCoursesOfferedRoute: typeof AcademicsCoursesOfferedRoute
   AcademicsCurriculumRoute: typeof AcademicsCurriculumRoute
-  AcademicsFatherCruzeProfileRoute: typeof AcademicsFatherCruzeProfileRoute
   AcademicsFounderMessageRoute: typeof AcademicsFounderMessageRoute
   AcademicsManagementCommitteeRoute: typeof AcademicsManagementCommitteeRoute
   AcademicsSchoolFeesRoute: typeof AcademicsSchoolFeesRoute
@@ -1404,7 +1423,6 @@ const AcademicsRouteChildren: AcademicsRouteChildren = {
   AcademicsAdmissionRoute: AcademicsAdmissionRoute,
   AcademicsCoursesOfferedRoute: AcademicsCoursesOfferedRoute,
   AcademicsCurriculumRoute: AcademicsCurriculumRoute,
-  AcademicsFatherCruzeProfileRoute: AcademicsFatherCruzeProfileRoute,
   AcademicsFounderMessageRoute: AcademicsFounderMessageRoute,
   AcademicsManagementCommitteeRoute: AcademicsManagementCommitteeRoute,
   AcademicsSchoolFeesRoute: AcademicsSchoolFeesRoute,
@@ -1582,8 +1600,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AdmissionsRoute: AdmissionsRouteWithChildren,
   AssociationRoute: AssociationRouteWithChildren,
+  CalendarRoute: CalendarRoute,
   CoCurricularRoute: CoCurricularRouteWithChildren,
   ContactRoute: ContactRouteWithChildren,
+  EventsRoute: EventsRoute,
   FeaturesRoute: FeaturesRoute,
   GalleryRoute: GalleryRouteWithChildren,
   ScrollStackDemoRoute: ScrollStackDemoRoute,

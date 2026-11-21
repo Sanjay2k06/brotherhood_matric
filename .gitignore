@@ -32,7 +32,13 @@ wheels/
 # Database
 *.sqlite3
 *.db
+*.db.backup
 backend/*.db
+backend/*.db.backup
+
+# Scratch scripts
+backend/scratch/
+scratch/
 
 # Logs
 logs/

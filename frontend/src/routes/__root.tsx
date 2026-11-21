@@ -173,59 +173,63 @@ function RootComponent() {
     };
   }, []);
 
+  const isAdmin = location.pathname.startsWith("/admin");
+
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Main Content Wrapper - Instant loading without artificial delay */}
+      {/* Main Content Wrapper - Instant loading */}
       <div className="relative z-0 bg-[#05140b]">
-        <SiteHeader />
+        {!isAdmin && <SiteHeader />}
         <main key={location.pathname} className="min-h-screen">
           <Outlet />
         </main>
-        <SiteFooter />
+        {!isAdmin && <SiteFooter />}
 
-        {/* Global Floating Action Buttons */}
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col gap-3 sm:gap-4 items-end pointer-events-auto">
-          {/* Floating Enquiry Button */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link
-              to="/admissions/enquiry-form"
-              className="group flex items-center bg-white border border-gray-200 shadow-xl rounded-full p-1 hover:bg-[#0a2b18] hover:border-[#0a2b18] transition-all duration-500 ease-in-out hover:-translate-y-1"
-            >
-              <div className="h-10 w-10 bg-[#f7faf8] group-hover:bg-white/10 rounded-full flex items-center justify-center shrink-0 transition-colors">
-                <FileEdit className="h-4 w-4 text-[#1b4d32] group-hover:text-white transition-colors" />
-              </div>
-              <span className="text-sm font-medium text-[#0a2b18] group-hover:text-white transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">Enquire Now</span>
-            </Link>
-          </motion.div>
+        {/* Global Floating Action Buttons - Hidden on admin console */}
+        {!isAdmin && (
+          <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col gap-3 sm:gap-4 items-end pointer-events-auto">
+            {/* Floating Enquiry Button */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                to="/admissions/enquiry-form"
+                className="group flex items-center bg-white border border-gray-200 shadow-xl rounded-full p-1 hover:bg-[#0a2b18] hover:border-[#0a2b18] transition-all duration-500 ease-in-out hover:-translate-y-1"
+              >
+                <div className="h-10 w-10 bg-[#f7faf8] group-hover:bg-white/10 rounded-full flex items-center justify-center shrink-0 transition-colors">
+                  <FileEdit className="h-4 w-4 text-[#1b4d32] group-hover:text-white transition-colors" />
+                </div>
+                <span className="text-sm font-medium text-[#0a2b18] group-hover:text-white transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">Enquire Now</span>
+              </Link>
+            </motion.div>
 
-          {/* Floating Call Button */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <a
-              href="tel:0442440133"
-              className="group flex items-center bg-white border border-gray-200 shadow-xl rounded-full p-1 hover:bg-[#0a2b18] hover:border-[#0a2b18] transition-all duration-500 ease-in-out hover:-translate-y-1"
-            >
-              <div className="h-10 w-10 bg-[#f7faf8] group-hover:bg-white/10 rounded-full flex items-center justify-center shrink-0 transition-colors">
-                <Phone className="h-4 w-4 text-[#1b4d32] group-hover:text-white transition-colors" />
-              </div>
-              <span className="text-sm font-medium text-[#0a2b18] group-hover:text-white transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">Call Us</span>
-            </a>
-          </motion.div>
+            {/* Floating Call Button */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <a
+                href="tel:0442440133"
+                className="group flex items-center bg-white border border-gray-200 shadow-xl rounded-full p-1 hover:bg-[#0a2b18] hover:border-[#0a2b18] transition-all duration-500 ease-in-out hover:-translate-y-1"
+              >
+                <div className="h-10 w-10 bg-[#f7faf8] group-hover:bg-white/10 rounded-full flex items-center justify-center shrink-0 transition-colors">
+                  <Phone className="h-4 w-4 text-[#1b4d32] group-hover:text-white transition-colors" />
+                </div>
+                <span className="text-sm font-medium text-[#0a2b18] group-hover:text-white transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">Call Us</span>
+              </a>
+            </motion.div>
 
-          {/* Floating WhatsApp Button */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <a
-              href="https://wa.me/919884204848"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center bg-[#25D366] border border-[#25D366] shadow-[0_8px_16px_rgba(37,211,102,0.3)] rounded-full p-1 hover:bg-[#20ba5a] hover:border-[#20ba5a] transition-all duration-500 ease-in-out hover:-translate-y-1"
-            >
-              <div className="h-10 w-10 bg-white/20 rounded-full flex items-center justify-center shrink-0 transition-colors">
-                <MessageCircle className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-sm font-medium text-white tracking-wide transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">WhatsApp</span>
-            </a>
-          </motion.div>
-        </div>
+            {/* Floating WhatsApp Button */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <a
+                href="https://wa.me/919884204848"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center bg-[#25D366] border border-[#25D366] shadow-[0_8px_16px_rgba(37,211,102,0.3)] rounded-full p-1 hover:bg-[#20ba5a] hover:border-[#20ba5a] transition-all duration-500 ease-in-out hover:-translate-y-1"
+              >
+                <div className="h-10 w-10 bg-white/20 rounded-full flex items-center justify-center shrink-0 transition-colors">
+                  <MessageCircle className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-sm font-medium text-white tracking-wide transition-all duration-500 ease-in-out max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 group-hover:px-3">WhatsApp</span>
+              </a>
+            </motion.div>
+          </div>
+        )}
       </div>
     </QueryClientProvider>
   );

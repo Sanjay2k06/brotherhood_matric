@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { useState, useEffect } from "react";
-import principalImage from "../../images/Principal-Photo.jpg";
+import principalImage from "../../images/Shima Picture corrected (1).jpeg";
+import helenImage from "../../images/principal_primary_halen.jpeg";
 import { motion } from "motion/react";
 import { API_BASE } from "@/config";
 
@@ -62,30 +63,36 @@ function PrincipalMessagePage() {
             {/* Background Accent */}
             <div className="hidden lg:block absolute top-0 left-[41.666%] -translate-x-1/2 w-px h-full bg-gradient-to-b from-transparent via-[#d4af37]/20 to-transparent"></div>
 
-            {/* Principal Photograph */}
+            {/* Principals Photographs */}
             <motion.div 
               initial={{ opacity: 0, x: -40 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="lg:col-span-5 relative"
+              className="lg:col-span-5 space-y-8"
             >
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(10,43,24,0.2)] aspect-[3/4] bg-white p-2">
+              {/* Mrs. Shima Newton */}
+              <div className="rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(10,43,24,0.15)] aspect-[3/4] bg-white p-2">
                 <div className="w-full h-full rounded-[2rem] overflow-hidden relative group">
                   <img
                     src={principalImage}
-                    alt="School Principals"
+                    alt="Mrs. Shima Newton — Principal (Higher Secondary)"
                     className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-[#0a2b18]/10 mix-blend-multiply transition-colors duration-700 group-hover:bg-transparent"></div>
                 </div>
               </div>
 
-              {/* Floating Badge */}
-              <div className="absolute -bottom-8 -right-4 md:-right-12 bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-[0_20px_40px_-15px_rgba(10,43,24,0.15)] max-w-[280px] border border-[#f1f6f3] z-10">
-                <p className="font-serif text-lg text-[#0a2b18] leading-tight mb-2">Mrs. Shima Newton</p>
-                <div className="w-10 h-[1px] bg-[#d4af37] mt-4 mb-2"></div>
-                <p className="text-[#0a2b18] text-sm font-medium uppercase tracking-widest">Principal (Higher Secondary)</p>
+              {/* Mrs. Helen Johnson */}
+              <div className="rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-15px_rgba(10,43,24,0.15)] aspect-[3/4] bg-white p-2">
+                <div className="w-full h-full rounded-[2rem] overflow-hidden relative group">
+                  <img
+                    src={helenImage}
+                    alt="Mrs. Helen Johnson — Principal (Primary)"
+                    className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-[#0a2b18]/10 mix-blend-multiply transition-colors duration-700 group-hover:bg-transparent"></div>
+                </div>
               </div>
             </motion.div>
 

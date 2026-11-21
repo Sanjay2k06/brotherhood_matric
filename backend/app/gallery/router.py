@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional, Any
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.connection import get_db
@@ -11,15 +12,15 @@ router = APIRouter()
 
 @router.get("/", response_model=list[GalleryImageOut])
 async def list_images(
-    category: str = None, 
-    featured: bool = None, 
+    category: Optional[str] = None, 
+    featured: Optional[bool] = None, 
     db: AsyncSession = Depends(get_db)
 ):
     service = GalleryService(db)
     return await service.get_all(category=category, featured=featured)
 
 @router.get("/{id}/", response_model=GalleryImageOut)
-async def get_image(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_image(id: str, db: AsyncSession = Depends(get_db)):
     service = GalleryService(db)
     return await service.get_by_id(id)
 
@@ -34,7 +35,7 @@ async def create_image(
 
 @router.put("/{id}/", response_model=GalleryImageOut)
 async def update_image(
-    id: uuid.UUID, 
+    id: str, 
     payload: GalleryImageUpdate, 
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_editor_or_above)
@@ -44,7 +45,7 @@ async def update_image(
 
 @router.delete("/{id}/")
 async def delete_image(
-    id: uuid.UUID, 
+    id: str, 
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_editor_or_above)
 ):

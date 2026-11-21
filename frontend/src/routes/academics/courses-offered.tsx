@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import aboutImage4 from "../../images/aboutimage4.jpeg";
 import { motion } from "motion/react";
 
@@ -62,10 +62,6 @@ function CoursesOfferedPage() {
       ]
     }
   ];
-
-  const handleDownload = () => {
-    alert("Brochure download initiated successfully!");
-  };
 
   return (
     <>
@@ -144,9 +140,6 @@ function CoursesOfferedPage() {
            >
              <img src={aboutImage4} alt="Classroom Study" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
              <div className="absolute inset-0 bg-[#0a2b18]/10 group-hover:bg-transparent transition-colors duration-700"></div>
-             <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl border border-[#f1f6f3]">
-               <p className="text-[#0a2b18] font-serif text-lg">Smart Desks & Modern Labs</p>
-             </div>
            </motion.div>
 
            <motion.div 
@@ -156,7 +149,7 @@ function CoursesOfferedPage() {
              <div className="w-12 h-[1px] bg-[#d4af37] mb-8"></div>
              <h3 className="font-serif text-4xl md:text-5xl text-[#0a2b18] mb-8 leading-tight">Take the <span className="italic text-[#1b4d32]">Next Step</span></h3>
              <p className="text-[#6c8274] font-light leading-relaxed mb-12 text-lg">
-               Whether you're ready to apply directly or just want to explore our brochure to learn more about our curriculum and faculty, our team is ready to guide you.
+               Whether you're ready to apply directly or want to learn more about our curriculum and faculty, our team is ready to guide you.
              </p>
              
              <div className="flex flex-col gap-5">
@@ -164,11 +157,6 @@ function CoursesOfferedPage() {
                  <span>Apply Online</span>
                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-500" />
                </Link>
-               
-               <button onClick={handleDownload} className="inline-flex items-center justify-between rounded-full border border-[#0a2b18]/10 bg-transparent text-[#0a2b18] hover:bg-[#f7faf8] hover:border-[#0a2b18]/30 px-8 py-5 text-sm font-semibold uppercase tracking-widest transition-colors duration-300 group">
-                 <span>Download Brochure</span>
-                 <Download className="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-500" />
-               </button>
              </div>
            </motion.div>
          </div>

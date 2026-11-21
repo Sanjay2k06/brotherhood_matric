@@ -24,14 +24,13 @@ export function PageHeader({ eyebrow, title, subtitle, backgroundImage = aboutIm
           alt="Header Background"
           decoding="async"
           fetchPriority="high"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-center brightness-125 contrast-105"
         />
       </motion.div>
 
-      {/* Dramatic Multi-layered Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0a2b18]/95 via-[#0a2b18]/70 to-[#0a2b18]/30 z-10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#05140b] via-transparent to-transparent z-10 opacity-95" />
-      <div className="absolute inset-0 bg-[#05140b]/30 mix-blend-multiply z-10" />
+      {/* Dramatic Multi-layered Overlays with enhanced brightness */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0a2b18]/75 via-[#0a2b18]/40 to-transparent z-10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#05140b]/80 via-transparent to-transparent z-10 opacity-60" />
       
       {/* Decorative Orbs for Premium feel */}
       <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-[#d4af37]/15 rounded-full blur-[100px] sm:blur-[120px] mix-blend-screen pointer-events-none z-10"></div>

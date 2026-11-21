@@ -42,7 +42,17 @@ app = FastAPI(
 # CORS Setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=[
+        "http://localhost:8080",
+        "http://localhost:8081",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:8080",
+        "http://127.0.0.1:8081",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,6 +61,11 @@ app.add_middleware(
 # Mount local uploads directory for static files serving
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# Mount public images directory if available
+images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend/public/images"))
+if os.path.exists(images_dir):
+    app.mount("/images", StaticFiles(directory=images_dir), name="images")
 
 # Health Check & Version Endpoints
 @app.get("/health", tags=["system"])
