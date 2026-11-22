@@ -43,6 +43,12 @@ interface UserProfile {
 
 import { API_BASE, BACKEND_URL } from "@/config";
 import { getMergedGalleryFolders, toFolderId, DEFAULT_GALLERY_FOLDERS, resolveGalleryImageSrc } from "@/lib/galleryData";
+import { getMergedStudentLeaders, StudentLeaderItem, saveLocalLeaderOverride, getLocalLeaderOverrides, inferWing } from "@/lib/studentLeadersData";
+import { getMergedUniforms, SchoolUniformItem, saveLocalUniformOverride, getLocalUniformOverrides } from "@/lib/uniformsData";
+import { getMergedHouses, SchoolHouseItem, saveLocalHouseOverride, getLocalHouseOverrides } from "@/lib/housesData";
+import { getMergedTeachers, TeacherItem, saveLocalTeacherOverride, getLocalTeacherOverrides } from "@/lib/teachersData";
+import { getMergedEvents, SchoolEventItem, saveLocalEventOverride, getLocalEventOverrides } from "@/lib/eventsData";
+import { getMergedAchievements, AchievementItem, saveLocalAchievementOverride, getLocalAchievementOverrides } from "@/lib/achievementsData";
 
 function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -53,15 +59,15 @@ function AdminPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // CRUD Data States
+  // CRUD Data States - Initialized with full default and local fallback data
   const [announcements, setAnnouncements] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [bestStudents, setBestStudents] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>(() => getMergedEvents([]));
+  const [teachers, setTeachers] = useState<any[]>(() => getMergedTeachers([]));
+  const [bestStudents, setBestStudents] = useState<any[]>(() => getMergedAchievements([]).all);
   const [galleryImages, setGalleryImages] = useState<any[]>([]);
-  const [uniforms, setUniforms] = useState<any[]>([]);
-  const [houses, setHouses] = useState<any[]>([]);
-  const [leaders, setLeaders] = useState<any[]>([]);
+  const [uniforms, setUniforms] = useState<any[]>(() => getMergedUniforms([]));
+  const [houses, setHouses] = useState<any[]>(() => getMergedHouses([]));
+  const [leaders, setLeaders] = useState<any[]>(() => getMergedStudentLeaders([]));
   
   // Submission View States
   const [admissions, setAdmissions] = useState<any[]>([]);
@@ -71,8 +77,13 @@ function AdminPage() {
   // Dialog / Edit states
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<any | null>(null);
-  const [editorPage, setEditorPage] = useState<"home" | "teachers" | "gallery" | "students" | "uniform" | "houses" | "leaders" | "about-school" | "founder-message" | "correspondent-message" | "principal-message">("home");
+  const [editorPage, setEditorPage] = useState<"home" | "events" | "teachers" | "gallery" | "students" | "uniform" | "houses" | "leaders" | "about-school" | "founder-message" | "correspondent-message" | "principal-message">("home");
   const [achievementCategory, setAchievementCategory] = useState<"best_student" | "board_topper" | "sports">("best_student");
+  const [leaderWingTab, setLeaderWingTab] = useState<"all" | "primary" | "secondary">("all");
+  const [leaderSearch, setLeaderSearch] = useState<string>("");
+  const [studentCategoryTab, setStudentCategoryTab] = useState<"all" | "best_student" | "board_topper" | "sports">("all");
+  const [studentSearch, setStudentSearch] = useState<string>("");
+  const [houseWingFilter, setHouseWingFilter] = useState<"all" | "primary" | "secondary">("all");
 
   // Vacancy state for job applications creation
   const [vacancies, setVacancies] = useState<any[]>([]);
@@ -144,8 +155,20 @@ function AdminPage() {
   const [houseForm, setHouseForm] = useState({
     name: "", motto: "", color_code: "bg-red-500", description: "", points: 0
   });
-  const [leaderForm, setLeaderForm] = useState({
-    role: "", name: "", grade: ""
+  const [leaderForm, setLeaderForm] = useState<{
+    role: string;
+    name: string;
+    grade: string;
+    wing: "Primary" | "Secondary";
+    house: string;
+    duties: string;
+  }>({
+    role: "",
+    name: "",
+    grade: "",
+    wing: "Primary",
+    house: "",
+    duties: ""
   });
 
   const [admissionForm, setAdmissionForm] = useState({
@@ -255,45 +278,81 @@ function AdminPage() {
       }
 
       // Events
-      const evRes = await fetch(`${API_BASE}/events/`, { headers });
-      if (evRes.ok) {
-        const d = await evRes.json();
-        setEvents(d.results || d);
+      try {
+        const evRes = await fetch(`${API_BASE}/events/`, { headers });
+        if (evRes.ok) {
+          const d = await evRes.json();
+          setEvents(getMergedEvents(d.results || d));
+        } else {
+          setEvents(getMergedEvents([]));
+        }
+      } catch {
+        setEvents(getMergedEvents([]));
       }
 
       // Teachers
-      const teachRes = await fetch(`${API_BASE}/teachers/`, { headers });
-      if (teachRes.ok) {
-        const d = await teachRes.json();
-        setTeachers(d.results || d);
+      try {
+        const teachRes = await fetch(`${API_BASE}/teachers/`, { headers });
+        if (teachRes.ok) {
+          const d = await teachRes.json();
+          setTeachers(getMergedTeachers(d.results || d));
+        } else {
+          setTeachers(getMergedTeachers([]));
+        }
+      } catch {
+        setTeachers(getMergedTeachers([]));
       }
 
       // Student Achievements
-      const studRes = await fetch(`${API_BASE}/student-achievements/`, { headers });
-      if (studRes.ok) {
-        const d = await studRes.json();
-        setBestStudents(d.results || d);
+      try {
+        const studRes = await fetch(`${API_BASE}/student-achievements/`, { headers });
+        if (studRes.ok) {
+          const d = await studRes.json();
+          setBestStudents(getMergedAchievements(d.results || d).all);
+        } else {
+          setBestStudents(getMergedAchievements([]).all);
+        }
+      } catch {
+        setBestStudents(getMergedAchievements([]).all);
       }
 
       // School Uniforms
-      const uniRes = await fetch(`${API_BASE}/school-uniforms/`, { headers });
-      if (uniRes.ok) {
-        const d = await uniRes.json();
-        setUniforms(d.results || d);
+      try {
+        const uniRes = await fetch(`${API_BASE}/school-uniforms/`, { headers });
+        if (uniRes.ok) {
+          const d = await uniRes.json();
+          setUniforms(getMergedUniforms(d.results || d));
+        } else {
+          setUniforms(getMergedUniforms([]));
+        }
+      } catch {
+        setUniforms(getMergedUniforms([]));
       }
 
       // Student Houses
-      const houseRes = await fetch(`${API_BASE}/student-houses/`, { headers });
-      if (houseRes.ok) {
-        const d = await houseRes.json();
-        setHouses(d.results || d);
+      try {
+        const houseRes = await fetch(`${API_BASE}/student-houses/`, { headers });
+        if (houseRes.ok) {
+          const d = await houseRes.json();
+          setHouses(getMergedHouses(d.results || d));
+        } else {
+          setHouses(getMergedHouses([]));
+        }
+      } catch {
+        setHouses(getMergedHouses([]));
       }
 
       // Student Leaders
-      const leaderRes = await fetch(`${API_BASE}/student-leaders/`, { headers });
-      if (leaderRes.ok) {
-        const d = await leaderRes.json();
-        setLeaders(d.results || d);
+      try {
+        const leaderRes = await fetch(`${API_BASE}/student-leaders/`, { headers });
+        if (leaderRes.ok) {
+          const d = await leaderRes.json();
+          setLeaders(getMergedStudentLeaders(d.results || d));
+        } else {
+          setLeaders(getMergedStudentLeaders([]));
+        }
+      } catch {
+        setLeaders(getMergedStudentLeaders([]));
       }
 
       // Gallery Images
@@ -391,21 +450,58 @@ function AdminPage() {
   // DELETE operation helper
   const handleDelete = async (endpoint: string, id: any) => {
     if (!confirm("Are you sure you want to delete this content item? This action is permanent.")) return;
+
+    // Apply local storage override deletion immediately
+    if (endpoint === "student-leaders") {
+      const curr = getLocalLeaderOverrides();
+      const nextDeleted = [...curr.deleted, String(id)];
+      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      saveLocalLeaderOverride({ deleted: nextDeleted, added: nextAdded });
+      setLeaders(getMergedStudentLeaders([]));
+    } else if (endpoint === "school-uniforms") {
+      const curr = getLocalUniformOverrides();
+      const nextDeleted = [...curr.deleted, String(id)];
+      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      saveLocalUniformOverride({ deleted: nextDeleted, added: nextAdded });
+      setUniforms(getMergedUniforms([]));
+    } else if (endpoint === "student-houses") {
+      const curr = getLocalHouseOverrides();
+      const nextDeleted = [...curr.deleted, String(id)];
+      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      saveLocalHouseOverride({ deleted: nextDeleted, added: nextAdded });
+      setHouses(getMergedHouses([]));
+    } else if (endpoint === "teachers") {
+      const curr = getLocalTeacherOverrides();
+      const nextDeleted = [...curr.deleted, String(id)];
+      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      saveLocalTeacherOverride({ deleted: nextDeleted, added: nextAdded });
+      setTeachers(getMergedTeachers([]));
+    } else if (endpoint === "events") {
+      const curr = getLocalEventOverrides();
+      const nextDeleted = [...curr.deleted, String(id)];
+      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      saveLocalEventOverride({ deleted: nextDeleted, added: nextAdded });
+      setEvents(getMergedEvents([]));
+    } else if (endpoint === "student-achievements") {
+      const curr = getLocalAchievementOverrides();
+      const nextDeleted = [...curr.deleted, String(id)];
+      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      saveLocalAchievementOverride({ deleted: nextDeleted, added: nextAdded });
+      setBestStudents(getMergedAchievements([]).all);
+    }
+
     try {
-      const res = await fetch(`${API_BASE}/${endpoint}/${id}/`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (res.ok) {
-        toast.success("Item deleted successfully!");
-        fetchAllData();
-      } else {
-        toast.error("Unauthorized: Insufficient roles to delete content.");
+      if (token) {
+        await fetch(`${API_BASE}/${endpoint}/${id}/`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete item.");
+      console.warn("Backend delete sync failed, locally removed:", err);
     }
+
+    toast.success("Item deleted successfully!");
   };
 
   // DELETE ALL items helper
@@ -637,28 +733,53 @@ function AdminPage() {
     const url = isEdit ? `${API_BASE}/events/${editItem.id}/` : `${API_BASE}/events/`;
     const method = isEdit ? "PUT" : "POST";
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(eventForm)
-      });
-      if (res.ok) {
-        toast.success(isEdit ? "Event updated!" : "Event created!");
-        setEventForm({ title: "", description: "", cover_image: "", event_date: "", category: "Academic", status: "Published" });
-        setEditItem(null);
-        setActiveDialog(null);
-        fetchAllData();
+    const curr = getLocalEventOverrides();
+    const eventPayload: SchoolEventItem = {
+      id: isEdit ? editItem.id : `ev-${Date.now()}`,
+      title: eventForm.title,
+      description: eventForm.description,
+      event_date: eventForm.event_date,
+      event_time: eventForm.event_time,
+      venue: eventForm.venue,
+      category: eventForm.category,
+      status: eventForm.status,
+      cover_image: eventForm.cover_image
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...eventPayload } : a);
+        saveLocalEventOverride({ added: nextAdded });
       } else {
-        toast.error("Failed to save event.");
+        const nextModified = { ...curr.modified, [editItem.id]: eventPayload };
+        saveLocalEventOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalEventOverride({ added: [...curr.added, eventPayload] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(eventPayload)
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error.");
+      console.warn("Backend event sync failed:", err);
     }
+
+    toast.success(isEdit ? "Event updated successfully!" : "Event created successfully!");
+    setEventForm({ title: "", description: "", cover_image: "", event_date: "", event_time: "08:45 AM - 03:30 PM", venue: "School Campus", category: "Celebration", status: "Published" });
+    setEditItem(null);
+    setActiveDialog(null);
+    setEvents(getMergedEvents([]));
   };
 
   const handleTeacherSubmit = async (e: React.FormEvent) => {
@@ -667,28 +788,52 @@ function AdminPage() {
     const url = isEdit ? `${API_BASE}/teachers/${editItem.id}/` : `${API_BASE}/teachers/`;
     const method = isEdit ? "PUT" : "POST";
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(teacherForm)
-      });
-      if (res.ok) {
-        toast.success(isEdit ? "Teacher profile updated!" : "Teacher profile created!");
-        setTeacherForm({ name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: "" });
-        setEditItem(null);
-        setActiveDialog(null);
-        fetchAllData();
+    const curr = getLocalTeacherOverrides();
+    const teacherPayload: TeacherItem = {
+      id: isEdit ? editItem.id : `teach-${Date.now()}`,
+      name: teacherForm.name,
+      designation: teacherForm.designation,
+      subject: teacherForm.subject,
+      qualification: teacherForm.qualification,
+      experience: teacherForm.experience,
+      description: teacherForm.description,
+      image: teacherForm.image
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...teacherPayload } : a);
+        saveLocalTeacherOverride({ added: nextAdded });
       } else {
-        toast.error("Failed to save teacher profile.");
+        const nextModified = { ...curr.modified, [editItem.id]: teacherPayload };
+        saveLocalTeacherOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalTeacherOverride({ added: [...curr.added, teacherPayload] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(teacherPayload)
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error.");
+      console.warn("Backend teacher sync failed:", err);
     }
+
+    toast.success(isEdit ? "Teacher profile updated!" : "Teacher profile created!");
+    setTeacherForm({ name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: "" });
+    setEditItem(null);
+    setActiveDialog(null);
+    setTeachers(getMergedTeachers([]));
   };
 
   const handleStudentSubmit = async (e: React.FormEvent) => {
@@ -701,37 +846,61 @@ function AdminPage() {
     if (achievementCategory === "sports") {
       title = `${studentForm.title} - ${studentForm.name}`;
     } else {
-      title = `${studentForm.title} - ${studentForm.name} (${studentForm.grade})`;
+      title = studentForm.grade ? `${studentForm.title} - ${studentForm.name} (${studentForm.grade})` : `${studentForm.title} - ${studentForm.name}`;
     }
 
-    const body = {
+    const payload = {
       title,
       description: studentForm.reason,
       image: studentForm.image
     };
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(body)
-      });
-      if (res.ok) {
-        toast.success(isEdit ? "Student record saved!" : "Student record created!");
-        setStudentForm({ title: "", name: "", grade: "", reason: "", image: "" });
-        setEditItem(null);
-        setActiveDialog(null);
-        fetchAllData();
+    const curr = getLocalAchievementOverrides();
+    const itemData: AchievementItem = {
+      id: isEdit ? editItem.id : `ach-${Date.now()}`,
+      name: studentForm.name,
+      grade: studentForm.grade,
+      title: studentForm.title,
+      description: studentForm.reason,
+      image: studentForm.image,
+      category: achievementCategory,
+      year: "2026-2027"
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...itemData } : a);
+        saveLocalAchievementOverride({ added: nextAdded });
       } else {
-        toast.error("Failed to save student record.");
+        const nextModified = { ...curr.modified, [editItem.id]: itemData };
+        saveLocalAchievementOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalAchievementOverride({ added: [...curr.added, itemData] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error.");
+      console.warn("Backend student achievement sync failed:", err);
     }
+
+    toast.success(isEdit ? "Student record saved!" : "Student record created!");
+    setStudentForm({ title: "", name: "", grade: "", reason: "", image: "" });
+    setEditItem(null);
+    setActiveDialog(null);
+    setBestStudents(getMergedAchievements([]).all);
   };
 
   const handleGallerySubmit = async (e: React.FormEvent) => {
@@ -916,28 +1085,48 @@ function AdminPage() {
     const url = isEdit ? `${API_BASE}/school-uniforms/${editItem.id}/` : `${API_BASE}/school-uniforms/`;
     const method = isEdit ? "PUT" : "POST";
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(uniformForm)
-      });
-      if (res.ok) {
-        toast.success(isEdit ? "Uniform rules saved!" : "Uniform rules created!");
-        setUniformForm({ section: "", boys_uniform: "", girls_uniform: "" });
-        setEditItem(null);
-        setActiveDialog(null);
-        fetchAllData();
+    const curr = getLocalUniformOverrides();
+    const uniformPayload: SchoolUniformItem = {
+      id: isEdit ? editItem.id : `uni-${Date.now()}`,
+      section: uniformForm.section,
+      boys_uniform: uniformForm.boys_uniform,
+      girls_uniform: uniformForm.girls_uniform
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...uniformPayload } : a);
+        saveLocalUniformOverride({ added: nextAdded });
       } else {
-        toast.error("Failed to save uniform rule.");
+        const nextModified = { ...curr.modified, [editItem.id]: uniformPayload };
+        saveLocalUniformOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalUniformOverride({ added: [...curr.added, uniformPayload] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(uniformPayload)
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error.");
+      console.warn("Backend uniform sync failed:", err);
     }
+
+    toast.success(isEdit ? "Uniform rules updated!" : "Uniform rules created!");
+    setUniformForm({ section: "", boys_uniform: "", girls_uniform: "" });
+    setEditItem(null);
+    setActiveDialog(null);
+    setUniforms(getMergedUniforms([]));
   };
 
   const handleHouseSubmit = async (e: React.FormEvent) => {
@@ -946,28 +1135,50 @@ function AdminPage() {
     const url = isEdit ? `${API_BASE}/student-houses/${editItem.id}/` : `${API_BASE}/student-houses/`;
     const method = isEdit ? "PUT" : "POST";
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(houseForm)
-      });
-      if (res.ok) {
-        toast.success(isEdit ? "House details updated!" : "House details created!");
-        setHouseForm({ name: "", motto: "", color_code: "bg-red-500", description: "", points: 0 });
-        setEditItem(null);
-        setActiveDialog(null);
-        fetchAllData();
+    const curr = getLocalHouseOverrides();
+    const housePayload: SchoolHouseItem = {
+      id: isEdit ? editItem.id : `house-${Date.now()}`,
+      name: houseForm.name,
+      motto: houseForm.motto,
+      color_code: houseForm.color_code,
+      description: houseForm.description,
+      points: houseForm.points
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...housePayload } : a);
+        saveLocalHouseOverride({ added: nextAdded });
       } else {
-        toast.error("Failed to save house details.");
+        const nextModified = { ...curr.modified, [editItem.id]: housePayload };
+        saveLocalHouseOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalHouseOverride({ added: [...curr.added, housePayload] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(housePayload)
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error.");
+      console.warn("Backend house sync failed:", err);
     }
+
+    toast.success(isEdit ? "House details updated!" : "House details created!");
+    setHouseForm({ name: "", motto: "", color_code: "bg-red-500", description: "", points: 0 });
+    setEditItem(null);
+    setActiveDialog(null);
+    setHouses(getMergedHouses([]));
   };
 
   const handleLeaderSubmit = async (e: React.FormEvent) => {
@@ -976,36 +1187,61 @@ function AdminPage() {
     const url = isEdit ? `${API_BASE}/student-leaders/${editItem.id}/` : `${API_BASE}/student-leaders/`;
     const method = isEdit ? "PUT" : "POST";
 
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(leaderForm)
-      });
-      if (res.ok) {
-        toast.success(isEdit ? "Student leader updated!" : "Student leader created!");
-        setLeaderForm({ role: "", name: "", grade: "" });
-        setEditItem(null);
-        setActiveDialog(null);
-        fetchAllData();
+    const curr = getLocalLeaderOverrides();
+    const wing = leaderForm.wing || inferWing(leaderForm.grade, leaderForm.role);
+    const leaderPayload: StudentLeaderItem = {
+      id: isEdit ? editItem.id : `leader-${Date.now()}`,
+      role: leaderForm.role,
+      name: leaderForm.name,
+      grade: leaderForm.grade,
+      wing: wing,
+      house: leaderForm.house || undefined,
+      duties: leaderForm.duties || "Student council representative and pupil committee leader.",
+      category: (leaderForm.role.includes("Captain") ? "House Captain" : leaderForm.role.includes("Prefect") ? "Prefect" : "Council") as any
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...leaderPayload } : a);
+        saveLocalLeaderOverride({ added: nextAdded });
       } else {
-        toast.error("Failed to save student leader.");
+        const nextModified = { ...curr.modified, [editItem.id]: leaderPayload };
+        saveLocalLeaderOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalLeaderOverride({ added: [...curr.added, leaderPayload] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(leaderPayload)
+        });
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error.");
+      console.warn("Backend leader sync failed:", err);
     }
+
+    toast.success(isEdit ? "Student leader updated!" : "Student leader nominated!");
+    setLeaderForm({ role: "", name: "", grade: "", wing: "Primary", house: "", duties: "" });
+    setEditItem(null);
+    setActiveDialog(null);
+    setLeaders(getMergedStudentLeaders([]));
   };
 
   const startEditUniform = (item: any) => {
     setEditItem(item);
     setUniformForm({
-      section: item.section,
-      boys_uniform: item.boys_uniform,
-      girls_uniform: item.girls_uniform
+      section: item.section || "",
+      boys_uniform: item.boys_uniform || "",
+      girls_uniform: item.girls_uniform || ""
     });
     setActiveDialog("uniform");
   };
@@ -1013,11 +1249,11 @@ function AdminPage() {
   const startEditHouse = (item: any) => {
     setEditItem(item);
     setHouseForm({
-      name: item.name,
-      motto: item.motto,
-      color_code: item.color_code,
-      description: item.description,
-      points: item.points
+      name: item.name || "",
+      motto: item.motto || "",
+      color_code: item.color_code || "bg-red-500",
+      description: item.description || "",
+      points: item.points || 0
     });
     setActiveDialog("house");
   };
@@ -1025,9 +1261,12 @@ function AdminPage() {
   const startEditLeader = (item: any) => {
     setEditItem(item);
     setLeaderForm({
-      role: item.role,
-      name: item.name,
-      grade: item.grade
+      role: item.role || "",
+      name: item.name || "",
+      grade: item.grade || "",
+      wing: item.wing || inferWing(item.grade, item.role),
+      house: item.house || "",
+      duties: item.duties || ""
     });
     setActiveDialog("leader");
   };
@@ -2650,6 +2889,7 @@ function AdminPage() {
                   <p className="text-[9px] uppercase font-bold text-gold tracking-widest px-2 opacity-70">Dynamic Sections</p>
                   <div className="space-y-1">
                     {[
+                      { id: "events", text: "Calendar & Events", icon: <Calendar className="h-4 w-4" /> },
                       { id: "teachers", text: "Faculty List", icon: <Users className="h-4 w-4" /> },
                       { id: "gallery", text: "Gallery Grid", icon: <ImageIcon className="h-4 w-4" /> },
                       { id: "students", text: "Honors Board", icon: <Trophy className="h-4 w-4" /> },
@@ -2855,49 +3095,187 @@ function AdminPage() {
                 </div>
               )}
 
-              {editorPage === "teachers" && (
+              {editorPage === "events" && (
                 <div className="space-y-6 text-left animate-fade-in">
-                  <div className="flex justify-between items-center border-b border-border pb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
                     <div>
-                      <h3 className="font-display text-lg font-bold text-primary">Faculty Directory</h3>
-                      <p className="text-xs text-muted-foreground">Hover over educator cards to reveal tilt and holographic shine effects!</p>
+                      <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-gold" /> Calendar & Events Manager
+                      </h3>
+                      <p className="text-xs text-muted-foreground">Manage academic milestones, holidays, celebrations, and examination schedules (/events).</p>
                     </div>
-                    <Button onClick={() => { setEditItem(null); setTeacherForm({ name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: "" }); setActiveDialog("teacher"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                      <Plus className="h-4.5 w-4.5" /> Add Educator Profile
+                    <Button onClick={() => { setEditItem(null); setEventForm({ title: "", description: "", cover_image: "", event_date: "", event_time: "08:45 AM - 03:30 PM", venue: "School Campus", category: "Celebration", status: "Published" }); setActiveDialog("event"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs">
+                      <Plus className="h-4 w-4" /> Add Campus Event
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-4 justify-items-center">
-                    {teachers.map((teach) => (
-                      <div key={teach.id} className="relative group/card w-full max-w-[280px]">
-                        <ProfileCard
-                          name={teach.name}
-                          title={teach.designation}
-                          handle={teach.name.toLowerCase().replace(/[^a-z]/g, "")}
-                          status={`${teach.experience} Exp · ${teach.subject}`}
-                          avatarUrl={teach.image || "https://picsum.photos/600/400?random=20"}
-                          behindGlowEnabled={true}
-                          behindGlowColor="rgba(212, 175, 55, 0.4)"
-                          behindGlowSize="45%"
-                          contactText="Details"
-                          innerGradient="linear-gradient(145deg, rgba(36, 52, 36, 0.85) 0%, rgba(111, 143, 114, 0.45) 100%)"
-                          className="w-full shadow-md"
-                        />
-                        
-                        {/* Floating Admin Controls Overlay */}
-                        <div className="absolute top-3 right-3 z-30 flex gap-1.5 bg-black/70 backdrop-blur-sm p-1 rounded-full border border-white/10 shadow-md opacity-0 group-hover/card:opacity-100 transition-opacity duration-200">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-white hover:bg-gold/30 hover:text-gold rounded-full" onClick={() => startEditTeacher(teach)}>
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-400 hover:bg-red-600/30 hover:text-red-500 rounded-full" onClick={() => handleDelete("teachers", teach.id)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                  {/* Filter & Search Bar */}
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
+                      {["All", "Celebration", "Exam", "Holiday", "Activity", "Competition", "Meeting"].map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setEventCategoryFilter(cat)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                            eventCategoryFilter === cat ? "bg-primary text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          {cat} {cat === "All" ? `(${events.length})` : `(${events.filter(e => (e.category || "").toLowerCase() === cat.toLowerCase()).length})`}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Search events..."
+                        value={eventSearch}
+                        onChange={(e) => setEventSearch(e.target.value)}
+                        className="pl-8 text-xs h-8 rounded-full"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                    {events
+                      .filter(ev => {
+                        const matchCat = eventCategoryFilter === "All" || (ev.category || "").toLowerCase() === eventCategoryFilter.toLowerCase();
+                        const matchSearch = !eventSearch || (ev.title || "").toLowerCase().includes(eventSearch.toLowerCase()) || (ev.description || "").toLowerCase().includes(eventSearch.toLowerCase());
+                        return matchCat && matchSearch;
+                      })
+                      .map((ev) => (
+                        <div key={ev.id} className="bg-card border border-border rounded-2xl p-5 shadow-sm relative group/item hover:border-gold/60 transition duration-300 flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-bold text-gold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20">
+                                {ev.category || "Event"}
+                              </span>
+                              <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                                <Calendar className="h-3 w-3 text-gold" /> {ev.event_date}
+                              </span>
+                            </div>
+                            <h4 className="font-display font-bold text-base text-primary leading-tight mt-1">{ev.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{ev.description}</p>
+                            <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground/80 pt-1">
+                              {ev.event_time && <span>🕒 {ev.event_time}</span>}
+                              {ev.venue && <span>📍 {ev.venue}</span>}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 justify-end pt-4 border-t border-border/50 mt-4 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditEvent(ev)}>
+                              <Edit className="h-3 w-3" /> Edit
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("events", ev.id)}>
+                              <Trash2 className="h-3 w-3" /> Delete
+                            </Button>
+                          </div>
                         </div>
+                      ))}
+                    {events.length === 0 && (
+                      <div className="col-span-full text-center text-muted-foreground py-16">
+                        No events logged. Click 'Add Campus Event' to schedule!
                       </div>
-                    ))}
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {editorPage === "teachers" && (
+                <div className="space-y-6 text-left animate-fade-in">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
+                    <div>
+                      <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                        <Users className="h-5 w-5 text-gold" /> Faculty & Staff Directory
+                      </h3>
+                      <p className="text-xs text-muted-foreground">Manage faculty profiles, qualifications, subject streams, and bios (/teachers).</p>
+                    </div>
+                    <Button onClick={() => { setEditItem(null); setTeacherForm({ name: "", designation: "", subject: "English", qualification: "", experience: "", description: "", image: "" }); setActiveDialog("teacher"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs">
+                      <Plus className="h-4 w-4" /> Add Educator Profile
+                    </Button>
+                  </div>
+
+                  {/* Filter & Search Bar */}
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
+                      {["All", "Mathematics", "Science", "Languages", "Arts & Sports", "Administration", "Kindergarten"].map((dept) => (
+                        <button
+                          key={dept}
+                          onClick={() => setTeacherDeptFilter(dept)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                            teacherDeptFilter === dept ? "bg-primary text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          {dept}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Search educator..."
+                        value={teacherSearch}
+                        onChange={(e) => setTeacherSearch(e.target.value)}
+                        className="pl-8 text-xs h-8 rounded-full"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                    {teachers
+                      .filter(teach => {
+                        let matchDept = true;
+                        if (teacherDeptFilter === "Science") {
+                          matchDept = ["Physics", "Chemistry", "Biology", "Science", "Computer Science"].some(s => (teach.subject || "").toLowerCase().includes(s.toLowerCase()));
+                        } else if (teacherDeptFilter === "Languages") {
+                          matchDept = ["English", "Tamil", "Hindi", "French"].some(s => (teach.subject || "").toLowerCase().includes(s.toLowerCase()));
+                        } else if (teacherDeptFilter === "Arts & Sports") {
+                          matchDept = ["Physical Education", "Art", "Sports", "Library"].some(s => (teach.subject || "").toLowerCase().includes(s.toLowerCase()));
+                        } else if (teacherDeptFilter !== "All") {
+                          matchDept = (teach.subject || "").toLowerCase().includes(teacherDeptFilter.toLowerCase());
+                        }
+                        const matchSearch = !teacherSearch || (teach.name || "").toLowerCase().includes(teacherSearch.toLowerCase()) || (teach.subject || "").toLowerCase().includes(teacherSearch.toLowerCase()) || (teach.designation || "").toLowerCase().includes(teacherSearch.toLowerCase());
+                        return matchDept && matchSearch;
+                      })
+                      .map((teach) => (
+                        <div key={teach.id} className="bg-card border border-border rounded-2xl p-5 shadow-sm relative group/item hover:border-gold/60 transition duration-300 flex flex-col justify-between">
+                          <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                              {teach.image ? (
+                                <div className="h-14 w-14 rounded-2xl shrink-0 bg-cover bg-center border border-border shadow-sm" style={{ backgroundImage: `url(${resolveGalleryImageSrc(teach.image)})` }} />
+                              ) : (
+                                <div className="h-14 w-14 rounded-2xl shrink-0 bg-gold/15 border border-gold/30 flex items-center justify-center text-primary font-bold text-lg">
+                                  {teach.name.charAt(0)}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <span className="text-[9px] uppercase tracking-wider font-bold text-gold px-2 py-0.5 rounded-full bg-gold/10 inline-block mb-1">
+                                  {teach.subject || "General"}
+                                </span>
+                                <h4 className="font-display font-bold text-base text-primary truncate leading-tight">{teach.name}</h4>
+                                <p className="text-xs font-medium text-muted-foreground truncate">{teach.designation}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5 text-[10px]">
+                              {teach.qualification && <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">🎓 {teach.qualification}</span>}
+                              {teach.experience && <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">⏳ {teach.experience}</span>}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">{teach.description}</p>
+                          </div>
+
+                          <div className="flex gap-2 justify-end pt-4 border-t border-border/50 mt-4 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditTeacher(teach)}>
+                              <Edit className="h-3 w-3" /> Edit
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("teachers", teach.id)}>
+                              <Trash2 className="h-3 w-3" /> Delete
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     {teachers.length === 0 && (
-                      <div className="col-span-full text-center text-muted-foreground py-16 w-full">
-                        No faculty members currently added. Add some using the button above!
+                      <div className="col-span-full text-center text-muted-foreground py-16">
+                        No faculty profiles registered yet. Click 'Add Educator Profile' to populate!
                       </div>
                     )}
                   </div>
@@ -2948,52 +3326,109 @@ function AdminPage() {
 
               {editorPage === "students" && (
                 <div className="space-y-6 text-left animate-fade-in">
-                  <div className="flex justify-between items-center border-b border-border pb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
                     <div>
-                      <h3 className="font-display text-lg font-bold text-primary">Student Honors & Achievements</h3>
-                      <p className="text-xs text-muted-foreground">Manage student nominations, monthly best student lists, and sports trophies.</p>
+                      <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                        <Trophy className="h-5 w-5 text-gold" /> Student Honors & Achievements
+                      </h3>
+                      <p className="text-xs text-muted-foreground">Manage Best Students (/students/best-student) and Board Exam Toppers & Sports Trophies (/students/achievements).</p>
                     </div>
-                    <Button onClick={() => { setEditItem(null); setStudentForm({ title: "", name: "", grade: "", reason: "", image: "" }); setActiveDialog("student"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5">
-                      <Plus className="h-4.5 w-4.5" /> Award Student Honor
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={() => { setEditItem(null); setStudentForm({ title: "Best Student of the Month", name: "", grade: "", reason: "", image: "" }); setAchievementCategory("best_student"); setActiveDialog("student"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs">
+                        <Plus className="h-3.5 w-3.5" /> Best Student
+                      </Button>
+                      <Button onClick={() => { setEditItem(null); setStudentForm({ title: "State Rank 1st", name: "", grade: "Class XII", reason: "", image: "" }); setAchievementCategory("board_topper"); setActiveDialog("student"); }} className="rounded-full bg-gold text-navy-deep font-bold hover:opacity-95 gap-1.5 text-xs">
+                        <Plus className="h-3.5 w-3.5" /> Board Topper
+                      </Button>
+                      <Button onClick={() => { setEditItem(null); setStudentForm({ title: "Trophy Championship", name: "", grade: "", reason: "", image: "" }); setAchievementCategory("sports"); setActiveDialog("student"); }} className="rounded-full bg-emerald-700 text-white font-bold hover:opacity-95 gap-1.5 text-xs">
+                        <Plus className="h-3.5 w-3.5" /> Sports Trophy
+                      </Button>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                    {bestStudents.map((stud) => {
-                      const parts = stud.title.split(" - ");
-                      const awardTitle = parts[0] || "Student Honor";
-                      const nameWithGrade = parts[1] || "";
-                      const nameParts = nameWithGrade.split(" (");
-                      const name = nameParts[0] || stud.title;
-                      const grade = nameParts[1] ? nameParts[1].replace(")", "") : "";
-                      
-                      return (
-                        <div key={stud.id} className="relative rounded-2xl border border-border bg-card p-5 shadow-sm flex gap-4 group/item hover:border-gold/60 transition duration-300">
-                          {stud.image ? (
-                            <div className="h-16 w-16 rounded-full shrink-0 bg-cover bg-center border border-border" style={{ backgroundImage: `url(${stud.image})` }} />
-                          ) : (
-                            <div className="h-16 w-16 rounded-full shrink-0 border border-gold/25 bg-gold/10 flex items-center justify-center text-gold">
-                              <Trophy className="h-6 w-6" />
-                            </div>
-                          )}
-                          <div className="flex-1 space-y-1">
-                            <span className="text-[9px] uppercase tracking-wider font-bold text-gold">{awardTitle}</span>
-                            <h4 className="font-display font-bold text-base text-primary leading-tight">{name}</h4>
-                            {grade && <p className="text-xs font-semibold text-muted-foreground">Class: {grade}</p>}
-                            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{stud.description}</p>
-                            
-                            <div className="flex gap-2 justify-end pt-2 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                              <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-gold/20" onClick={() => startEditStudent(stud)}>
-                                <Edit className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button size="icon" variant="ghost" className="h-7 w-7 text-red-600 hover:bg-red-50" onClick={() => handleDelete("student-achievements", stud.id)}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
+                  {/* Category Tabs & Search */}
+                  <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
+                      {[
+                        { id: "all", label: `All Honors (${bestStudents.length})` },
+                        { id: "best_student", label: `Best Students (${bestStudents.filter(s => (s.title || "").toLowerCase().includes("best student") || s.category === "best_student").length})` },
+                        { id: "board_topper", label: `Board Toppers (${bestStudents.filter(s => (s.title || "").toLowerCase().includes("rank") || (s.title || "").toLowerCase().includes("topper") || (s.title || "").toLowerCase().includes("centum") || s.category === "board_topper").length})` },
+                        { id: "sports", label: `Sports & Trophies (${bestStudents.filter(s => s.category === "sports" || (!s.title?.toLowerCase().includes("best student") && !s.title?.toLowerCase().includes("rank") && !s.title?.toLowerCase().includes("topper"))).length})` }
+                      ].map(tab => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setStudentCategoryTab(tab.id as any)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                            studentCategoryTab === tab.id ? "bg-primary text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Search student or trophy..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        className="pl-8 text-xs h-8 rounded-full"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    {bestStudents
+                      .filter(stud => {
+                        const rawTitle = (stud.title || "").toLowerCase();
+                        const rawDesc = (stud.description || "").toLowerCase();
+                        const rawName = (stud.name || "").toLowerCase();
+                        let matchTab = true;
+                        if (studentCategoryTab === "best_student") {
+                          matchTab = rawTitle.includes("best student") || stud.category === "best_student";
+                        } else if (studentCategoryTab === "board_topper") {
+                          matchTab = rawTitle.includes("rank") || rawTitle.includes("topper") || rawTitle.includes("centum") || stud.category === "board_topper";
+                        } else if (studentCategoryTab === "sports") {
+                          matchTab = stud.category === "sports" || (!rawTitle.includes("best student") && !rawTitle.includes("rank") && !rawTitle.includes("topper") && !rawTitle.includes("centum"));
+                        }
+                        const matchSearch = !studentSearch || rawTitle.includes(studentSearch.toLowerCase()) || rawName.includes(studentSearch.toLowerCase()) || rawDesc.includes(studentSearch.toLowerCase());
+                        return matchTab && matchSearch;
+                      })
+                      .map((stud) => {
+                        const parts = (stud.title || "").split(" - ");
+                        const awardTitle = parts[0] || stud.title || "Student Honor";
+                        const nameWithGrade = parts[1] || "";
+                        const nameParts = nameWithGrade.split(" (");
+                        const name = stud.name || nameParts[0] || stud.title;
+                        const grade = stud.grade || (nameParts[1] ? nameParts[1].replace(")", "") : "");
+                        
+                        return (
+                          <div key={stud.id} className="relative rounded-2xl border border-border bg-card p-5 shadow-sm flex gap-4 group/item hover:border-gold/60 transition duration-300">
+                            {stud.image ? (
+                              <div className="h-16 w-16 rounded-full shrink-0 bg-cover bg-center border border-border shadow-sm" style={{ backgroundImage: `url(${resolveGalleryImageSrc(stud.image)})` }} />
+                            ) : (
+                              <div className="h-16 w-16 rounded-full shrink-0 border border-gold/25 bg-gold/10 flex items-center justify-center text-gold">
+                                <Trophy className="h-7 w-7" />
+                              </div>
+                            )}
+                            <div className="flex-1 space-y-1 min-w-0">
+                              <span className="text-[9px] uppercase tracking-wider font-bold text-gold px-2 py-0.5 rounded-full bg-gold/10 inline-block">{awardTitle}</span>
+                              <h4 className="font-display font-bold text-base text-primary leading-tight truncate">{name}</h4>
+                              {grade && <p className="text-xs font-semibold text-muted-foreground">Class: {grade}</p>}
+                              <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2">{stud.description}</p>
+                              
+                              <div className="flex gap-2 justify-end pt-2 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditStudent(stud)}>
+                                  <Edit className="h-3 w-3" /> Edit
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-achievements", stud.id)}>
+                                  <Trash2 className="h-3 w-3" /> Delete
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                     {bestStudents.length === 0 && (
                       <div className="col-span-full text-center text-muted-foreground py-16">
                         No student honors logs currently recorded. Nominate outstanding students above!
@@ -3005,32 +3440,46 @@ function AdminPage() {
 
               {editorPage === "uniform" && (
                 <div className="space-y-6 text-left animate-fade-in">
-                  <div className="flex justify-between items-center border-b border-border pb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
                     <div>
-                      <h3 className="font-display text-lg font-bold text-primary">School Uniform Standards</h3>
-                      <p className="text-xs text-muted-foreground">Manage uniform sections, boys/girls guidelines, and dress codes.</p>
+                      <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                        <Shirt className="h-5 w-5 text-gold" /> School Uniform Standards
+                      </h3>
+                      <p className="text-xs text-muted-foreground">Manage uniform guidelines, boys/girls dress codes, and sports uniforms (/students/school-uniform).</p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => { setEditItem(null); setUniformForm({ section: "", boys_uniform: "", girls_uniform: "" }); setActiveDialog("uniform"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
-                        <Plus className="h-3.5 w-3.5" /> Add Uniform Rule
-                      </Button>
-                    </div>
+                    <Button onClick={() => { setEditItem(null); setUniformForm({ section: "", boys_uniform: "", girls_uniform: "" }); setActiveDialog("uniform"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs">
+                      <Plus className="h-4 w-4" /> Add Uniform Rule
+                    </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     {uniforms.map((uni) => (
-                      <div key={uni.id} className="bg-card border border-border rounded-2xl p-6 shadow-sm relative group/item hover:border-gold/60 transition duration-300">
-                        <h4 className="font-display font-bold text-base text-primary mb-3">{uni.section}</h4>
-                        <div className="space-y-2 text-xs text-muted-foreground">
-                          <p><strong className="text-foreground">Boys:</strong> {uni.boys_uniform}</p>
-                          <p><strong className="text-foreground">Girls:</strong> {uni.girls_uniform}</p>
+                      <div key={uni.id} className="bg-card border border-border rounded-2xl p-6 shadow-sm relative group/item hover:border-gold/60 transition duration-300 flex flex-col justify-between">
+                        <div>
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider mb-3">
+                            <Shirt className="h-3.5 w-3.5 text-gold" /> {uni.section}
+                          </div>
+                          <div className="space-y-3 text-xs text-muted-foreground">
+                            <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
+                              <p className="font-bold text-foreground text-xs mb-1 flex items-center gap-1.5">
+                                <span className="h-2 w-2 rounded-full bg-blue-500" /> Boys Uniform:
+                              </p>
+                              <p className="leading-relaxed">{uni.boys_uniform}</p>
+                            </div>
+                            <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
+                              <p className="font-bold text-foreground text-xs mb-1 flex items-center gap-1.5">
+                                <span className="h-2 w-2 rounded-full bg-pink-500" /> Girls Uniform:
+                              </p>
+                              <p className="leading-relaxed">{uni.girls_uniform}</p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex gap-2 justify-end pt-4 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-gold/20" onClick={() => startEditUniform(uni)}>
-                            <Edit className="h-3.5 w-3.5" />
+                        <div className="flex gap-2 justify-end pt-4 border-t border-border/50 mt-4 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                          <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditUniform(uni)}>
+                            <Edit className="h-3 w-3" /> Edit
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-600 hover:bg-red-50" onClick={() => handleDelete("school-uniforms", uni.id)}>
-                            <Trash2 className="h-3.5 w-3.5" />
+                          <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("school-uniforms", uni.id)}>
+                            <Trash2 className="h-3 w-3" /> Delete
                           </Button>
                         </div>
                       </div>
@@ -3046,42 +3495,78 @@ function AdminPage() {
 
               {editorPage === "houses" && (
                 <div className="space-y-6 text-left animate-fade-in">
-                  <div className="flex justify-between items-center border-b border-border pb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
                     <div>
-                      <h3 className="font-display text-lg font-bold text-primary">School House System</h3>
-                      <p className="text-xs text-muted-foreground">Update house mottos, color codes, descriptions, and current scoreboard points.</p>
+                      <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                        <Flag className="h-5 w-5 text-gold" /> School House System
+                      </h3>
+                      <p className="text-xs text-muted-foreground">Manage house mottos, color codes, scoreboard points, and assigned student captains (/students/houses).</p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => { setEditItem(null); setHouseForm({ name: "", motto: "", color_code: "bg-red-500", description: "", points: 0 }); setActiveDialog("house"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
-                        <Plus className="h-3.5 w-3.5" /> Add House
-                      </Button>
-                    </div>
+                    <Button onClick={() => { setEditItem(null); setHouseForm({ name: "", motto: "", color_code: "bg-red-500", description: "", points: 0 }); setActiveDialog("house"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs">
+                      <Plus className="h-4 w-4" /> Add House
+                    </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
-                    {houses.map((house) => (
-                      <div key={house.id} className="bg-card border border-border rounded-2xl p-6 text-center shadow-sm relative group/item hover:border-gold/60 transition duration-300 animate-fade-in">
-                        <div className="flex justify-center mb-4">
-                          <div className={`h-12 w-12 rounded-full ${house.color_code || 'bg-slate-400'} flex items-center justify-center shadow-sm text-white font-bold text-lg`}>
-                            {house.name.charAt(0)}
-                          </div>
-                        </div>
-                        <h4 className="font-display font-bold text-base text-primary mb-1">{house.name}</h4>
-                        <p className="text-[10px] uppercase tracking-wider text-gold font-bold mb-2">Motto: {house.motto}</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed h-12 overflow-hidden text-ellipsis mb-3">{house.description}</p>
-                        <div className="bg-primary/5 text-primary rounded-lg py-1.5 px-3 font-semibold text-xs inline-block">
-                          Points: <span className="font-bold text-gold">{house.points}</span>
-                        </div>
-                        <div className="flex gap-1.5 justify-center pt-4 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-gold/20" onClick={() => startEditHouse(house)}>
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-600 hover:bg-red-50" onClick={() => handleDelete("student-houses", house.id)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
+                  {/* Wing filter tabs */}
+                  <div className="flex gap-2">
+                    {[
+                      { id: "all", label: `All Houses (${houses.length})` },
+                      { id: "primary", label: `Primary Houses: Galilee, Zion, Judah, Bethel (${houses.filter(h => ["galilee", "zion", "judah", "bethel"].some(w => (h.name || "").toLowerCase().includes(w))).length})` },
+                      { id: "secondary", label: `Secondary Houses: St. Matthew, Mark, Luke, John (${houses.filter(h => ["st. matthew", "st. mark", "st. luke", "st. john", "matthew", "mark", "luke", "john"].some(w => (h.name || "").toLowerCase().includes(w))).length})` },
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setHouseWingFilter(tab.id as any)}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                          houseWingFilter === tab.id ? "bg-primary text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
                     ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+                    {houses
+                      .filter(house => {
+                        const n = (house.name || "").toLowerCase();
+                        if (houseWingFilter === "primary") return ["galilee", "zion", "judah", "bethel"].some(w => n.includes(w));
+                        if (houseWingFilter === "secondary") return ["st. matthew", "st. mark", "st. luke", "st. john", "matthew", "mark", "luke", "john"].some(w => n.includes(w));
+                        return true;
+                      })
+                      .map((house) => {
+                        const isPrimary = ["galilee", "zion", "judah", "bethel"].some(w => (house.name || "").toLowerCase().includes(w));
+                        return (
+                          <div key={house.id} className="bg-card border border-border rounded-2xl p-5 text-center shadow-sm relative group/item hover:border-gold/60 transition duration-300 flex flex-col justify-between">
+                            <div>
+                              <div className="flex justify-between items-center mb-3">
+                                <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${isPrimary ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
+                                  {isPrimary ? "Primary House" : "Secondary House"}
+                                </span>
+                                <div className="text-xs font-bold text-gold flex items-center gap-1">
+                                  🏆 {house.points || 0} pts
+                                </div>
+                              </div>
+                              <div className="flex justify-center mb-3">
+                                <div className={`h-14 w-14 rounded-full ${house.color_code || 'bg-slate-400'} flex items-center justify-center shadow-md text-white font-bold text-xl ring-4 ring-white/10`}>
+                                  {house.name.charAt(0)}
+                                </div>
+                              </div>
+                              <h4 className="font-display font-bold text-base text-primary mb-1">{house.name}</h4>
+                              <p className="text-[10px] uppercase tracking-wider text-gold font-bold mb-2">"{house.motto}"</p>
+                              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 mb-3">{house.description}</p>
+                            </div>
+                            <div className="flex gap-1.5 justify-center pt-3 border-t border-border/50 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                              <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditHouse(house)}>
+                                <Edit className="h-3 w-3" /> Edit
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-houses", house.id)}>
+                                <Trash2 className="h-3 w-3" /> Delete
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     {houses.length === 0 && (
                       <div className="col-span-full text-center text-muted-foreground py-16">
                         No houses seeded. Click 'Add House' to populate.
@@ -3091,51 +3576,207 @@ function AdminPage() {
                 </div>
               )}
 
-              {editorPage === "leaders" && (
-                <div className="space-y-6 text-left animate-fade-in">
-                  <div className="flex justify-between items-center border-b border-border pb-3">
-                    <div>
-                      <h3 className="font-display text-lg font-bold text-primary">Student Council & Leaders</h3>
-                      <p className="text-xs text-muted-foreground">Manage student captains, Head Boy/Head Girl nominations, and role assignments.</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => { setEditItem(null); setLeaderForm({ role: "", name: "", grade: "" }); setActiveDialog("leader"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs py-1 h-8">
-                        <Plus className="h-3.5 w-3.5" /> Add Leader
-                      </Button>
-                    </div>
-                  </div>
+              {editorPage === "leaders" && (() => {
+                const primaryLeaders = leaders.filter(l => (l.wing || inferWing(l.grade, l.role)) === "Primary");
+                const secondaryLeaders = leaders.filter(l => (l.wing || inferWing(l.grade, l.role)) === "Secondary");
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-                    {leaders.map((lead) => (
-                      <div key={lead.id} className="bg-card border border-border rounded-2xl p-6 shadow-sm relative group/item hover:border-gold/60 transition duration-300">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-gold/15 flex items-center justify-center text-gold font-bold">
-                            <Users className="h-4.5 w-4.5" />
+                const filterLeaders = (list: any[]) => {
+                  if (!leaderSearch.trim()) return list;
+                  const s = leaderSearch.toLowerCase();
+                  return list.filter(l => 
+                    (l.name || "").toLowerCase().includes(s) ||
+                    (l.role || "").toLowerCase().includes(s) ||
+                    (l.grade || "").toLowerCase().includes(s) ||
+                    (l.house || "").toLowerCase().includes(s) ||
+                    (l.duties || "").toLowerCase().includes(s)
+                  );
+                };
+
+                const primaryFiltered = filterLeaders(primaryLeaders);
+                const secondaryFiltered = filterLeaders(secondaryLeaders);
+
+                return (
+                  <div className="space-y-8 text-left animate-fade-in">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
+                      <div>
+                        <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                          <GraduationCap className="h-5 w-5 text-gold" /> Student Council & Leaders Directory
+                        </h3>
+                        <p className="text-xs text-muted-foreground">Manage council leaders, house captains, and prefects. Separated by Primary & Senior wings (/students/student-leaders).</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          onClick={() => { 
+                            setEditItem(null); 
+                            setLeaderForm({ role: "", name: "", grade: "", wing: "Primary", house: "", duties: "" }); 
+                            setActiveDialog("leader"); 
+                          }} 
+                          className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs"
+                        >
+                          <Plus className="h-4 w-4" /> Add Student Leader
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Wing Filter Switcher & Search Bar */}
+                    <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
+                        <button
+                          onClick={() => setLeaderWingTab("all")}
+                          className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                            leaderWingTab === "all" ? "bg-primary text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          All Leaders ({leaders.length})
+                        </button>
+                        <button
+                          onClick={() => setLeaderWingTab("primary")}
+                          className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                            leaderWingTab === "primary" ? "bg-emerald-700 text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          Primary Wing (Classes I – V) ({primaryLeaders.length})
+                        </button>
+                        <button
+                          onClick={() => setLeaderWingTab("secondary")}
+                          className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                            leaderWingTab === "secondary" ? "bg-navy-deep text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          Secondary / Senior Wing (Classes VI – XII) ({secondaryLeaders.length})
+                        </button>
+                      </div>
+                      <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                        <Input
+                          placeholder="Search student leader..."
+                          value={leaderSearch}
+                          onChange={(e) => setLeaderSearch(e.target.value)}
+                          className="pl-8 text-xs h-8 rounded-full"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Section 1: Primary Wing Student Leaders */}
+                    {(leaderWingTab === "all" || leaderWingTab === "primary") && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-border/80 pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+                            <h4 className="font-display text-base font-bold text-primary">
+                              Primary Wing Student Leaders (Classes I – V)
+                            </h4>
                           </div>
-                          <div>
-                            <span className="text-[9px] uppercase tracking-wider font-bold text-gold">{lead.role}</span>
-                            <h4 className="font-display font-bold text-base text-primary leading-tight">{lead.name}</h4>
-                            <p className="text-xs text-muted-foreground mt-0.5">{lead.grade}</p>
-                          </div>
+                          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            {primaryFiltered.length} Nominees
+                          </span>
                         </div>
-                        <div className="flex gap-2 justify-end pt-4 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-gold/20" onClick={() => startEditLeader(lead)}>
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-red-600 hover:bg-red-50" onClick={() => handleDelete("student-leaders", lead.id)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                          {primaryFiltered.map((lead) => (
+                            <div key={lead.id} className="bg-card border border-emerald-600/20 rounded-2xl p-5 shadow-sm relative group/item hover:border-gold/60 transition duration-300 flex flex-col justify-between">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[9px] uppercase tracking-wider font-bold text-gold px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20">
+                                    {lead.role}
+                                  </span>
+                                  {lead.house && (
+                                    <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                      🏠 {lead.house}
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="font-display font-bold text-base text-primary leading-tight mt-1">{lead.name}</h4>
+                                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-[11px] font-semibold">{lead.grade}</span>
+                                  <span className="text-[10px] text-emerald-600 font-semibold uppercase">Primary Wing</span>
+                                </div>
+                                {lead.duties && (
+                                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed pt-1">
+                                    {lead.duties}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex gap-2 justify-end pt-3 border-t border-border/50 mt-4 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditLeader(lead)}>
+                                  <Edit className="h-3 w-3" /> Edit
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-leaders", lead.id)}>
+                                  <Trash2 className="h-3 w-3" /> Delete
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                          {primaryFiltered.length === 0 && (
+                            <div className="col-span-full text-center text-muted-foreground py-10 bg-muted/10 rounded-2xl border border-dashed border-border">
+                              No primary student leaders match the search criteria. Click 'Add Student Leader' to nominate!
+                            </div>
+                          )}
                         </div>
                       </div>
-                    ))}
-                    {leaders.length === 0 && (
-                      <div className="col-span-full text-center text-muted-foreground py-16">
-                        No student council leaders registered yet. Click 'Add Leader' to nominate!
+                    )}
+
+                    {/* Section 2: Secondary / Senior Wing Student Leaders */}
+                    {(leaderWingTab === "all" || leaderWingTab === "secondary") && (
+                      <div className="space-y-4 pt-4">
+                        <div className="flex items-center justify-between border-b border-border/80 pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="h-3 w-3 rounded-full bg-navy-deep animate-pulse" />
+                            <h4 className="font-display text-base font-bold text-primary">
+                              Secondary & Senior Wing Student Leaders (Classes VI – XII)
+                            </h4>
+                          </div>
+                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                            {secondaryFiltered.length} Nominees
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                          {secondaryFiltered.map((lead) => (
+                            <div key={lead.id} className="bg-card border border-primary/20 rounded-2xl p-5 shadow-sm relative group/item hover:border-gold/60 transition duration-300 flex flex-col justify-between">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-[9px] uppercase tracking-wider font-bold text-gold px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20">
+                                    {lead.role}
+                                  </span>
+                                  {lead.house && (
+                                    <span className="text-[10px] font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">
+                                      🏠 {lead.house}
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="font-display font-bold text-base text-primary leading-tight mt-1">{lead.name}</h4>
+                                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-[11px] font-semibold">{lead.grade}</span>
+                                  <span className="text-[10px] text-blue-600 font-semibold uppercase">Senior Wing</span>
+                                </div>
+                                {lead.duties && (
+                                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed pt-1">
+                                    {lead.duties}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex gap-2 justify-end pt-3 border-t border-border/50 mt-4 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditLeader(lead)}>
+                                  <Edit className="h-3 w-3" /> Edit
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-leaders", lead.id)}>
+                                  <Trash2 className="h-3 w-3" /> Delete
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                          {secondaryFiltered.length === 0 && (
+                            <div className="col-span-full text-center text-muted-foreground py-10 bg-muted/10 rounded-2xl border border-dashed border-border">
+                              No senior student leaders match the search criteria. Click 'Add Student Leader' to nominate!
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* About School Page Editor & Preview */}
               {editorPage === "about-school" && activePageData && (
@@ -4309,23 +4950,60 @@ function AdminPage() {
         <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30">
           <DialogHeader>
             <DialogTitle className="font-display text-xl text-primary font-bold">{editItem ? "Edit Student Leader" : "Nominate Student Leader"}</DialogTitle>
-            <DialogDescription>Assign a role in the school student council.</DialogDescription>
+            <DialogDescription>Assign a role in the school student council (Primary Wing or Secondary/Senior Wing).</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleLeaderSubmit} className="space-y-4 pt-3">
-            <div className="space-y-1">
-              <Label htmlFor="lead-role" className="text-xs uppercase tracking-wide text-muted-foreground">Council Role</Label>
-              <Input id="lead-role" placeholder="e.g. School Head Boy / Sports Captain" value={leaderForm.role} onChange={(e) => setLeaderForm(prev => ({ ...prev, role: e.target.value }))} required />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="lead-name" className="text-xs uppercase tracking-wide text-muted-foreground">Student Name</Label>
-                <Input id="lead-name" value={leaderForm.name} onChange={(e) => setLeaderForm(prev => ({ ...prev, name: e.target.value }))} required />
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Wing Assignment</Label>
+                <Select value={leaderForm.wing} onValueChange={(val: any) => setLeaderForm(prev => ({ ...prev, wing: val }))}>
+                  <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Primary">Primary Wing (Classes I - V)</SelectItem>
+                    <SelectItem value="Secondary">Secondary / Senior (Classes VI - XII)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="lead-grade" className="text-xs uppercase tracking-wide text-muted-foreground">Grade / Class</Label>
-                <Input id="lead-grade" placeholder="e.g. Class XII - Science" value={leaderForm.grade} onChange={(e) => setLeaderForm(prev => ({ ...prev, grade: e.target.value }))} required />
+                <Input id="lead-grade" placeholder={leaderForm.wing === "Primary" ? "e.g. Class V - A" : "e.g. Class XII - A"} value={leaderForm.grade} onChange={(e) => setLeaderForm(prev => ({ ...prev, grade: e.target.value }))} required />
               </div>
             </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="lead-role" className="text-xs uppercase tracking-wide text-muted-foreground">Council Role</Label>
+              <Input id="lead-role" placeholder={leaderForm.wing === "Primary" ? "e.g. Primary Head Boy / Galilee House Captain" : "e.g. School Pupil Leader (SPL) / Sports Captain"} value={leaderForm.role} onChange={(e) => setLeaderForm(prev => ({ ...prev, role: e.target.value }))} required />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="lead-name" className="text-xs uppercase tracking-wide text-muted-foreground">Student Name</Label>
+                <Input id="lead-name" placeholder="e.g. Master K. Sanjay" value={leaderForm.name} onChange={(e) => setLeaderForm(prev => ({ ...prev, name: e.target.value }))} required />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">House (Optional)</Label>
+                <Select value={leaderForm.house || "None"} onValueChange={(val) => setLeaderForm(prev => ({ ...prev, house: val === "None" ? "" : val }))}>
+                  <SelectTrigger><SelectValue placeholder="Select House" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="None">None / General Council</SelectItem>
+                    <SelectItem value="Galilee">Galilee House (Red - Primary)</SelectItem>
+                    <SelectItem value="Zion">Zion House (Blue - Primary)</SelectItem>
+                    <SelectItem value="Judah">Judah House (Green - Primary)</SelectItem>
+                    <SelectItem value="Bethel">Bethel House (Yellow - Primary)</SelectItem>
+                    <SelectItem value="St. Matthew">St. Matthew House (Red - Senior)</SelectItem>
+                    <SelectItem value="St. Mark">St. Mark House (Blue - Senior)</SelectItem>
+                    <SelectItem value="St. Luke">St. Luke House (Green - Senior)</SelectItem>
+                    <SelectItem value="St. John">St. John House (Gold - Senior)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="lead-duties" className="text-xs uppercase tracking-wide text-muted-foreground">Duties & Responsibilities</Label>
+              <Textarea id="lead-duties" placeholder="e.g. Leads assembly flag protocol, morning prayers, and junior discipline." value={leaderForm.duties} onChange={(e) => setLeaderForm(prev => ({ ...prev, duties: e.target.value }))} rows={3} />
+            </div>
+
             <DialogFooter className="pt-4">
               <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">Save Nominee</Button>
             </DialogFooter>

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { motion } from "motion/react";
 import { Award, Star } from "lucide-react";
 import { API_BASE } from "@/config";
+import { getMergedAchievements } from "@/lib/achievementsData";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -81,33 +82,16 @@ function BestStudentPage() {
 
   useEffect(() => {
     fetch(`${API_BASE}/student-achievements/`)
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         const results = Array.isArray(data) ? data : (data.results || []);
-        const mapped = results
-          .filter((item: any) => item.title.toLowerCase().includes("best student"))
-          .map((item: any) => {
-            const parts = item.title.split(" - ");
-            const awardTitle = parts[0] || "Student Achievement";
-            const nameWithGrade = parts[1] || "";
-            const nameParts = nameWithGrade.split(" (");
-            const name = nameParts[0] || "";
-            const grade = nameParts[1] ? nameParts[1].replace(")", "") : "";
-            
-            return {
-              title: awardTitle,
-              name: name || item.title,
-              grade: grade || "General Honoree",
-              reason: item.description,
-              image: item.image
-            };
-          });
-        setCurrentAwardees(mapped.length > 0 ? mapped : defaultAwardees);
+        const merged = getMergedAchievements(results).bestStudents;
+        setCurrentAwardees(merged);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching achievements:", err);
-        setCurrentAwardees(defaultAwardees);
+        setCurrentAwardees(getMergedAchievements().bestStudents);
         setLoading(false);
       });
   }, []);

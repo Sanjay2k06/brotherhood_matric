@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { motion } from "motion/react";
 import { API_BASE } from "@/config";
+import { getMergedTeachers } from "@/lib/teachersData";
 import {
   GraduationCap,
   BookOpen,
@@ -248,48 +249,46 @@ function TeachersPage() {
       });
   }, []);
 
-  // Dynamically group all teachers from backend into departments
+  // Dynamically group all teachers (defaults + edits + API) into departments
+  const mergedTeachers = useMemo(() => getMergedTeachers(dbTeachers), [dbTeachers]);
+
   const activeDepartments: Department[] = useMemo(() => {
-    if (dbTeachers.length > 0) {
-      const deptMap = new Map<string, { meta: DeptMeta; faculty: FacultyMember[] }>();
+    const deptMap = new Map<string, { meta: DeptMeta; faculty: FacultyMember[] }>();
 
-      // Group each teacher into their respective department
-      dbTeachers.forEach((t: any) => {
-        const meta = getDepartmentMeta(t.subject || "General");
-        if (!deptMap.has(meta.id)) {
-          deptMap.set(meta.id, { meta, faculty: [] });
-        }
-        deptMap.get(meta.id)!.faculty.push({
-          name: t.name,
-          qualification: t.qualification || undefined
+    // Group each teacher into their respective department
+    mergedTeachers.forEach((t: any) => {
+      const meta = getDepartmentMeta(t.subject || "General");
+      if (!deptMap.has(meta.id)) {
+        deptMap.set(meta.id, { meta, faculty: [] });
+      }
+      deptMap.get(meta.id)!.faculty.push({
+        name: t.name,
+        qualification: t.qualification || undefined
+      });
+    });
+
+    const list: Department[] = [];
+    deptMap.forEach(({ meta, faculty }) => {
+      if (faculty.length > 0) {
+        list.push({
+          id: meta.id,
+          name: meta.name,
+          category: meta.category,
+          icon: meta.icon,
+          faculty
         });
-      });
+      }
+    });
 
-      const list: Department[] = [];
-      deptMap.forEach(({ meta, faculty }) => {
-        if (faculty.length > 0) {
-          list.push({
-            id: meta.id,
-            name: meta.name,
-            category: meta.category,
-            icon: meta.icon,
-            faculty
-          });
-        }
-      });
+    // Sort departments by designated order
+    list.sort((a, b) => {
+      const orderA = KNOWN_DEPARTMENTS[a.id.replace(/-/g, " ")]?.order ?? 99;
+      const orderB = KNOWN_DEPARTMENTS[b.id.replace(/-/g, " ")]?.order ?? 99;
+      return orderA - orderB;
+    });
 
-      // Sort departments by designated order
-      list.sort((a, b) => {
-        const orderA = KNOWN_DEPARTMENTS[a.id.replace(/-/g, " ")]?.order ?? 99;
-        const orderB = KNOWN_DEPARTMENTS[b.id.replace(/-/g, " ")]?.order ?? 99;
-        return orderA - orderB;
-      });
-
-      return list;
-    }
-
-    return DEPARTMENTS;
-  }, [dbTeachers]);
+    return list.length > 0 ? list : DEPARTMENTS;
+  }, [mergedTeachers]);
 
   const totalTeachers = useMemo(() => {
     return activeDepartments.reduce((acc, dept) => acc + dept.faculty.length, 0);

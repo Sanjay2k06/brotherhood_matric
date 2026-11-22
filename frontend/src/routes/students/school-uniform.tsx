@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import { API_BASE } from "@/config";
+import { getMergedUniforms } from "@/lib/uniformsData";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -48,6 +49,8 @@ function SchoolUniformPage() {
       });
   }, []);
 
+  const uniforms = getMergedUniforms(dailyUniform);
+
   return (
     <div className="bg-[#fdfdfc] text-[#2d3748] font-sans selection:bg-[#0a2b18] selection:text-white">
       <PageHeader
@@ -88,12 +91,12 @@ function SchoolUniformPage() {
             <div className="flex justify-center py-20">
               <div className="w-12 h-12 border-2 border-[#e2e8f0] border-t-[#d4af37] rounded-full animate-spin"></div>
             </div>
-          ) : dailyUniform.length > 0 ? (
+          ) : uniforms.length > 0 ? (
             <motion.div 
               initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} 
               className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-24"
             >
-              {dailyUniform.map((item, idx) => (
+              {uniforms.map((item, idx) => (
                  <motion.div 
                    key={item.section} 
                    variants={fadeUp} 

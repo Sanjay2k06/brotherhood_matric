@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Shield, Trophy, Sparkles, Award, Star, Compass, Flame, Leaf, Heart } from "lucide-react";
 import { motion } from "motion/react";
 import { API_BASE } from "@/config";
+import { getLocalHouseOverrides } from "@/lib/housesData";
 
 export const Route = createFileRoute("/students/houses")({
   head: () => ({
@@ -353,12 +354,18 @@ function HousesPage() {
   const getUpdatedHouse = (house: HouseInfo): HouseInfo => {
     const key = house.name.toLowerCase().trim();
     const update = houseUpdates[key];
-    if (!update) return house;
-    return {
-      ...house,
-      points: update.points !== undefined ? update.points : house.points,
-      motto: update.motto || house.motto,
-    };
+    const local = getLocalHouseOverrides().modified[house.name] || getLocalHouseOverrides().modified[key];
+    let res = { ...house };
+    if (local) {
+      if (typeof local.points === "number") res.points = local.points;
+      if (local.motto) res.motto = local.motto;
+      if (local.description) res.description = local.description;
+    }
+    if (update) {
+      if (update.points !== undefined) res.points = update.points;
+      if (update.motto) res.motto = update.motto;
+    }
+    return res;
   };
 
   return (

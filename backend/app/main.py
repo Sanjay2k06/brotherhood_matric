@@ -116,6 +116,16 @@ async def startup_db_setup():
         logger.info("Initializing database tables...")
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+            from sqlalchemy import text
+            for col_sql in [
+                "ALTER TABLE student_leaders ADD COLUMN wing VARCHAR DEFAULT 'Primary'",
+                "ALTER TABLE student_leaders ADD COLUMN house VARCHAR",
+                "ALTER TABLE student_leaders ADD COLUMN duties VARCHAR",
+            ]:
+                try:
+                    await conn.execute(text(col_sql))
+                except Exception:
+                    pass
         
         # Seed Initial Super Admin and Website Settings
         async with AsyncSessionLocal() as db:
@@ -124,6 +134,11 @@ async def startup_db_setup():
                 from app.core.security import get_password_hash
                 from app.settings.models import WebsiteSettings
                 from app.houses.models import StudentHouse
+                from app.leaders.models import StudentLeader
+                from app.uniforms.models import SchoolUniform
+                from app.teachers.models import Teacher
+                from app.events.models import Event
+                from app.achievements.models import StudentAchievement
                 from sqlalchemy import select
 
                 # 1. Seed Super Admin
@@ -164,22 +179,155 @@ async def startup_db_setup():
                     db.add(settings_record)
                     await db.commit()
 
-                # 3. Seed Default School Houses if none exist
+                # 3. Seed Default School Houses if none exist (or if placeholder houses exist)
                 stmt_houses = select(StudentHouse).filter(StudentHouse.deleted_at.is_(None))
                 res_houses = await db.execute(stmt_houses)
                 houses = list(res_houses.scalars().all())
-                if len(houses) == 0:
-                    logger.info("Seeding default student houses scorecard...")
+                has_real_houses = any(h.name in ["Galilee House", "St. Matthew House"] for h in houses)
+                if not has_real_houses:
+                    logger.info("Seeding real school houses (Galilee, Zion, Judah, Bethel, St. Matthew, St. Mark, St. Luke, St. John)...")
                     default_houses = [
-                        StudentHouse(name="Red House", motto="Valour and Honor", color_code="bg-red-500", points=350, description="Representing courage, strength, and active sportsmanship."),
-                        StudentHouse(name="Blue House", motto="Loyalty and Truth", color_code="bg-blue-600", points=420, description="Representing intelligence, focus, and academic excellence."),
-                        StudentHouse(name="Green House", motto="Growth and Harmony", color_code="bg-green-600", points=380, description="Representing ecological stewardship, balance, and creative arts."),
-                        StudentHouse(name="Gold House", motto="Victory and Wisdom", color_code="bg-yellow-500", points=410, description="Representing leadership, wisdom, and competitive achievements.")
+                        StudentHouse(name="Galilee House", motto="Knowledge and Exploration", color_code="bg-blue-600", points=385, description="Inspiring deep inquisitiveness, scientific reasoning, and a passion for discovering truth in the natural and mathematical universe."),
+                        StudentHouse(name="Zion House", motto="Strength and Faith", color_code="bg-amber-500", points=410, description="Fostering unwavering character, spiritual strength, moral conviction, and upright leadership in times of challenge."),
+                        StudentHouse(name="Judah House", motto="Courage and Praise", color_code="bg-red-600", points=395, description="Encouraging bold enthusiasm on athletic fields, joyful participation in school events, and fearless dedication to excellence."),
+                        StudentHouse(name="Bethel House", motto="House of Peace", color_code="bg-emerald-600", points=400, description="Guiding students toward environmental stewardship, peaceful peer collaboration, creative arts, and gentle benevolence."),
+                        StudentHouse(name="St. Matthew House", motto="Grace and Wisdom", color_code="bg-blue-700", points=425, description="Nurturing rigorous academic thinking, intellectual clarity, and visionary scholastic research across senior streams."),
+                        StudentHouse(name="St. Mark House", motto="Courage and Action", color_code="bg-rose-600", points=415, description="Champions of speed, track and field excellence, physical endurance, and active student initiative."),
+                        StudentHouse(name="St. Luke House", motto="Healing and Service", color_code="bg-emerald-700", points=440, description="Instilling altruistic civic consciousness, biomedical inquisitiveness, and active philanthropic service to society."),
+                        StudentHouse(name="St. John House", motto="Love and Truth", color_code="bg-yellow-600", points=430, description="Prioritizing oratorical eloquence, classical literature, artistic mastery, and steadfast commitment to timeless truth."),
                     ]
                     db.add_all(default_houses)
                     await db.commit()
 
-                # 4. Seed Default CMS Pages if none exist
+                # 4. Seed Default Student Leaders if none exist
+                stmt_leaders = select(StudentLeader).filter(StudentLeader.deleted_at.is_(None))
+                res_leaders = await db.execute(stmt_leaders)
+                leaders = list(res_leaders.scalars().all())
+                if len(leaders) == 0:
+                    logger.info("Seeding default student leaders (Primary & Senior councils)...")
+                    default_leaders = [
+                        # Primary Council
+                        StudentLeader(role="Head Boy", name="Immanual Jafferson.S", grade="Std V", wing="Primary", duties="Leading the primary pupil body, coordinating morning assemblies, and representing junior student interests with faculty."),
+                        StudentLeader(role="Head Girl", name="Inshika Shri.S", grade="Std V", wing="Primary", duties="Guiding primary student initiatives, welcoming school guests, and maintaining classroom harmony and peer friendship."),
+                        StudentLeader(role="Sports Captain", name="Harish.S", grade="Std V", wing="Primary", duties="Coordinating junior sports meets, physical training drills, and promoting fair play and energetic sportsmanship."),
+                        StudentLeader(role="Sports Captain", name="Yashika.D", grade="Std V", wing="Primary", duties="Organizing primary athletic activities, track events, and motivating young athletes during inter-house games."),
+                        StudentLeader(role="Cultural Leader", name="Keerthana.V", grade="Std V", wing="Primary", duties="Directing primary cultural celebrations, storytelling sessions, music performances, and festival assemblies."),
+                        StudentLeader(role="Captain", name="Pratheesh.B", grade="Std V", wing="Primary", house="Galilee House", duties="Leading Galilee House in primary sports, quizzes, and discipline assemblies."),
+                        StudentLeader(role="Vice Captain", name="Nivedha.N", grade="Std V", wing="Primary", house="Galilee House", duties="Assisting the House Captain in squad coordination and inter-house preparation."),
+                        StudentLeader(role="Captain", name="Jeshwanth.S", grade="Std V", wing="Primary", house="Zion House", duties="Directing Zion House members, fostering team spirit, and inspiring moral character."),
+                        StudentLeader(role="Vice Captain", name="Jaclin Nibola.J", grade="Std V", wing="Primary", house="Zion House", duties="Managing house points allocation, sports lineups, and classroom cleanliness."),
+                        StudentLeader(role="Captain", name="Praveen Sai.B", grade="Std V", wing="Primary", house="Judah House", duties="Inspiring courage and sporting determination in all Judah House competitions."),
+                        StudentLeader(role="Vice Captain", name="Sree Dharshini.I", grade="Std V", wing="Primary", house="Judah House", duties="Coordinating relay squads, attendance, and encouraging participation in house events."),
+                        StudentLeader(role="Captain", name="Jayakandhan.M.D", grade="Std V", wing="Primary", house="Bethel House", duties="Directing Bethel House environmental care, campus stewardship, and academic excellence."),
+                        StudentLeader(role="Vice Captain", name="Danya Shree.R", grade="Std V", wing="Primary", house="Bethel House", duties="Supporting house members in creative arts, literary contests, and sports assemblies."),
+                        # Senior Council
+                        StudentLeader(role="Head Boy", name="P. Kishore", grade="XII - A", wing="Secondary", duties="Chief student representative, managing the prefectorial board, coordinating school celebrations, and liaising directly with the Principal."),
+                        StudentLeader(role="Head Girl", name="M. Akshaya", grade="XII - C", wing="Secondary", duties="Chief student leader presiding over student governance, mentorship circles, academic forums, and community outreach programs."),
+                        StudentLeader(role="Vice Head Boy", name="B. Ashwanth", grade="XII - A", wing="Secondary", duties="Assisting the Head Boy in day-to-day discipline, morning assembly alignment, and committee oversight."),
+                        StudentLeader(role="Vice Head Girl", name="A. Monisha", grade="XII - B", wing="Secondary", duties="Assisting the Head Girl in student council duties, cultural arrangements, and junior student welfare."),
+                        StudentLeader(role="Sport Secretary", name="N. Divya Dharshini", grade="XII - A", wing="Secondary", duties="Directing the annual Sports Day, zonal athletic meets, inter-school tournaments, and campus physical fitness."),
+                        StudentLeader(role="Asst. Sport Secretary", name="F. Calvin Mawia", grade="XII - A", wing="Secondary", duties="Supporting sports equipment management, ground organization, and scheduling inter-house leagues."),
+                        StudentLeader(role="Cultural Secretary", name="R. Sripriya", grade="XII - B", wing="Secondary", duties="Leading the drama, dance, and music ensembles for Annual Day, Teachers' Day, and festive school galas."),
+                        StudentLeader(role="Literary Secretary", name="P. Gayathri", grade="XII - C", wing="Secondary", duties="Coordinating school debating society, editorial club, elocution contests, and library symposiums."),
+                        StudentLeader(role="Captain", name="G. Ajith Kumar", grade="XII - B", wing="Secondary", house="St. Matthew House", duties="Leading St. Matthew House in high school athletic championships, debates, and points tally."),
+                        StudentLeader(role="Vice Captain", name="D. Sairathi", grade="XII - C", wing="Secondary", house="St. Matthew House", duties="Assisting the House Captain in organizing march-past contingents and quiz delegations."),
+                        StudentLeader(role="Captain", name="R. Sree Hari", grade="XII - A", wing="Secondary", house="St. Mark House", duties="Inspiring St. Mark House members to athletic supremacy and energetic participation in all campus meets."),
+                        StudentLeader(role="Vice Captain", name="P. Akshaya", grade="XII - B", wing="Secondary", house="St. Mark House", duties="Supporting the captain with senior sports squads, attendance verification, and house discipline."),
+                        StudentLeader(role="Captain", name="B. Jaya Prakash", grade="XII - C", wing="Secondary", house="St. Luke House", duties="Commanding St. Luke House in science fairs, humanitarian service projects, and sports tournaments."),
+                        StudentLeader(role="Vice Captain", name="B. Priya Dharshini", grade="XII - A", wing="Secondary", house="St. Luke House", duties="Coordinating house literary entries, assembly presentations, and student sports coaching."),
+                        StudentLeader(role="Captain", name="G. Nithish Kumar", grade="XII - C", wing="Secondary", house="St. John House", duties="Leading St. John House with dedication in academics, speech competitions, and athletic events."),
+                        StudentLeader(role="Vice Captain", name="K. Soniya", grade="XII - A", wing="Secondary", house="St. John House", duties="Managing house points tracking, sports cheer squads, and inter-house cultural showcases."),
+                        StudentLeader(role="Senior Student Prefect", name="G. Vijay Vignesh", grade="XII - A", wing="Secondary", duties="Maintaining high school corridor order, monitoring morning arrivals, and ensuring student punctuality."),
+                        StudentLeader(role="Senior Student Prefect", name="N. Raju Yogi", grade="XII - B", wing="Secondary", duties="Assisting during campus break periods, library study hours, and maintaining assembly line discipline."),
+                        StudentLeader(role="Senior Student Prefect", name="R. Sathya Priya", grade="XII - B", wing="Secondary", duties="Supporting campus cleanliness, monitoring canteen areas, and helping junior students with campus guidance."),
+                        StudentLeader(role="Senior Student Prefect", name="S. Karnika", grade="XII - B", wing="Secondary", duties="Assisting school events management, visitor guidance during parent-teacher meetings, and lab discipline."),
+                    ]
+                    db.add_all(default_leaders)
+                    await db.commit()
+
+                # 5. Seed School Uniforms if none exist
+                stmt_uniforms = select(SchoolUniform).filter(SchoolUniform.deleted_at.is_(None))
+                res_uniforms = await db.execute(stmt_uniforms)
+                uniforms = list(res_uniforms.scalars().all())
+                if len(uniforms) == 0:
+                    logger.info("Seeding default school uniforms...")
+                    default_uniforms = [
+                        SchoolUniform(section="Primary (Classes I to V)", boys_uniform="Navy blue shorts, light blue shirts, black shoes, school belt & tie.", girls_uniform="Navy blue pinafore, light blue shirts, black shoes, school belt & tie."),
+                        SchoolUniform(section="Secondary (Classes VI to XII)", boys_uniform="Navy blue trousers, light blue shirts, black shoes, school belt & tie.", girls_uniform="Navy blue salwar suit with light blue dupatta and black shoes.")
+                    ]
+                    db.add_all(default_uniforms)
+                    await db.commit()
+
+                # 6. Seed Teachers if none exist
+                stmt_teachers = select(Teacher).filter(Teacher.deleted_at.is_(None))
+                res_teachers = await db.execute(stmt_teachers)
+                teachers = list(res_teachers.scalars().all())
+                if len(teachers) == 0:
+                    logger.info("Seeding default faculty members...")
+                    default_teachers = [
+                        Teacher(name="Mr. T. Rajkumar Sam Kingsley", designation="Head of Department", subject="Mathematics", qualification="M.Sc., M.Phil., B.Ed.", experience="16 Years", description="Department lead directing advanced higher secondary pure mathematics, calculus, and board coaching."),
+                        Teacher(name="Mr. R. Loganathan", designation="Senior Mathematics Educator", subject="Mathematics", qualification="M.Sc., B.Ed.", experience="12 Years", description="Specialist in trigonometry, coordinate geometry, and secondary competitive Olympiad coaching."),
+                        Teacher(name="Mrs. C. Bhuvaneswari", designation="Mathematics Educator", subject="Mathematics", qualification="B.Sc., B.Ed.", experience="8 Years", description="Focused on building strong analytical reasoning and algebraic fundamentals in junior classes."),
+                        Teacher(name="Mrs. S. Prabha Leethiyal", designation="Head of Department", subject="Biology", qualification="M.Sc., B.Ed.", experience="15 Years", description="Leading the life sciences faculty with extensive expertise in botany, zoology, and medical entrance."),
+                        Teacher(name="Mrs. Helen Johnson", designation="Senior Physics Educator & Principal", subject="Physics", qualification="B.Sc., M.A., B.Ed.", experience="14 Years", description="Demonstrating physical laws through real-world experiments, optics, and electrodynamics."),
+                        Teacher(name="Ms. S. Solomon Devadoss", designation="Senior Chemistry Educator", subject="Chemistry", qualification="M.Sc., B.Ed.", experience="12 Years", description="Directing inorganic chemical reactions, stoichiometry, and safe wet-lab operations."),
+                        Teacher(name="Mrs. K. Vimala", designation="Head of Economics", subject="Economics", qualification="M.A., B.Ed.", experience="14 Years", description="Inspiring macroeconomic understanding, Indian economic history, and statistics."),
+                        Teacher(name="Mrs. M. Kalaiselvi Latha Muthu", designation="Commerce Lead", subject="Commerce", qualification="M.Com., B.Ed.", experience="16 Years", description="Guiding commerce stream pupils to high scores in double-entry bookkeeping and business studies."),
+                        Teacher(name="Mrs. J. Latha", designation="Computer Science Lead", subject="Computer Science", qualification="M.C.A., B.Ed.", experience="13 Years", description="Directing software programming, Python, SQL database management, and computer lab practicals."),
+                        Teacher(name="Mr. M. Sridhar", designation="History Lead", subject="History", qualification="M.A., B.Ed.", experience="15 Years", description="Enriching world history, constitutional governance, and civics education."),
+                        Teacher(name="Mrs. T.S. Maheshwari", designation="Hindi Department Lead", subject="Hindi", qualification="M.Com., B.Ed.", experience="12 Years", description="Fostering national language fluency, creative essay writing, and Hindi recitation."),
+                        Teacher(name="Mrs. Shima Newton", designation="French Language Instructor & Principal", subject="French", qualification="M.A., B.Ed., DELF B1", experience="11 Years", description="Delivering French communicative skills, phonetic articulation, and European language culture."),
+                        Teacher(name="Mrs. Ranganayagi", designation="Physical Education Director", subject="Physical Education", qualification="B.Sc., M.P.Ed.", experience="14 Years", description="Coaching track events, zonal basketball and football teams, and overall school wellness."),
+                        Teacher(name="Mr. Kulandaivelu", designation="Art & Drawing Master", subject="Art", qualification="Diploma in Fine Arts", experience="18 Years", description="Nurturing fine arts, watercolor landscape painting, and visual creativity across all grades."),
+                        Teacher(name="Mrs. Saranya", designation="Kindergarten Lead Educator", subject="Kindergarten", qualification="Montessori Trained", experience="8 Years", description="Dedicated to early childhood phonetic learning, sensory play, and gentle moral care.")
+                    ]
+                    db.add_all(default_teachers)
+                    await db.commit()
+
+                # 7. Seed Calendar Events if none exist
+                stmt_events = select(Event).filter(Event.deleted_at.is_(None))
+                res_events = await db.execute(stmt_events)
+                events = list(res_events.scalars().all())
+                if len(events) == 0:
+                    logger.info("Seeding default calendar events...")
+                    default_events = [
+                        Event(title="School Reopens for Classes I to XII", description="Commencement of Academic Year 2026–2027 with school prayer and welcome assembly.", event_date="2026-06-01", event_time="08:45 AM - 03:30 PM", venue="Main Campus", category="Reopening", status="Published"),
+                        Event(title="Investiture Ceremony & Leadership Badges", description="Installation of the Student Council, House Captains, and Prefectorial Board.", event_date="2026-06-20", event_time="09:30 AM - 12:00 PM", venue="School Auditorium", category="Celebration", status="Published"),
+                        Event(title="Independence Day Celebrations", description="Flag hoisting ceremony, patriotic choir songs, march-past, and cultural pageantry.", event_date="2026-08-15", event_time="08:00 AM - 10:30 AM", venue="School Sports Grounds", category="Celebration", status="Published"),
+                        Event(title="Annual Sports Day & Zonal Athletic Finals", description="Inter-house athletic tournament, sprint heats, high jump, and medal presentations.", event_date="2026-08-29", event_time="08:30 AM - 04:30 PM", venue="Athletic Stadium", category="Athletics", status="Published"),
+                        Event(title="Teachers' Day Felicitation Assembly", description="Student-led cultural honors, speech recitals, and teacher appreciation ceremony.", event_date="2026-09-05", event_time="10:00 AM - 01:00 PM", venue="Main Auditorium", category="Celebration", status="Published"),
+                        Event(title="Founder's Day Memorial Thanksgiving", description="School founder remembrance service, alumni felicitation, and scholarship awards.", event_date="2026-09-18", event_time="09:30 AM - 12:30 PM", venue="School Chapel & Hall", category="Celebration", status="Published"),
+                        Event(title="Children's Day Gala & Food Carnival", description="Fun stalls, science discovery stations, game arenas, and student food fest.", event_date="2026-11-14", event_time="09:00 AM - 03:00 PM", venue="School Courtyard", category="Celebration", status="Published"),
+                        Event(title="Christmas Carol Service & Pageant", description="Choral ensemble, live nativity play, festive brass band, and charity gift drive.", event_date="2026-12-05", event_time="04:30 PM - 07:30 PM", venue="School Amphitheater", category="Celebration", status="Published"),
+                        Event(title="Pongal Harvest Festival & Folk Dances", description="Traditional sweet pongal preparation, pot breaking, and traditional folk art forms.", event_date="2026-01-14", event_time="09:00 AM - 01:00 PM", venue="Open Grounds", category="Celebration", status="Published"),
+                        Event(title="Republic Day Parade & Salutations", description="Patriotic parade, student speeches, scouts & guides troop salute.", event_date="2026-01-26", event_time="08:00 AM - 10:00 AM", venue="Parade Ground", category="Celebration", status="Published"),
+                        Event(title="National Science Day & STEM Exhibition", description="Robotics demonstrations, working models, eco-science displays by junior inventors.", event_date="2026-02-28", event_time="09:30 AM - 03:30 PM", venue="Science Laboratories", category="Celebration", status="Published")
+                    ]
+                    db.add_all(default_events)
+                    await db.commit()
+
+                # 8. Seed Student Achievements if none exist
+                stmt_ach = select(StudentAchievement).filter(StudentAchievement.deleted_at.is_(None))
+                res_ach = await db.execute(stmt_ach)
+                achievements = list(res_ach.scalars().all())
+                if len(achievements) == 0:
+                    logger.info("Seeding default student achievements & honors...")
+                    default_ach = [
+                        StudentAchievement(title="Best Student of the Month - Master R. Sai Ganesh (Class XI-A)", description="Outstanding programming project in Computer Science and leadership in STEM club."),
+                        StudentAchievement(title="Best Student of the Month - Miss S. Kavitha (Class XI-B)", description="Excellent leadership in Commerce club activities and consistent academic support to peers."),
+                        StudentAchievement(title="Best Student of the Month - Master M. Vignesh (Class XI-C)", description="Academic consistency and top scores in chemistry laboratory worksheets."),
+                        StudentAchievement(title="Best Student of the Month - Miss P. Harini (Class XII-A)", description="Exemplary discipline, high attendance, and centum score in mathematics mock examinations."),
+                        StudentAchievement(title="Best Student of the Month - Master V. Rajesh (Class XII-B)", description="Outstanding public speaking in the debate tournament and active commerce club volunteer."),
+                        StudentAchievement(title="Best Student of the Month - Miss K. Sneha (Class XII-C)", description="Consistent academic performance of 95%+ marks and dedicated library club student helper."),
+                        StudentAchievement(title="School Topper - Master Kishore P. (Class XII - A)", description="Record-breaking aggregate score of 594/600 with centum in Physics and Computer Science."),
+                        StudentAchievement(title="School 2nd Rank - Miss Akshaya M. (Class XII - C)", description="Exemplary academic brilliance of 595/600 and distinction in medical entrance foundations."),
+                        StudentAchievement(title="Overall Champions Trophy - Zonal Athletic Meet", description="Gold medals in 4x100m relay, 200m sprint, and high jump clinching the zonal shield."),
+                        StudentAchievement(title="Gold Medal & Winner Trophy - District Football Championship", description="Undefeated champion run across five knockout matches to claim the district cup.")
+                    ]
+                    db.add_all(default_ach)
+                    await db.commit()
+
+                # 9. Seed Default CMS Pages if none exist
                 from app.content.models import Page
                 stmt_pages = select(Page).filter(Page.deleted_at.is_(None))
                 res_pages = await db.execute(stmt_pages)

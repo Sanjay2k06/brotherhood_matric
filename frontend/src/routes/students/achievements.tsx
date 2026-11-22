@@ -4,6 +4,7 @@ import { Award, BookOpen, Star, Trophy, Target, Sparkles, CheckCircle2 } from "l
 import resultImg from "../../images/result.jpg";
 import { useState, useEffect } from "react";
 import { API_BASE } from "@/config";
+import { getMergedAchievements } from "@/lib/achievementsData";
 import { motion } from "motion/react";
 
 export const Route = createFileRoute("/students/achievements")({
@@ -60,62 +61,28 @@ function StudentAchievementsPage() {
 
   useEffect(() => {
     fetch(`${API_BASE}/student-achievements/`)
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        const list = Array.isArray(data) ? data : data.results || [];
-        const toppers: any[] = [];
-        const sports: any[] = [];
-
-        list.forEach((item: any) => {
-          if (item.title.toLowerCase().includes("best student")) {
-            return;
-          }
-          const isBoard =
-            item.title.toLowerCase().includes("rank") ||
-            item.title.toLowerCase().includes("topper") ||
-            item.title.toLowerCase().includes("centum") ||
-            item.title.toLowerCase().includes("board") ||
-            item.description.toLowerCase().includes("score") ||
-            item.description.toLowerCase().includes("marks") ||
-            item.description.includes("/ 600") ||
-            item.description.includes("100/");
-
-          if (isBoard) {
-            const parts = item.title.split(" - ");
-            const rank = parts[0] || "Topper";
-            const nameWithGrade = parts[1] || "";
-            const nameParts = nameWithGrade.split(" (");
-            const name = nameParts[0] || item.title;
-            const grade = nameParts[1] ? nameParts[1].replace(")", "") : "";
-
-            toppers.push({
-              rank,
-              name,
-              score: item.description.length < 25 ? item.description : "Distinction",
-              stream: grade || "Class X/XII",
-            });
-          } else {
-            const parts = item.title.split(" - ");
-            const title = parts[0] || item.title;
-            const award = parts[1] ? parts[1].split(" (")[0] : "Achievement Award";
-            const category = item.description;
-
-            sports.push({
-              title,
-              award,
-              category,
-            });
-          }
-        });
-
-        setBoardToppers(toppers.length > 0 ? toppers : defaultToppers);
-        setSportsWins(sports.length > 0 ? sports : defaultSports);
+        const list = Array.isArray(data) ? data : (data.results || []);
+        const { boardToppers: mergedToppers, sports: mergedSports } = getMergedAchievements(list);
+        setBoardToppers(mergedToppers.map(t => ({
+          rank: t.title,
+          name: t.name,
+          score: t.score || t.reason,
+          stream: t.stream || t.grade,
+        })));
+        setSportsWins(mergedSports.map(s => ({
+          title: s.title,
+          award: s.award || s.name,
+          category: s.reason,
+        })));
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching achievements:", err);
-        setBoardToppers(defaultToppers);
-        setSportsWins(defaultSports);
+        const { boardToppers: mergedToppers, sports: mergedSports } = getMergedAchievements();
+        setBoardToppers(mergedToppers.map(t => ({ rank: t.title, name: t.name, score: t.score || t.reason, stream: t.stream || t.grade })));
+        setSportsWins(mergedSports.map(s => ({ title: s.title, award: s.award || s.name, category: s.reason })));
         setLoading(false);
       });
   }, []);

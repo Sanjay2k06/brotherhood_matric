@@ -5,6 +5,7 @@ import { Award, Users, Shield, RotateCw, Sparkles, CheckCircle2 } from "lucide-r
 import { motion } from "motion/react";
 import aboutImage3 from "../../images/aboutimage3.jpg";
 import { API_BASE } from "@/config";
+import { getMergedStudentLeaders, StudentLeaderItem } from "@/lib/studentLeadersData";
 
 export const Route = createFileRoute("/students/student-leaders")({
   head: () => ({
@@ -420,17 +421,35 @@ function StudentLeadersPage() {
       .catch(() => {});
   }, []);
 
-  // Filter out any leaders that are already in the static lists so we don't duplicate them
-  const knownNames = new Set<string>([
-    ...PRIMARY_COUNCIL.map((l) => l.name.toLowerCase().trim()),
-    ...PRIMARY_HOUSE_CAPTAINS.flatMap((h) => h.members.map((m) => m.name.toLowerCase().trim())),
-    ...SENIOR_COUNCIL.map((l) => l.name.toLowerCase().trim()),
-    ...SENIOR_HOUSE_CAPTAINS.flatMap((h) => h.members.map((m) => m.name.toLowerCase().trim())),
-    ...SENIOR_PREFECTS.map((l) => l.name.toLowerCase().trim()),
-  ]);
+  // Dynamically load merged leaders (defaults + local edits + API data)
+  const allMergedLeaders = getMergedStudentLeaders(apiLeaders);
+  const primaryLeaders = allMergedLeaders.filter(l => l.wing === "Primary");
+  const seniorLeaders = allMergedLeaders.filter(l => l.wing === "Secondary" || l.wing === "Senior");
 
-  const customLeaders = apiLeaders.filter(
-    (l) => l.name && !knownNames.has(l.name.toLowerCase().trim())
+  const primaryCouncil = primaryLeaders.filter(l => l.category === "Council" || (!l.house && !l.role.toLowerCase().includes("prefect")));
+  const primaryHouseGroups = [
+    { house: "Galilee House", badge: "bg-blue-50 text-blue-700 border-blue-200", members: primaryLeaders.filter(l => l.house === "Galilee House") },
+    { house: "Zion House", badge: "bg-amber-50 text-amber-700 border-amber-200", members: primaryLeaders.filter(l => l.house === "Zion House") },
+    { house: "Judah House", badge: "bg-red-50 text-red-700 border-red-200", members: primaryLeaders.filter(l => l.house === "Judah House") },
+    { house: "Bethel House", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", members: primaryLeaders.filter(l => l.house === "Bethel House") },
+  ];
+
+  const seniorCouncil = seniorLeaders.filter(l => l.category === "Council" || (!l.house && !l.role.toLowerCase().includes("prefect")));
+  const seniorHouseGroups = [
+    { house: "St. Matthew House", badge: "bg-blue-50 text-blue-700 border-blue-200", members: seniorLeaders.filter(l => l.house === "St. Matthew House") },
+    { house: "St. Mark House", badge: "bg-red-50 text-red-700 border-red-200", members: seniorLeaders.filter(l => l.house === "St. Mark House") },
+    { house: "St. Luke House", badge: "bg-emerald-50 text-emerald-700 border-emerald-200", members: seniorLeaders.filter(l => l.house === "St. Luke House") },
+    { house: "St. John House", badge: "bg-amber-50 text-amber-700 border-amber-200", members: seniorLeaders.filter(l => l.house === "St. John House") },
+  ];
+  const seniorPrefects = seniorLeaders.filter(l => l.category === "Prefect" || l.role.toLowerCase().includes("prefect"));
+
+  // Any custom leaders without a designated section
+  const customLeaders = allMergedLeaders.filter(
+    (l) => !primaryCouncil.some(p => p.id === l.id) &&
+           !primaryHouseGroups.some(g => g.members.some(m => m.id === l.id)) &&
+           !seniorCouncil.some(s => s.id === l.id) &&
+           !seniorHouseGroups.some(g => g.members.some(m => m.id === l.id)) &&
+           !seniorPrefects.some(p => p.id === l.id)
   );
 
   return (
@@ -471,7 +490,7 @@ function StudentLeadersPage() {
                   : "bg-[#f4f7f5] text-[#55695d] hover:bg-[#e6ece8]"
               }`}
             >
-              All Wings (29 Leaders)
+              All Wings ({allMergedLeaders.length} Leaders)
             </button>
             <button
               onClick={() => setActiveTab("primary")}
@@ -481,7 +500,7 @@ function StudentLeadersPage() {
                   : "bg-[#f4f7f5] text-[#55695d] hover:bg-[#e6ece8]"
               }`}
             >
-              Primary Wing (13 Leaders)
+              Primary Wing ({primaryLeaders.length} Leaders)
             </button>
             <button
               onClick={() => setActiveTab("senior")}
@@ -491,7 +510,7 @@ function StudentLeadersPage() {
                   : "bg-[#f4f7f5] text-[#55695d] hover:bg-[#e6ece8]"
               }`}
             >
-              Senior Wing (20 Leaders)
+              Senior Wing ({seniorLeaders.length} Leaders)
             </button>
           </div>
         </div>
@@ -519,12 +538,12 @@ function StudentLeadersPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
-                  5 Council Members
+                  {primaryCouncil.length} Council Members
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-                {PRIMARY_COUNCIL.map((leader, idx) => (
+                {primaryCouncil.map((leader, idx) => (
                   <FlipLeaderCard key={leader.name + leader.role} leader={leader} idx={idx} />
                 ))}
               </div>
@@ -547,12 +566,12 @@ function StudentLeadersPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
-                  8 House Leaders
+                  {primaryHouseGroups.reduce((acc, g) => acc + g.members.length, 0)} House Leaders
                 </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {PRIMARY_HOUSE_CAPTAINS.map((houseGroup) => (
+                {primaryHouseGroups.map((houseGroup) => (
                   <div
                     key={houseGroup.house}
                     className="bg-white rounded-3xl border border-[#e2e8f0] p-5 shadow-sm space-y-4"
@@ -598,12 +617,12 @@ function StudentLeadersPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
-                  8 Council Secretaries
+                  {seniorCouncil.length} Council Secretaries
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {SENIOR_COUNCIL.map((leader, idx) => (
+                {seniorCouncil.map((leader, idx) => (
                   <FlipLeaderCard key={leader.name + leader.role} leader={leader} idx={idx} />
                 ))}
               </div>
@@ -626,12 +645,12 @@ function StudentLeadersPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
-                  8 Senior Captains
+                  {seniorHouseGroups.reduce((acc, g) => acc + g.members.length, 0)} Senior Captains
                 </span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {SENIOR_HOUSE_CAPTAINS.map((houseGroup) => (
+                {seniorHouseGroups.map((houseGroup) => (
                   <div
                     key={houseGroup.house}
                     className="bg-white rounded-3xl border border-[#e2e8f0] p-5 shadow-sm space-y-4"
@@ -672,12 +691,12 @@ function StudentLeadersPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#f0f6f2] text-[#1b4d32] border border-[#d2e2d7] self-start sm:self-auto">
-                  4 Prefects
+                  {seniorPrefects.length} Prefects
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {SENIOR_PREFECTS.map((leader, idx) => (
+                {seniorPrefects.map((leader, idx) => (
                   <FlipLeaderCard key={leader.name} leader={leader} idx={idx} />
                 ))}
               </div>

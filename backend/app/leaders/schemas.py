@@ -7,6 +7,9 @@ class StudentLeaderBase(BaseModel):
     role: str
     name: str
     grade: str
+    wing: Optional[str] = "Primary"
+    house: Optional[str] = None
+    duties: Optional[str] = None
 
 class StudentLeaderCreate(StudentLeaderBase):
     pass
@@ -15,6 +18,9 @@ class StudentLeaderUpdate(BaseModel):
     role: Optional[str] = None
     name: Optional[str] = None
     grade: Optional[str] = None
+    wing: Optional[str] = None
+    house: Optional[str] = None
+    duties: Optional[str] = None
 
 class StudentLeaderOut(StudentLeaderBase):
     id: uuid.UUID

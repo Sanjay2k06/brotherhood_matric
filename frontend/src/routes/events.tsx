@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { API_BASE } from "@/config";
+import { getMergedEvents } from "@/lib/eventsData";
 import {
   Calendar as CalendarIcon,
   Sparkles,
@@ -302,12 +303,12 @@ export function AcademicCalendarPage() {
       });
   }, []);
 
+  const mergedEvents = useMemo(() => getMergedEvents(dbEvents), [dbEvents]);
+
   const activeCalendarData = useMemo(() => {
-    if (dbEvents.length > 0) {
-      return parseEventsToMonthGroups(dbEvents);
-    }
-    return ACADEMIC_CALENDAR_DATA;
-  }, [dbEvents]);
+    const parsed = parseEventsToMonthGroups(mergedEvents);
+    return parsed.length > 0 ? parsed : ACADEMIC_CALENDAR_DATA;
+  }, [mergedEvents]);
 
   const totalEventCount = useMemo(() => {
     return activeCalendarData.reduce((acc, curr) => acc + curr.events.length, 0);
