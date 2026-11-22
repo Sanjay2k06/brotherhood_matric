@@ -39,6 +39,8 @@ export const Route = createFileRoute("/teachers")({
 interface FacultyMember {
   name: string;
   qualification?: string;
+  experience?: string;
+  designation?: string;
 }
 
 interface Department {
@@ -263,7 +265,9 @@ function TeachersPage() {
       }
       deptMap.get(meta.id)!.faculty.push({
         name: t.name,
-        qualification: t.qualification || undefined
+        qualification: t.qualification || undefined,
+        experience: t.experience || undefined,
+        designation: t.designation || undefined
       });
     });
 
@@ -475,28 +479,39 @@ function TeachersPage() {
                         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1b4d32] via-[#d4af37] to-[#1b4d32] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                         <div className="space-y-2.5">
-                          {/* Teacher Name */}
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-serif text-base sm:text-lg text-[#0a2b18] font-bold leading-snug group-hover:text-[#1b4d32] transition-colors">
-                              {member.name}
-                            </h3>
-                            <CheckCircle2 className="w-4 h-4 text-[#1b4d32]/30 group-hover:text-[#1b4d32] shrink-0 mt-0.5 transition-colors" />
+                          {/* Teacher Name & Designation */}
+                          <div className="space-y-0.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="font-serif text-base sm:text-lg text-[#0a2b18] font-bold leading-snug group-hover:text-[#1b4d32] transition-colors">
+                                {member.name}
+                              </h3>
+                              <CheckCircle2 className="w-4 h-4 text-[#1b4d32]/30 group-hover:text-[#1b4d32] shrink-0 mt-0.5 transition-colors" />
+                            </div>
+                            {member.designation && (
+                              <p className="text-xs font-medium text-[#6c8274]">
+                                {member.designation}
+                              </p>
+                            )}
                           </div>
 
-                          {/* Qualifications Tag (if present) */}
-                          {member.qualification ? (
-                            <div className="pt-1">
+                          {/* Qualifications & Experience Tags */}
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {member.qualification && (
                               <span className="inline-block text-xs font-medium text-[#1b4d32] bg-[#f0f6f2] border border-[#d2e2d7] px-2.5 py-1 rounded-md tracking-tight">
-                                {member.qualification}
+                                🎓 {member.qualification}
                               </span>
-                            </div>
-                          ) : (
-                            <div className="pt-1">
+                            )}
+                            {member.experience && (
+                              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#b45309] bg-[#fffbeb] border border-[#fde68a] px-2.5 py-1 rounded-md tracking-tight">
+                                ⏳ {member.experience.toLowerCase().includes("exp") || member.experience.toLowerCase().includes("year") ? member.experience : `${member.experience} Experience`}
+                              </span>
+                            )}
+                            {!member.qualification && !member.experience && (
                               <span className="inline-block text-xs font-medium text-[#7a8a80] bg-[#f7faf8] border border-[#e6ece8] px-2.5 py-1 rounded-md">
                                 Faculty Member
                               </span>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
 
                         {/* Subtle Department Footnote */}

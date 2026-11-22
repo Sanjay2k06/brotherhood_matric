@@ -353,13 +353,20 @@ function HousesPage() {
 
   const getUpdatedHouse = (house: HouseInfo): HouseInfo => {
     const key = house.name.toLowerCase().trim();
+    const slugKey = `house-${key.replace(/\s+house$/, "").replace(/\s+/g, "-")}`;
     const update = houseUpdates[key];
-    const local = getLocalHouseOverrides().modified[house.name] || getLocalHouseOverrides().modified[key];
+    const overrides = getLocalHouseOverrides().modified;
+    const local = overrides[house.name] || overrides[key] || overrides[slugKey];
     let res = { ...house };
     if (local) {
       if (typeof local.points === "number") res.points = local.points;
       if (local.motto) res.motto = local.motto;
+      if (local.values) res.values = local.values;
       if (local.description) res.description = local.description;
+      if (local.captain) res.captain = local.captain;
+      if (local.captainClass) res.captainClass = local.captainClass;
+      if (local.viceCaptain) res.viceCaptain = local.viceCaptain;
+      if (local.viceCaptainClass) res.viceCaptainClass = local.viceCaptainClass;
     }
     if (update) {
       if (update.points !== undefined) res.points = update.points;

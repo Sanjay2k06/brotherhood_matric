@@ -177,8 +177,9 @@ export function getMergedHouses(apiHouses?: any[]): SchoolHouseItem[] {
     if (deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
 
     let merged = { ...item };
-    if (overrides.modified[item.id]) {
-      merged = { ...merged, ...overrides.modified[item.id] };
+    const localMod = overrides.modified[item.id] || overrides.modified[item.name] || overrides.modified[nameKey];
+    if (localMod) {
+      merged = { ...merged, ...localMod };
     }
     map.set(idKey, merged);
   });
@@ -197,13 +198,20 @@ export function getMergedHouses(apiHouses?: any[]): SchoolHouseItem[] {
         }
       }
 
+      const existing = matchKey ? map.get(matchKey) : undefined;
       const formatted: SchoolHouseItem = {
         id: apiItem.id || `house-${nameKey}`,
-        name: apiItem.name || "School House",
-        motto: apiItem.motto || "Honor and Excellence",
-        color_code: apiItem.color_code || "bg-blue-600",
-        description: apiItem.description || "School house fostering team spirit and excellence.",
-        points: typeof apiItem.points === "number" ? apiItem.points : 400,
+        name: apiItem.name || existing?.name || "School House",
+        motto: apiItem.motto || existing?.motto || "Honor and Excellence",
+        values: apiItem.values || existing?.values || "",
+        color_code: apiItem.color_code || existing?.color_code || "bg-blue-600",
+        description: apiItem.description || existing?.description || "School house fostering team spirit and excellence.",
+        points: typeof apiItem.points === "number" ? apiItem.points : (existing?.points ?? 400),
+        wing: apiItem.wing || existing?.wing,
+        captain: apiItem.captain || existing?.captain,
+        captainClass: apiItem.captainClass || existing?.captainClass,
+        viceCaptain: apiItem.viceCaptain || existing?.viceCaptain,
+        viceCaptainClass: apiItem.viceCaptainClass || existing?.viceCaptainClass,
       };
 
       if (matchKey) {

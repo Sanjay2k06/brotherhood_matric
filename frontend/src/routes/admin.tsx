@@ -77,13 +77,15 @@ function AdminPage() {
   // Dialog / Edit states
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<any | null>(null);
-  const [editorPage, setEditorPage] = useState<"home" | "events" | "teachers" | "gallery" | "students" | "uniform" | "houses" | "leaders" | "about-school" | "founder-message" | "correspondent-message" | "principal-message">("home");
-  const [achievementCategory, setAchievementCategory] = useState<"best_student" | "board_topper" | "sports">("best_student");
+  const [editorPage, setEditorPage] = useState<"home" | "events" | "teachers" | "gallery" | "board-toppers" | "students" | "uniform" | "houses" | "leaders" | "about-school" | "founder-message" | "correspondent-message" | "principal-message">("home");
+  const [achievementCategory, setAchievementCategory] = useState<"best_student" | "sports">("best_student");
   const [leaderWingTab, setLeaderWingTab] = useState<"all" | "primary" | "secondary">("all");
   const [leaderSearch, setLeaderSearch] = useState<string>("");
-  const [studentCategoryTab, setStudentCategoryTab] = useState<"all" | "best_student" | "board_topper" | "sports">("all");
+  const [studentCategoryTab, setStudentCategoryTab] = useState<"all" | "best_student" | "sports">("all");
   const [studentSearch, setStudentSearch] = useState<string>("");
   const [houseWingFilter, setHouseWingFilter] = useState<"all" | "primary" | "secondary">("all");
+  const [boardTopperGradeFilter, setBoardTopperGradeFilter] = useState<string>("All");
+  const [boardTopperSearch, setBoardTopperSearch] = useState<string>("");
 
   // Vacancy state for job applications creation
   const [vacancies, setVacancies] = useState<any[]>([]);
@@ -153,22 +155,44 @@ function AdminPage() {
     section: "", boys_uniform: "", girls_uniform: ""
   });
   const [houseForm, setHouseForm] = useState({
-    name: "", motto: "", color_code: "bg-red-500", description: "", points: 0
+    name: "",
+    motto: "",
+    values: "",
+    description: "",
+    points: 400,
+    wing: "Primary",
+    color_code: "bg-red-600",
+    captain: "",
+    captainClass: "Std V",
+    viceCaptain: "",
+    viceCaptainClass: "Std V"
   });
   const [leaderForm, setLeaderForm] = useState<{
     role: string;
     name: string;
     grade: string;
     wing: "Primary" | "Secondary";
+    category?: string;
     house: string;
     duties: string;
   }>({
-    role: "",
+    role: "School Pupil Leader (SPL)",
     name: "",
-    grade: "",
-    wing: "Primary",
+    grade: "Class XII",
+    wing: "Secondary",
+    category: "Council",
     house: "",
     duties: ""
+  });
+  const [boardTopperForm, setBoardTopperForm] = useState({
+    name: "",
+    grade: "Class XII",
+    title: "School Topper",
+    score: "598 / 600",
+    stream: "Bio-Maths",
+    reason: "State Rank 1st & Subject Centum in Mathematics, Physics and Chemistry.",
+    year: "2025-2026",
+    image: ""
   });
 
   const [admissionForm, setAdmissionForm] = useState({
@@ -434,6 +458,7 @@ function AdminPage() {
         if (targetForm === "event") setEventForm(prev => ({ ...prev, cover_image: cleanUrl }));
         if (targetForm === "teacher") setTeacherForm(prev => ({ ...prev, image: cleanUrl }));
         if (targetForm === "student") setStudentForm(prev => ({ ...prev, image: cleanUrl }));
+        if (targetForm === "board_topper") setBoardTopperForm(prev => ({ ...prev, image: cleanUrl }));
         if (targetForm === "gallery") setGalleryForm(prev => ({ ...prev, image: cleanUrl }));
         if (targetForm === "new_folder") setNewFolderForm(prev => ({ ...prev, image: cleanUrl }));
       } else {
@@ -1140,9 +1165,15 @@ function AdminPage() {
       id: isEdit ? editItem.id : `house-${Date.now()}`,
       name: houseForm.name,
       motto: houseForm.motto,
-      color_code: houseForm.color_code,
+      values: houseForm.values,
       description: houseForm.description,
-      points: houseForm.points
+      points: houseForm.points,
+      wing: houseForm.wing,
+      color_code: houseForm.color_code,
+      captain: houseForm.captain,
+      captainClass: houseForm.captainClass,
+      viceCaptain: houseForm.viceCaptain,
+      viceCaptainClass: houseForm.viceCaptainClass
     };
 
     if (isEdit) {
@@ -1152,7 +1183,7 @@ function AdminPage() {
         const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...housePayload } : a);
         saveLocalHouseOverride({ added: nextAdded });
       } else {
-        const nextModified = { ...curr.modified, [editItem.id]: housePayload };
+        const nextModified = { ...curr.modified, [editItem.id]: housePayload, [houseForm.name]: housePayload };
         saveLocalHouseOverride({ modified: nextModified });
       }
     } else {
@@ -1175,10 +1206,85 @@ function AdminPage() {
     }
 
     toast.success(isEdit ? "House details updated!" : "House details created!");
-    setHouseForm({ name: "", motto: "", color_code: "bg-red-500", description: "", points: 0 });
+    setHouseForm({ 
+      name: "", 
+      motto: "", 
+      values: "", 
+      description: "", 
+      points: 400, 
+      wing: "Primary", 
+      color_code: "bg-red-600",
+      captain: "", 
+      captainClass: "Std V", 
+      viceCaptain: "", 
+      viceCaptainClass: "Std V" 
+    });
     setEditItem(null);
     setActiveDialog(null);
     setHouses(getMergedHouses([]));
+  };
+
+  const handleBoardTopperSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const isEdit = !!editItem;
+    const url = isEdit ? `${API_BASE}/student-achievements/${editItem.id}/` : `${API_BASE}/student-achievements/`;
+    const method = isEdit ? "PUT" : "POST";
+
+    const title = `${boardTopperForm.title} - ${boardTopperForm.name} (${boardTopperForm.grade})`;
+    const payload = {
+      title,
+      description: `${boardTopperForm.score ? `Score: ${boardTopperForm.score}. ` : ""}${boardTopperForm.stream ? `Stream: ${boardTopperForm.stream}. ` : ""}${boardTopperForm.reason}`,
+      image: boardTopperForm.image
+    };
+
+    const curr = getLocalAchievementOverrides();
+    const itemData: AchievementItem = {
+      id: isEdit ? editItem.id : `ach-top-${Date.now()}`,
+      name: boardTopperForm.name,
+      grade: boardTopperForm.grade,
+      title: boardTopperForm.title,
+      score: boardTopperForm.score,
+      stream: boardTopperForm.stream,
+      year: boardTopperForm.year,
+      reason: boardTopperForm.reason,
+      image: boardTopperForm.image,
+      type: "board_topper"
+    };
+
+    if (isEdit) {
+      const editIdStr = String(editItem.id);
+      const inAdded = curr.added.some(a => String(a.id) === editIdStr);
+      if (inAdded) {
+        const nextAdded = curr.added.map(a => String(a.id) === editIdStr ? { ...a, ...itemData } : a);
+        saveLocalAchievementOverride({ added: nextAdded });
+      } else {
+        const nextModified = { ...curr.modified, [editItem.id]: itemData };
+        saveLocalAchievementOverride({ modified: nextModified });
+      }
+    } else {
+      saveLocalAchievementOverride({ added: [...curr.added, itemData] });
+    }
+
+    try {
+      if (token) {
+        await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+    } catch (err) {
+      console.warn("Backend board topper sync failed:", err);
+    }
+
+    toast.success(isEdit ? "Board topper details updated!" : "Board topper record added!");
+    setBoardTopperForm({ name: "", grade: "Class XII", title: "School Topper", score: "598 / 600", stream: "Bio-Maths", reason: "", year: "2025-2026", image: "" });
+    setEditItem(null);
+    setActiveDialog(null);
+    setBestStudents(getMergedAchievements([]).all);
   };
 
   const handleLeaderSubmit = async (e: React.FormEvent) => {
@@ -1251,11 +1357,32 @@ function AdminPage() {
     setHouseForm({
       name: item.name || "",
       motto: item.motto || "",
-      color_code: item.color_code || "bg-red-500",
+      values: item.values || "",
       description: item.description || "",
-      points: item.points || 0
+      points: typeof item.points === "number" ? item.points : 400,
+      wing: item.wing || (["galilee", "zion", "judah", "bethel"].some(w => (item.name || "").toLowerCase().includes(w)) ? "Primary" : "Senior"),
+      color_code: item.color_code || "bg-red-600",
+      captain: item.captain || "",
+      captainClass: item.captainClass || "Std V",
+      viceCaptain: item.viceCaptain || "",
+      viceCaptainClass: item.viceCaptainClass || "Std V"
     });
     setActiveDialog("house");
+  };
+
+  const startEditBoardTopper = (item: any) => {
+    setEditItem(item);
+    setBoardTopperForm({
+      name: item.name || "",
+      grade: item.grade || item.stream || "Class XII",
+      title: item.title || item.rank || "School Topper",
+      score: item.score || "",
+      stream: item.stream || "",
+      reason: item.reason || item.description || "",
+      year: item.year || "2025-2026",
+      image: item.image || ""
+    });
+    setActiveDialog("board_topper");
   };
 
   const startEditLeader = (item: any) => {
@@ -2892,7 +3019,8 @@ function AdminPage() {
                       { id: "events", text: "Calendar & Events", icon: <Calendar className="h-4 w-4" /> },
                       { id: "teachers", text: "Faculty List", icon: <Users className="h-4 w-4" /> },
                       { id: "gallery", text: "Gallery Grid", icon: <ImageIcon className="h-4 w-4" /> },
-                      { id: "students", text: "Honors Board", icon: <Trophy className="h-4 w-4" /> },
+                      { id: "board-toppers", text: "Board Exam Toppers", icon: <Award className="h-4 w-4" /> },
+                      { id: "students", text: "Best Students & Sports", icon: <Trophy className="h-4 w-4" /> },
                       { id: "uniform", text: "School Uniform", icon: <Shirt className="h-4 w-4" /> },
                       { id: "houses", text: "School Houses", icon: <Flag className="h-4 w-4" /> },
                       { id: "leaders", text: "Student Leaders", icon: <GraduationCap className="h-4 w-4" /> }
@@ -3324,21 +3452,156 @@ function AdminPage() {
                 </div>
               )}
 
+              {editorPage === "board-toppers" && (() => {
+                const toppersList = getMergedAchievements([]).boardToppers;
+                const filteredToppers = toppersList.filter(top => {
+                  const s = boardTopperSearch.toLowerCase();
+                  const matchSearch = !s || 
+                    (top.name || "").toLowerCase().includes(s) || 
+                    (top.title || "").toLowerCase().includes(s) || 
+                    (top.grade || "").toLowerCase().includes(s) || 
+                    (top.stream || "").toLowerCase().includes(s) || 
+                    (top.score || "").toLowerCase().includes(s) || 
+                    (top.reason || "").toLowerCase().includes(s);
+
+                  let matchGrade = true;
+                  if (boardTopperGradeFilter === "Class XII") {
+                    matchGrade = (top.grade || "").toLowerCase().includes("xii");
+                  } else if (boardTopperGradeFilter === "Class X") {
+                    matchGrade = (top.grade || "").toLowerCase().includes("class x") && !(top.grade || "").toLowerCase().includes("xii");
+                  } else if (boardTopperGradeFilter === "Primary Wing") {
+                    matchGrade = ["primary", "class i", "class ii", "class iii", "class iv", "class v"].some(w => (top.grade || top.stream || "").toLowerCase().includes(w));
+                  }
+                  return matchSearch && matchGrade;
+                });
+
+                return (
+                  <div className="space-y-6 text-left animate-fade-in">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
+                      <div>
+                        <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
+                          <Award className="h-5 w-5 text-gold" /> State Board Examination Toppers &amp; Centums
+                        </h3>
+                        <p className="text-xs text-muted-foreground">Manage board examination toppers, state rank holders, total marks, and subject centums (/students/achievements).</p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setEditItem(null);
+                          setBoardTopperForm({
+                            name: "",
+                            grade: "Class XII - A",
+                            title: "School Topper",
+                            score: "598 / 600",
+                            stream: "Science (Bio-Maths)",
+                            reason: "Centum in Mathematics, Physics and Chemistry.",
+                            year: "2025-2026",
+                            image: ""
+                          });
+                          setActiveDialog("board_topper");
+                        }}
+                        className="rounded-full bg-gradient-gold text-navy-deep font-bold hover:opacity-95 gap-1.5 text-xs shadow-gold"
+                      >
+                        <Plus className="h-4 w-4" /> Add Board Topper
+                      </Button>
+                    </div>
+
+                    {/* Filter Tabs & Search Bar */}
+                    <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
+                        {["All", "Class XII", "Class X", "Primary Wing"].map(tab => (
+                          <button
+                            key={tab}
+                            onClick={() => setBoardTopperGradeFilter(tab)}
+                            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
+                              boardTopperGradeFilter === tab ? "bg-primary text-white shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            }`}
+                          >
+                            {tab}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                        <Input
+                          placeholder="Search rank, student, stream..."
+                          value={boardTopperSearch}
+                          onChange={(e) => setBoardTopperSearch(e.target.value)}
+                          className="pl-8 text-xs h-8 rounded-full"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                      {filteredToppers.map((topper) => (
+                        <div key={topper.id} className="relative rounded-2xl border border-border bg-card p-5 shadow-sm flex flex-col justify-between group/item hover:border-gold/60 transition duration-300">
+                          <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                              {topper.image ? (
+                                <div className="h-14 w-14 rounded-2xl shrink-0 bg-cover bg-center border border-border shadow-sm" style={{ backgroundImage: `url(${resolveGalleryImageSrc(topper.image)})` }} />
+                              ) : (
+                                <div className="h-14 w-14 rounded-2xl shrink-0 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 font-bold">
+                                  <Award className="h-7 w-7 text-gold" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <span className="text-[9px] uppercase tracking-wider font-bold text-gold px-2.5 py-0.5 rounded-full bg-gold/10 inline-block mb-1">
+                                  {topper.title || "Board Honor"}
+                                </span>
+                                <h4 className="font-display font-bold text-base text-primary truncate leading-tight">{topper.name}</h4>
+                                <p className="text-xs font-semibold text-muted-foreground">{topper.grade || topper.stream}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {topper.score && (
+                                <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200 flex items-center gap-1">
+                                  🎯 {topper.score}
+                                </span>
+                              )}
+                              {topper.stream && (
+                                <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-medium text-xs">
+                                  📚 {topper.stream}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                              {topper.reason}
+                            </p>
+                          </div>
+
+                          <div className="flex gap-2 justify-end pt-4 border-t border-border/50 mt-4 opacity-80 group-hover/item:opacity-100 transition-opacity">
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditBoardTopper(topper)}>
+                              <Edit className="h-3 w-3" /> Edit
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("student-achievements", topper.id)}>
+                              <Trash2 className="h-3 w-3" /> Delete
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      {filteredToppers.length === 0 && (
+                        <div className="col-span-full text-center text-muted-foreground py-16">
+                          No board toppers found matching the filter. Click 'Add Board Topper' above!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {editorPage === "students" && (
                 <div className="space-y-6 text-left animate-fade-in">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-4">
                     <div>
                       <h3 className="font-display text-xl font-bold text-primary flex items-center gap-2">
-                        <Trophy className="h-5 w-5 text-gold" /> Student Honors & Achievements
+                        <Trophy className="h-5 w-5 text-gold" /> Best Students &amp; Sports Trophies
                       </h3>
-                      <p className="text-xs text-muted-foreground">Manage Best Students (/students/best-student) and Board Exam Toppers & Sports Trophies (/students/achievements).</p>
+                      <p className="text-xs text-muted-foreground">Manage monthly best students (/students/best-student) and sports championships &amp; athletic shields (/students/achievements).</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button onClick={() => { setEditItem(null); setStudentForm({ title: "Best Student of the Month", name: "", grade: "", reason: "", image: "" }); setAchievementCategory("best_student"); setActiveDialog("student"); }} className="rounded-full bg-primary text-primary-foreground font-bold hover:opacity-95 gap-1.5 text-xs">
                         <Plus className="h-3.5 w-3.5" /> Best Student
-                      </Button>
-                      <Button onClick={() => { setEditItem(null); setStudentForm({ title: "State Rank 1st", name: "", grade: "Class XII", reason: "", image: "" }); setAchievementCategory("board_topper"); setActiveDialog("student"); }} className="rounded-full bg-gold text-navy-deep font-bold hover:opacity-95 gap-1.5 text-xs">
-                        <Plus className="h-3.5 w-3.5" /> Board Topper
                       </Button>
                       <Button onClick={() => { setEditItem(null); setStudentForm({ title: "Trophy Championship", name: "", grade: "", reason: "", image: "" }); setAchievementCategory("sports"); setActiveDialog("student"); }} className="rounded-full bg-emerald-700 text-white font-bold hover:opacity-95 gap-1.5 text-xs">
                         <Plus className="h-3.5 w-3.5" /> Sports Trophy
@@ -3350,10 +3613,9 @@ function AdminPage() {
                   <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                     <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
                       {[
-                        { id: "all", label: `All Honors (${bestStudents.length})` },
-                        { id: "best_student", label: `Best Students (${bestStudents.filter(s => (s.title || "").toLowerCase().includes("best student") || s.category === "best_student").length})` },
-                        { id: "board_topper", label: `Board Toppers (${bestStudents.filter(s => (s.title || "").toLowerCase().includes("rank") || (s.title || "").toLowerCase().includes("topper") || (s.title || "").toLowerCase().includes("centum") || s.category === "board_topper").length})` },
-                        { id: "sports", label: `Sports & Trophies (${bestStudents.filter(s => s.category === "sports" || (!s.title?.toLowerCase().includes("best student") && !s.title?.toLowerCase().includes("rank") && !s.title?.toLowerCase().includes("topper"))).length})` }
+                        { id: "all", label: `All Entries (${bestStudents.filter(s => s.type !== "board_topper" && !s.title?.toLowerCase().includes("rank") && !s.title?.toLowerCase().includes("topper")).length})` },
+                        { id: "best_student", label: `Best Students (${bestStudents.filter(s => (s.title || "").toLowerCase().includes("best student") || s.category === "best_student" || s.type === "best_student").length})` },
+                        { id: "sports", label: `Sports & Trophies (${bestStudents.filter(s => s.category === "sports" || s.type === "sports" || (!s.title?.toLowerCase().includes("best student") && !s.title?.toLowerCase().includes("rank") && !s.title?.toLowerCase().includes("topper"))).length})` }
                       ].map(tab => (
                         <button
                           key={tab.id}
@@ -3381,15 +3643,19 @@ function AdminPage() {
                     {bestStudents
                       .filter(stud => {
                         const rawTitle = (stud.title || "").toLowerCase();
-                        const rawDesc = (stud.description || "").toLowerCase();
+                        const rawDesc = (stud.description || stud.reason || "").toLowerCase();
                         const rawName = (stud.name || "").toLowerCase();
+
+                        // Exclude board toppers from this page
+                        if (stud.type === "board_topper" || (rawTitle.includes("rank") && !rawTitle.includes("trophy")) || (rawTitle.includes("topper") && !rawTitle.includes("best"))) {
+                          return false;
+                        }
+
                         let matchTab = true;
                         if (studentCategoryTab === "best_student") {
-                          matchTab = rawTitle.includes("best student") || stud.category === "best_student";
-                        } else if (studentCategoryTab === "board_topper") {
-                          matchTab = rawTitle.includes("rank") || rawTitle.includes("topper") || rawTitle.includes("centum") || stud.category === "board_topper";
+                          matchTab = rawTitle.includes("best student") || stud.category === "best_student" || stud.type === "best_student";
                         } else if (studentCategoryTab === "sports") {
-                          matchTab = stud.category === "sports" || (!rawTitle.includes("best student") && !rawTitle.includes("rank") && !rawTitle.includes("topper") && !rawTitle.includes("centum"));
+                          matchTab = stud.category === "sports" || stud.type === "sports" || (!rawTitle.includes("best student") && !rawTitle.includes("rank") && !rawTitle.includes("topper"));
                         }
                         const matchSearch = !studentSearch || rawTitle.includes(studentSearch.toLowerCase()) || rawName.includes(studentSearch.toLowerCase()) || rawDesc.includes(studentSearch.toLowerCase());
                         return matchTab && matchSearch;
@@ -3415,7 +3681,7 @@ function AdminPage() {
                               <span className="text-[9px] uppercase tracking-wider font-bold text-gold px-2 py-0.5 rounded-full bg-gold/10 inline-block">{awardTitle}</span>
                               <h4 className="font-display font-bold text-base text-primary leading-tight truncate">{name}</h4>
                               {grade && <p className="text-xs font-semibold text-muted-foreground">Class: {grade}</p>}
-                              <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2">{stud.description}</p>
+                              <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2">{stud.description || stud.reason}</p>
                               
                               <div className="flex gap-2 justify-end pt-2 opacity-80 group-hover/item:opacity-100 transition-opacity">
                                 <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditStudent(stud)}>
@@ -3553,8 +3819,31 @@ function AdminPage() {
                                 </div>
                               </div>
                               <h4 className="font-display font-bold text-base text-primary mb-1">{house.name}</h4>
-                              <p className="text-[10px] uppercase tracking-wider text-gold font-bold mb-2">"{house.motto}"</p>
-                              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 mb-3">{house.description}</p>
+                              <p className="text-[10px] uppercase tracking-wider text-gold font-bold mb-1.5">"{house.motto}"</p>
+                              {house.values && (
+                                <p className="text-[10px] font-semibold text-primary/80 bg-gold/10 rounded-lg px-2 py-1 mb-2">
+                                  {house.values}
+                                </p>
+                              )}
+                              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3">{house.description}</p>
+
+                              {(house.captain || house.viceCaptain) && (
+                                <div className="p-2.5 rounded-xl bg-muted/50 border border-border/60 text-left text-[11px] space-y-1 mb-3">
+                                  <span className="text-[9px] uppercase font-bold tracking-wider text-gold block">Elected House Leadership</span>
+                                  {house.captain && (
+                                    <div className="flex justify-between items-center text-foreground font-semibold">
+                                      <span>Captain: {house.captain}</span>
+                                      <span className="text-[10px] text-muted-foreground">{house.captainClass || "Std V"}</span>
+                                    </div>
+                                  )}
+                                  {house.viceCaptain && (
+                                    <div className="flex justify-between items-center text-foreground font-semibold">
+                                      <span>Vice Captain: {house.viceCaptain}</span>
+                                      <span className="text-[10px] text-muted-foreground">{house.viceCaptainClass || "Std V"}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                             <div className="flex gap-1.5 justify-center pt-3 border-t border-border/50 opacity-80 group-hover/item:opacity-100 transition-opacity">
                               <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditHouse(house)}>
@@ -4433,30 +4722,30 @@ function AdminPage() {
                 <Input id="t-exp" placeholder="e.g. 10 Years" value={teacherForm.experience} onChange={(e) => setTeacherForm(prev => ({ ...prev, experience: e.target.value }))} required />
               </div>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Department / Subject Stream</Label>
-              <Select value={teacherForm.subject} onValueChange={(val) => setTeacherForm(prev => ({ ...prev, subject: val }))}>
-                <SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger>
-                <SelectContent className="max-h-60 overflow-y-auto">
-                  <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  <SelectItem value="Physics">Physics</SelectItem>
-                  <SelectItem value="Chemistry">Chemistry</SelectItem>
-                  <SelectItem value="Biology">Biology</SelectItem>
-                  <SelectItem value="Computer Science">Computer Science</SelectItem>
-                  <SelectItem value="English">English</SelectItem>
-                  <SelectItem value="Tamil">Tamil</SelectItem>
-                  <SelectItem value="Economics">Economics</SelectItem>
-                  <SelectItem value="Commerce">Commerce &amp; Accountancy</SelectItem>
-                  <SelectItem value="History">History &amp; Social Science</SelectItem>
-                  <SelectItem value="Hindi">Hindi</SelectItem>
-                  <SelectItem value="French">French</SelectItem>
-                  <SelectItem value="Physical Education">Physical Education</SelectItem>
-                  <SelectItem value="Art">Art &amp; Library</SelectItem>
-                  <SelectItem value="Kindergarten">Kindergarten</SelectItem>
-                  <SelectItem value="Administration">Administration</SelectItem>
-                  <SelectItem value="General">General</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="space-y-1.5">
+              <Label htmlFor="t-dept" className="text-xs uppercase tracking-wide text-muted-foreground">Department</Label>
+              <Input 
+                id="t-dept" 
+                placeholder="e.g. Mathematics, Science, Languages, Computer Science, Kindergarten..." 
+                value={teacherForm.subject} 
+                onChange={(e) => setTeacherForm(prev => ({ ...prev, subject: e.target.value }))} 
+                required 
+              />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                <span className="text-[10px] text-muted-foreground self-center mr-1">Suggestions:</span>
+                {["Mathematics", "Science", "Languages", "Computer Science", "Commerce", "Arts & Sports", "Kindergarten", "Administration"].map(d => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setTeacherForm(prev => ({ ...prev, subject: d }))}
+                    className={`text-[10px] px-2.5 py-0.5 rounded-full transition-colors font-medium border ${
+                      teacherForm.subject === d ? "bg-primary text-white border-primary" : "bg-muted text-muted-foreground hover:bg-gold/20 hover:text-primary border-border"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="t-desc" className="text-xs uppercase tracking-wide text-muted-foreground">Educational Philosophy / Bio</Label>
@@ -4484,7 +4773,7 @@ function AdminPage() {
               {editItem ? "Edit Student Record" : "Add Student Record"}
             </DialogTitle>
             <DialogDescription>
-              Submit details for Best Students, Board Toppers, or Sports Achievements.
+              Submit details for Best Students or Sports &amp; Athletic Achievements.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleStudentSubmit} className="space-y-4 pt-3">
@@ -4494,12 +4783,9 @@ function AdminPage() {
                 value={achievementCategory} 
                 onValueChange={(val) => {
                   setAchievementCategory(val as any);
-                  // Update default placeholder titles if adding
                   if (!editItem) {
                     if (val === "best_student") {
                       setStudentForm(prev => ({ ...prev, title: "Best Student of the Month" }));
-                    } else if (val === "board_topper") {
-                      setStudentForm(prev => ({ ...prev, title: "State Rank 1st" }));
                     } else {
                       setStudentForm(prev => ({ ...prev, title: "" }));
                     }
@@ -4510,23 +4796,19 @@ function AdminPage() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="best_student">Best Student</SelectItem>
-                  <SelectItem value="board_topper">Board Topper (Academic Result)</SelectItem>
-                  <SelectItem value="sports">Sports & Other Achievement</SelectItem>
+                  <SelectItem value="sports">Sports &amp; Athletic Achievement</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="s-title" className="text-xs uppercase tracking-wide text-muted-foreground">
-                {achievementCategory === "best_student" && "Award Title"}
-                {achievementCategory === "board_topper" && "Topper Rank / Title"}
-                {achievementCategory === "sports" && "Event Name / Championship"}
+                {achievementCategory === "best_student" ? "Award Title" : "Event Name / Championship"}
               </Label>
               <Input 
                 id="s-title" 
                 placeholder={
                   achievementCategory === "best_student" ? "e.g. Best Student of the Month" :
-                  achievementCategory === "board_topper" ? "e.g. State Rank 1st" :
                   "e.g. Zonal Athletics Championship"
                 } 
                 value={studentForm.title} 
@@ -4900,45 +5182,91 @@ function AdminPage() {
 
       {/* 10. School House Dialog */}
       <Dialog open={activeDialog === "house"} onOpenChange={(open) => { if (!open) setEditItem(null); setActiveDialog(open ? "house" : null); }}>
-        <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30">
+        <DialogContent className="max-w-lg rounded-3xl bg-card border border-gold/30 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-xl text-primary font-bold">{editItem ? "Edit House Details" : "Create School House"}</DialogTitle>
-            <DialogDescription>Modify house details, mottos, and accumulated scoreboard points.</DialogDescription>
+            <DialogDescription>Modify house details, mottos, core values, elected leadership, and points.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleHouseSubmit} className="space-y-4 pt-3">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label htmlFor="house-name" className="text-xs uppercase tracking-wide text-muted-foreground">House Name</Label>
-                <Input id="house-name" value={houseForm.name} onChange={(e) => setHouseForm(prev => ({ ...prev, name: e.target.value }))} required />
+                <Input id="house-name" placeholder="e.g. Judah House" value={houseForm.name} onChange={(e) => setHouseForm(prev => ({ ...prev, name: e.target.value }))} required />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="house-motto" className="text-xs uppercase tracking-wide text-muted-foreground">Motto</Label>
-                <Input id="house-motto" value={houseForm.motto} onChange={(e) => setHouseForm(prev => ({ ...prev, motto: e.target.value }))} required />
+                <Input id="house-motto" placeholder="e.g. Courage and Praise" value={houseForm.motto} onChange={(e) => setHouseForm(prev => ({ ...prev, motto: e.target.value }))} required />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="space-y-1">
+              <Label htmlFor="house-values" className="text-xs uppercase tracking-wide text-muted-foreground">Core Pillars / Values</Label>
+              <Input id="house-values" placeholder="e.g. Bravery • Athletic Passion • Team Endurance" value={houseForm.values} onChange={(e) => setHouseForm(prev => ({ ...prev, values: e.target.value }))} />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Color Badge Code</Label>
-                <Select value={houseForm.color_code} onValueChange={(val) => setHouseForm(prev => ({ ...prev, color_code: val }))}>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Wing</Label>
+                <Select value={houseForm.wing || "Primary"} onValueChange={(val) => setHouseForm(prev => ({ ...prev, wing: val }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bg-red-500">Red (bg-red-500)</SelectItem>
-                    <SelectItem value="bg-blue-500">Blue (bg-blue-500)</SelectItem>
-                    <SelectItem value="bg-emerald-500">Green (bg-emerald-500)</SelectItem>
-                    <SelectItem value="bg-amber-500">Gold (bg-amber-500)</SelectItem>
+                    <SelectItem value="Primary">Primary (Galilee, Zion, Judah, Bethel)</SelectItem>
+                    <SelectItem value="Senior">Secondary (Matthew, Mark, Luke, John)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="house-pts" className="text-xs uppercase tracking-wide text-muted-foreground">Scoreboard Points</Label>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Color Badge</Label>
+                <Select value={houseForm.color_code} onValueChange={(val) => setHouseForm(prev => ({ ...prev, color_code: val }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bg-red-600">Red (bg-red-600)</SelectItem>
+                    <SelectItem value="bg-blue-600">Blue (bg-blue-600)</SelectItem>
+                    <SelectItem value="bg-emerald-600">Green (bg-emerald-600)</SelectItem>
+                    <SelectItem value="bg-amber-500">Gold / Yellow (bg-amber-500)</SelectItem>
+                    <SelectItem value="bg-purple-600">Purple (bg-purple-600)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="house-pts" className="text-xs uppercase tracking-wide text-muted-foreground">Scoreboard Pts</Label>
                 <Input id="house-pts" type="number" value={houseForm.points} onChange={(e) => setHouseForm(prev => ({ ...prev, points: parseInt(e.target.value, 10) || 0 }))} required />
               </div>
             </div>
+
             <div className="space-y-1">
               <Label htmlFor="house-desc" className="text-xs uppercase tracking-wide text-muted-foreground">Description / Focus</Label>
-              <Textarea id="house-desc" value={houseForm.description} onChange={(e) => setHouseForm(prev => ({ ...prev, description: e.target.value }))} required />
+              <Textarea id="house-desc" placeholder="e.g. Encouraging bold enthusiasm on athletic fields, joyful participation in school events, and fearless dedication to excellence." value={houseForm.description} onChange={(e) => setHouseForm(prev => ({ ...prev, description: e.target.value }))} required rows={2} />
             </div>
-            <DialogFooter className="pt-4">
+
+            {/* Elected House Leadership */}
+            <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-3">
+              <h5 className="font-display text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                <GraduationCap className="h-4 w-4 text-gold" /> Elected House Leadership
+              </h5>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="house-cap" className="text-[11px] uppercase tracking-wide text-muted-foreground">House Captain Name</Label>
+                  <Input id="house-cap" placeholder="e.g. Praveen Sai.B" value={houseForm.captain} onChange={(e) => setHouseForm(prev => ({ ...prev, captain: e.target.value }))} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="house-cap-cls" className="text-[11px] uppercase tracking-wide text-muted-foreground">House Captain Class</Label>
+                  <Input id="house-cap-cls" placeholder="e.g. Class Std V" value={houseForm.captainClass} onChange={(e) => setHouseForm(prev => ({ ...prev, captainClass: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="house-vcap" className="text-[11px] uppercase tracking-wide text-muted-foreground">Vice Captain Name</Label>
+                  <Input id="house-vcap" placeholder="e.g. Sree Dharshini.I" value={houseForm.viceCaptain} onChange={(e) => setHouseForm(prev => ({ ...prev, viceCaptain: e.target.value }))} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="house-vcap-cls" className="text-[11px] uppercase tracking-wide text-muted-foreground">Vice Captain Class</Label>
+                  <Input id="house-vcap-cls" placeholder="e.g. Class Std V" value={houseForm.viceCaptainClass} onChange={(e) => setHouseForm(prev => ({ ...prev, viceCaptainClass: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="pt-2">
               <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">Save House Details</Button>
             </DialogFooter>
           </form>
@@ -4947,15 +5275,15 @@ function AdminPage() {
 
       {/* 11. Student Leader Dialog */}
       <Dialog open={activeDialog === "leader"} onOpenChange={(open) => { if (!open) setEditItem(null); setActiveDialog(open ? "leader" : null); }}>
-        <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30">
+        <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-xl text-primary font-bold">{editItem ? "Edit Student Leader" : "Nominate Student Leader"}</DialogTitle>
-            <DialogDescription>Assign a role in the school student council (Primary Wing or Secondary/Senior Wing).</DialogDescription>
+            <DialogDescription>Assign a role in the school student council (Primary Wing, Secondary Wing, or House Captains).</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleLeaderSubmit} className="space-y-4 pt-3">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Wing Assignment</Label>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Wing / Category</Label>
                 <Select value={leaderForm.wing} onValueChange={(val: any) => setLeaderForm(prev => ({ ...prev, wing: val }))}>
                   <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
                   <SelectContent>
@@ -4970,9 +5298,57 @@ function AdminPage() {
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="lead-role" className="text-xs uppercase tracking-wide text-muted-foreground">Council Role</Label>
-              <Input id="lead-role" placeholder={leaderForm.wing === "Primary" ? "e.g. Primary Head Boy / Galilee House Captain" : "e.g. School Pupil Leader (SPL) / Sports Captain"} value={leaderForm.role} onChange={(e) => setLeaderForm(prev => ({ ...prev, role: e.target.value }))} required />
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Standard Designation (Select or Customize)</Label>
+              <Select 
+                value={
+                  [
+                    "School Pupil Leader (SPL)",
+                    "Assistant School Pupil Leader (ASPL)",
+                    "Primary Head Boy",
+                    "Primary Head Girl",
+                    "Primary Assistant Head Boy",
+                    "Primary Assistant Head Girl",
+                    "Sports Captain",
+                    "Sports Vice Captain",
+                    "House Captain",
+                    "House Vice Captain",
+                    "Cultural Prefect",
+                    "Discipline Prefect",
+                    "Academic Prefect",
+                    "Literary Prefect"
+                  ].includes(leaderForm.role) ? leaderForm.role : "Custom"
+                } 
+                onValueChange={(val) => {
+                  if (val !== "Custom") {
+                    setLeaderForm(prev => ({ ...prev, role: val }));
+                  }
+                }}
+              >
+                <SelectTrigger><SelectValue placeholder="Select standard designation" /></SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  <SelectItem value="School Pupil Leader (SPL)">School Pupil Leader (SPL)</SelectItem>
+                  <SelectItem value="Assistant School Pupil Leader (ASPL)">Assistant School Pupil Leader (ASPL)</SelectItem>
+                  <SelectItem value="Primary Head Boy">Primary Head Boy</SelectItem>
+                  <SelectItem value="Primary Head Girl">Primary Head Girl</SelectItem>
+                  <SelectItem value="Primary Assistant Head Boy">Primary Assistant Head Boy</SelectItem>
+                  <SelectItem value="Primary Assistant Head Girl">Primary Assistant Head Girl</SelectItem>
+                  <SelectItem value="Sports Captain">Sports Captain</SelectItem>
+                  <SelectItem value="Sports Vice Captain">Sports Vice Captain</SelectItem>
+                  <SelectItem value="House Captain">House Captain</SelectItem>
+                  <SelectItem value="House Vice Captain">House Vice Captain</SelectItem>
+                  <SelectItem value="Cultural Prefect">Cultural Prefect</SelectItem>
+                  <SelectItem value="Discipline Prefect">Discipline Prefect</SelectItem>
+                  <SelectItem value="Academic Prefect">Academic Prefect</SelectItem>
+                  <SelectItem value="Literary Prefect">Literary Prefect</SelectItem>
+                  <SelectItem value="Custom">Custom Designation...</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="space-y-1 pt-1">
+                <Label htmlFor="lead-role" className="text-xs uppercase tracking-wide text-muted-foreground">Council Role Name</Label>
+                <Input id="lead-role" placeholder="e.g. School Pupil Leader (SPL) or Judah House Captain" value={leaderForm.role} onChange={(e) => setLeaderForm(prev => ({ ...prev, role: e.target.value }))} required />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -5000,12 +5376,122 @@ function AdminPage() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="lead-duties" className="text-xs uppercase tracking-wide text-muted-foreground">Duties & Responsibilities</Label>
-              <Textarea id="lead-duties" placeholder="e.g. Leads assembly flag protocol, morning prayers, and junior discipline." value={leaderForm.duties} onChange={(e) => setLeaderForm(prev => ({ ...prev, duties: e.target.value }))} rows={3} />
+              <Label htmlFor="lead-duties" className="text-xs uppercase tracking-wide text-muted-foreground">Duties &amp; Responsibilities</Label>
+              <Textarea id="lead-duties" placeholder="e.g. Leads assembly flag protocol, morning prayers, and junior discipline." value={leaderForm.duties} onChange={(e) => setLeaderForm(prev => ({ ...prev, duties: e.target.value }))} rows={2} />
             </div>
 
-            <DialogFooter className="pt-4">
+            <DialogFooter className="pt-2">
               <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">Save Nominee</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 12. Dedicated Board Examination Topper Dialog */}
+      <Dialog open={activeDialog === "board_topper"} onOpenChange={(open) => { if (!open) setEditItem(null); setActiveDialog(open ? "board_topper" : null); }}>
+        <DialogContent className="max-w-md rounded-3xl bg-card border border-gold/30 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl text-primary font-bold">
+              {editItem ? "Edit Board Examination Topper" : "Add Board Exam Topper Record"}
+            </DialogTitle>
+            <DialogDescription>
+              Record state board examination ranks, subject centums, scores, and academic milestones.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleBoardTopperSubmit} className="space-y-4 pt-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="top-name" className="text-xs uppercase tracking-wide text-muted-foreground">Student Name</Label>
+                <Input
+                  id="top-name"
+                  placeholder="e.g. Master Kishore P."
+                  value={boardTopperForm.name}
+                  onChange={(e) => setBoardTopperForm(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="top-grade" className="text-xs uppercase tracking-wide text-muted-foreground">Class / Exam Wing</Label>
+                <Input
+                  id="top-grade"
+                  placeholder="e.g. Class XII - A, Class X, Class V"
+                  value={boardTopperForm.grade}
+                  onChange={(e) => setBoardTopperForm(prev => ({ ...prev, grade: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="top-title" className="text-xs uppercase tracking-wide text-muted-foreground">Honor Title / Rank</Label>
+                <Input
+                  id="top-title"
+                  placeholder="e.g. School Topper, State Rank 1st"
+                  value={boardTopperForm.title}
+                  onChange={(e) => setBoardTopperForm(prev => ({ ...prev, title: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="top-score" className="text-xs uppercase tracking-wide text-muted-foreground">Total Marks / Score</Label>
+                <Input
+                  id="top-score"
+                  placeholder="e.g. 598 / 600, 495 / 500, 99.1% Marks"
+                  value={boardTopperForm.score}
+                  onChange={(e) => setBoardTopperForm(prev => ({ ...prev, score: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="top-stream" className="text-xs uppercase tracking-wide text-muted-foreground">Stream / Group</Label>
+                <Input
+                  id="top-stream"
+                  placeholder="e.g. Bio-Maths, Commerce, Science"
+                  value={boardTopperForm.stream}
+                  onChange={(e) => setBoardTopperForm(prev => ({ ...prev, stream: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="top-year" className="text-xs uppercase tracking-wide text-muted-foreground">Academic Year</Label>
+                <Input
+                  id="top-year"
+                  placeholder="e.g. 2025-2026"
+                  value={boardTopperForm.year}
+                  onChange={(e) => setBoardTopperForm(prev => ({ ...prev, year: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="top-reason" className="text-xs uppercase tracking-wide text-muted-foreground">Subject Centums &amp; Key Remarks</Label>
+              <Textarea
+                id="top-reason"
+                placeholder="e.g. Centum in Physics, Chemistry, and Mathematics with State Merit Certificate."
+                value={boardTopperForm.reason}
+                onChange={(e) => setBoardTopperForm(prev => ({ ...prev, reason: e.target.value }))}
+                rows={3}
+                required
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Student Photo (Optional)</Label>
+              <div className="flex gap-3 items-center">
+                <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "board_topper")} />
+                {boardTopperForm.image && (
+                  <div className="h-10 w-10 shrink-0 border rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${resolveGalleryImageSrc(boardTopperForm.image)})` }} />
+                )}
+              </div>
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button type="submit" className="rounded-full bg-gradient-gold text-navy-deep font-bold px-8 shadow-gold">
+                {editItem ? "Save Board Topper" : "Publish Board Record"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
