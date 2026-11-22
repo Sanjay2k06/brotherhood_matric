@@ -51,7 +51,7 @@ app.add_middleware(
         "http://127.0.0.1:8081",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
-        "https://brotherhood-api-ysbt.onrender.com",
+        "https://brotherhood-api-ysb1.onrender.com",
     ],
     allow_origin_regex=r"^https?://.*",
     allow_credentials=True,

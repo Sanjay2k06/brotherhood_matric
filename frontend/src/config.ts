@@ -5,7 +5,7 @@ const isLocal = typeof window !== "undefined" && (window.location.hostname === "
 
 const defaultBackendHost = isLocal 
   ? "http://localhost:8000" 
-  : "https://brotherhood-api-ysbt.onrender.com";
+  : "https://brotherhood-api-ysb1.onrender.com";
 
 export const BACKEND_URL = (import.meta.env.VITE_API_URL || defaultBackendHost).replace(/\/$/, "");
 export const API_BASE = `${BACKEND_URL}/api`;
