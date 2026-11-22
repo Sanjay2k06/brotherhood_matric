@@ -19,7 +19,8 @@ import {
   Sparkles,
   Binary,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  Clock
 } from "lucide-react";
 
 export const Route = createFileRoute("/teachers")({
@@ -497,18 +498,21 @@ function TeachersPage() {
                           {/* Qualifications & Experience Tags */}
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {member.qualification && (
-                              <span className="inline-block text-xs font-medium text-[#1b4d32] bg-[#f0f6f2] border border-[#d2e2d7] px-2.5 py-1 rounded-md tracking-tight">
-                                🎓 {member.qualification}
+                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1b4d32] bg-[#f0f6f2] border border-[#d2e2d7] px-2.5 py-1 rounded-md tracking-tight">
+                                <GraduationCap className="h-3.5 w-3.5 text-[#1b4d32] shrink-0" />
+                                <span>{member.qualification}</span>
                               </span>
                             )}
                             {member.experience && (
-                              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#b45309] bg-[#fffbeb] border border-[#fde68a] px-2.5 py-1 rounded-md tracking-tight">
-                                ⏳ {member.experience.toLowerCase().includes("exp") || member.experience.toLowerCase().includes("year") ? member.experience : `${member.experience} Experience`}
+                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#b45309] bg-[#fffbeb] border border-[#fde68a] px-2.5 py-1 rounded-md tracking-tight">
+                                <Clock className="h-3.5 w-3.5 text-[#b45309] shrink-0" />
+                                <span>{member.experience.toLowerCase().includes("exp") || member.experience.toLowerCase().includes("year") ? member.experience : `${member.experience} Experience`}</span>
                               </span>
                             )}
                             {!member.qualification && !member.experience && (
-                              <span className="inline-block text-xs font-medium text-[#7a8a80] bg-[#f7faf8] border border-[#e6ece8] px-2.5 py-1 rounded-md">
-                                Faculty Member
+                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#7a8a80] bg-[#f7faf8] border border-[#e6ece8] px-2.5 py-1 rounded-md">
+                                <GraduationCap className="h-3.5 w-3.5 text-[#7a8a80] shrink-0" />
+                                <span>Faculty Member</span>
                               </span>
                             )}
                           </div>

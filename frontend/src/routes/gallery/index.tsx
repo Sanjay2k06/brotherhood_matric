@@ -639,6 +639,9 @@ function GalleryIndexPage() {
                         alt={photo.title}
                         loading="lazy"
                         decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.src = "/images/gallery photos/christmas programme.JPG";
+                        }}
                         className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
                       />
 

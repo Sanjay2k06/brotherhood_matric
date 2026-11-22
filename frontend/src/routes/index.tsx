@@ -73,12 +73,12 @@ function Hero() {
       <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-[#d4af37]/10 rounded-full blur-[90px] sm:blur-[120px] mix-blend-screen pointer-events-none z-10"></div>
       <div className="absolute -bottom-40 left-10 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-[#1b4d32]/30 rounded-full blur-[80px] sm:blur-[100px] mix-blend-screen pointer-events-none z-10"></div>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 w-full flex flex-col justify-center h-full pt-24 sm:pt-28 md:pt-24 pb-8 sm:pb-12">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 w-full flex flex-col justify-center h-full pt-16 sm:pt-20 md:pt-16 pb-16 sm:pb-24">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="max-w-3xl space-y-3.5 sm:space-y-4 flex flex-col items-start"
+          className="max-w-3xl space-y-3 sm:space-y-3.5 flex flex-col items-start -translate-y-3 sm:-translate-y-6"
         >
           <motion.div variants={fadeUp} className="inline-flex items-center gap-3 sm:gap-4">
             <div className="h-[1px] w-6 sm:w-8 bg-[#d4af37]"></div>
@@ -87,7 +87,7 @@ function Hero() {
           </motion.div>
 
           {/* Majestic Typography */}
-          <motion.h1 variants={fadeUp} className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[4.75rem] text-white leading-[1.1] sm:leading-[1.05] font-normal tracking-tight text-balance drop-shadow-2xl break-words">
+          <motion.h1 variants={fadeUp} className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[4.25rem] text-white leading-[1.08] sm:leading-[1.04] font-normal tracking-tight text-balance drop-shadow-2xl break-words">
             Building Future <br className="hidden md:block" />
             <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f9e596] font-light drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]">Leaders Through Excellence</span> <br className="hidden md:block" />
             in Education
@@ -100,8 +100,8 @@ function Hero() {
             </p>
           </motion.div>
 
-          {/* High-end interactive Buttons (Shifted slightly upward) */}
-          <motion.div variants={fadeUp} className="-translate-y-2 sm:-translate-y-4 pt-1 sm:pt-2 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center w-full sm:w-auto">
+          {/* High-end interactive Buttons (Shifted comfortably upward) */}
+          <motion.div variants={fadeUp} className="-translate-y-2 sm:-translate-y-3 pt-2 sm:pt-3 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center w-full sm:w-auto">
             {/* Primary Gold Button */}
             <motion.div whileHover={buttonHover} whileTap={buttonTap} className="w-full sm:w-auto">
               <Link to="/admissions" className="w-full sm:w-auto group relative inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-4 rounded-full overflow-hidden transition-shadow duration-300 shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)]">
