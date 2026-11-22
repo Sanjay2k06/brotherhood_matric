@@ -47,7 +47,12 @@ class UploadService:
                 shutil.copyfileobj(file.file, buffer)
             
             logger.info(f"File '{file.filename}' saved locally as '{unique_name}'.")
-            return f"http://127.0.0.1:8000/uploads/{unique_name}"
+            base_url = (
+                os.environ.get("RENDER_EXTERNAL_URL")
+                or os.environ.get("BACKEND_PUBLIC_URL")
+                or "https://brotherhood-api-ysb1.onrender.com"
+            ).rstrip("/")
+            return f"{base_url}/uploads/{unique_name}"
         except Exception as err:
             logger.error(f"Failed to save upload locally: {str(err)}")
             raise err

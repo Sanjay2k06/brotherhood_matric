@@ -41,8 +41,8 @@ interface UserProfile {
   role: string;
 }
 
-import { API_BASE } from "@/config";
-import { getMergedGalleryFolders, toFolderId, DEFAULT_GALLERY_FOLDERS } from "@/lib/galleryData";
+import { API_BASE, BACKEND_URL } from "@/config";
+import { getMergedGalleryFolders, toFolderId, DEFAULT_GALLERY_FOLDERS, resolveGalleryImageSrc } from "@/lib/galleryData";
 
 function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -366,12 +366,17 @@ function AdminPage() {
         toast.dismiss(uploadToast);
         toast.success("Image uploaded successfully!");
         
+        const rawUrl = data.url || "";
+        const cleanUrl = rawUrl.includes("/uploads/")
+          ? `${BACKEND_URL}/uploads/${rawUrl.split("/uploads/").pop()}`
+          : rawUrl.replace(/^https?:\/\/(127\.0\.0\.1|localhost):8000/, BACKEND_URL);
+
         // Update correct form state with URL
-        if (targetForm === "event") setEventForm(prev => ({ ...prev, cover_image: data.url }));
-        if (targetForm === "teacher") setTeacherForm(prev => ({ ...prev, image: data.url }));
-        if (targetForm === "student") setStudentForm(prev => ({ ...prev, image: data.url }));
-        if (targetForm === "gallery") setGalleryForm(prev => ({ ...prev, image: data.url }));
-        if (targetForm === "new_folder") setNewFolderForm(prev => ({ ...prev, image: data.url }));
+        if (targetForm === "event") setEventForm(prev => ({ ...prev, cover_image: cleanUrl }));
+        if (targetForm === "teacher") setTeacherForm(prev => ({ ...prev, image: cleanUrl }));
+        if (targetForm === "student") setStudentForm(prev => ({ ...prev, image: cleanUrl }));
+        if (targetForm === "gallery") setGalleryForm(prev => ({ ...prev, image: cleanUrl }));
+        if (targetForm === "new_folder") setNewFolderForm(prev => ({ ...prev, image: cleanUrl }));
       } else {
         toast.dismiss(uploadToast);
         toast.error("Failed to upload image. Fallback filesystem error.");
@@ -2158,7 +2163,7 @@ function AdminPage() {
                         {allDisplayFolders
                           .filter(f => !galleryFolderSearch || f.name.toLowerCase().includes(galleryFolderSearch.toLowerCase()) || f.description.toLowerCase().includes(galleryFolderSearch.toLowerCase()))
                           .map((folder) => {
-                            const coverImg = folder.photos[0]?.src || "/images/gallery photos/christmas programme.JPG";
+                            const coverImg = resolveGalleryImageSrc(folder.photos[0]?.src || "/images/gallery photos/christmas programme.JPG");
                             return (
                               <div 
                                 key={folder.id} 
@@ -2355,7 +2360,7 @@ function AdminPage() {
                             key={photo.id || pIdx} 
                             className="relative group rounded-xl overflow-hidden border border-border aspect-square bg-card shadow-sm hover:border-gold transition duration-200"
                           >
-                            <img src={photo.src} alt={photo.title} className="h-full w-full object-cover" />
+                            <img src={resolveGalleryImageSrc(photo.src)} alt={photo.title} className="h-full w-full object-cover" />
                             <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition duration-150 flex flex-col justify-between p-3 text-white">
                               <div className="text-[10px] font-bold text-gold uppercase truncate">{photo.folderName || folderName}</div>
                               <div className="text-xs font-semibold line-clamp-2">{photo.title || "Untitled Photo"}</div>
@@ -3749,7 +3754,7 @@ function AdminPage() {
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Cover Image Upload</Label>
               <div className="flex gap-3">
                 <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "event")} />
-                {eventForm.cover_image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${eventForm.cover_image})` }} />}
+                {eventForm.cover_image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${resolveGalleryImageSrc(eventForm.cover_image)})` }} />}
               </div>
             </div>
             <DialogFooter className="pt-4">
@@ -3820,7 +3825,7 @@ function AdminPage() {
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Avatar / Profile Photo</Label>
               <div className="flex gap-3">
                 <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "teacher")} />
-                {teacherForm.image && <div className="h-10 w-10 shrink-0 border rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${teacherForm.image})` }} />}
+                {teacherForm.image && <div className="h-10 w-10 shrink-0 border rounded-full bg-cover bg-center" style={{ backgroundImage: `url(${resolveGalleryImageSrc(teacherForm.image)})` }} />}
               </div>
             </div>
             <DialogFooter className="pt-4">
@@ -3939,7 +3944,7 @@ function AdminPage() {
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Photo (Optional)</Label>
               <div className="flex gap-3">
                 <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "student")} />
-                {studentForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${studentForm.image})` }} />}
+                {studentForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${resolveGalleryImageSrc(studentForm.image)})` }} />}
               </div>
             </div>
 
@@ -3989,7 +3994,7 @@ function AdminPage() {
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Image File</Label>
               <div className="flex gap-3">
                 <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "gallery")} required={!editItem && !galleryForm.image} />
-                {galleryForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${galleryForm.image})` }} />}
+                {galleryForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${resolveGalleryImageSrc(galleryForm.image)})` }} />}
               </div>
             </div>
             <DialogFooter className="pt-4">
@@ -4045,7 +4050,7 @@ function AdminPage() {
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Cover / Initial Photo (Optional)</Label>
               <div className="flex gap-3">
                 <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "new_folder")} />
-                {newFolderForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${newFolderForm.image})` }} />}
+                {newFolderForm.image && <div className="h-10 w-10 shrink-0 border rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${resolveGalleryImageSrc(newFolderForm.image)})` }} />}
               </div>
             </div>
             {newFolderForm.image && (

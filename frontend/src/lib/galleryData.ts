@@ -14,6 +14,7 @@ import fruitsDay2 from "../images/gallery photos/friuts day.jpeg";
 import fruitsDay3 from "../images/gallery photos/fruitsdayy.jpeg";
 import yellowDay from "../images/gallery photos/yellow day.jpeg";
 import worldFoodDay from "../images/gallery photos/world foodday.jpeg";
+import { BACKEND_URL } from "../config";
 
 export interface GalleryFolderItem {
   id: string;
@@ -55,11 +56,36 @@ export const STATIC_IMAGE_MAP: Record<string, string> = {
 export function resolveGalleryImageSrc(rawSrc: string): string {
   if (!rawSrc) return "";
   if (rawSrc.startsWith("data:") || rawSrc.startsWith("blob:")) return rawSrc;
-  const filename = decodeURIComponent(rawSrc.split("/").pop() || "").toLowerCase();
+
+  // Auto-correct any typo in Render domain or localhost references
+  let cleaned = rawSrc.replace("brotherhood-api-ysbt.onrender.com", "brotherhood-api-ysb1.onrender.com");
+  cleaned = cleaned.replace(/^https?:\/\/(127\.0\.0\.1|localhost):8000/, BACKEND_URL);
+
+  // 1. If it's a bundled static photo, resolve to bundled asset
+  const filename = decodeURIComponent(cleaned.split("/").pop() || "").toLowerCase();
   if (STATIC_IMAGE_MAP[filename]) {
     return STATIC_IMAGE_MAP[filename];
   }
-  return rawSrc;
+
+  // 2. If it points to an upload (e.g. /uploads/..., http://127.0.0.1:8000/uploads/..., https://.../uploads/...)
+  if (cleaned.includes("/uploads/")) {
+    const uploadFilename = cleaned.split("/uploads/").pop();
+    if (uploadFilename) {
+      return `${BACKEND_URL}/uploads/${uploadFilename}`;
+    }
+  }
+
+  // 3. If relative path starting with /images/
+  if (cleaned.startsWith("/images/")) {
+    return cleaned;
+  }
+
+  // 4. If HTTP URL and on HTTPS site, upgrade to HTTPS or route through BACKEND_URL
+  if (typeof window !== "undefined" && window.location.protocol === "https:" && cleaned.startsWith("http://")) {
+    return cleaned.replace("http://", "https://");
+  }
+
+  return cleaned;
 }
 
 export const DEFAULT_GALLERY_FOLDERS: Array<{
@@ -362,7 +388,7 @@ export function getMergedGalleryFolders(
           targetFolder.photos[existingIdx].title = photoItem.title;
           targetFolder.photos[existingIdx].desc = photoItem.desc;
           if (img.image && (img.image.startsWith("http") || img.image.startsWith("data:"))) {
-            targetFolder.photos[existingIdx].src = img.image;
+            targetFolder.photos[existingIdx].src = resolvedSrc;
           }
         } else {
           targetFolder.photos.push(photoItem);

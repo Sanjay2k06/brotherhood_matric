@@ -32,7 +32,7 @@ import fruitsDay3 from "../../images/gallery photos/fruitsdayy.jpeg";
 import yellowDay from "../../images/gallery photos/yellow day.jpeg";
 import worldFoodDay from "../../images/gallery photos/world foodday.jpeg";
 import { API_BASE } from "@/config";
-import { getMergedGalleryFolders, toFolderId } from "@/lib/galleryData";
+import { getMergedGalleryFolders, toFolderId, resolveGalleryImageSrc } from "@/lib/galleryData";
 
 export const Route = createFileRoute("/gallery/")({
   head: () => ({
@@ -507,7 +507,7 @@ function GalleryIndexPage() {
                     {/* Cover Image Frame */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-[#06180d]">
                       <img
-                        src={folder.photos[0]?.src || ""}
+                        src={resolveGalleryImageSrc(folder.photos[0]?.src || "")}
                         alt={folder.name}
                         loading="lazy"
                         decoding="async"
@@ -635,7 +635,7 @@ function GalleryIndexPage() {
                     >
                       {/* Image */}
                       <img
-                        src={photo.src}
+                        src={resolveGalleryImageSrc(photo.src)}
                         alt={photo.title}
                         loading="lazy"
                         decoding="async"
@@ -745,7 +745,7 @@ function GalleryIndexPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
                   transition={{ duration: 0.25 }}
-                  src={displayedPhotos[lightboxIndex].src}
+                  src={resolveGalleryImageSrc(displayedPhotos[lightboxIndex].src)}
                   alt={displayedPhotos[lightboxIndex].title}
                   className="max-h-[60vh] sm:max-h-[66vh] md:max-h-[70vh] max-w-[92vw] sm:max-w-[85vw] object-contain object-center rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] border border-white/10 select-none pointer-events-auto"
                 />

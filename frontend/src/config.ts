@@ -7,5 +7,9 @@ const defaultBackendHost = isLocal
   ? "http://localhost:8000" 
   : "https://brotherhood-api-ysb1.onrender.com";
 
-export const BACKEND_URL = (import.meta.env.VITE_API_URL || defaultBackendHost).replace(/\/$/, "");
+let rawBackendUrl = (import.meta.env.VITE_API_URL || defaultBackendHost).trim();
+// Auto-correct any typo in hostname (e.g. ysbt -> ysb1)
+rawBackendUrl = rawBackendUrl.replace("brotherhood-api-ysbt.onrender.com", "brotherhood-api-ysb1.onrender.com");
+
+export const BACKEND_URL = rawBackendUrl.replace(/\/$/, "");
 export const API_BASE = `${BACKEND_URL}/api`;
