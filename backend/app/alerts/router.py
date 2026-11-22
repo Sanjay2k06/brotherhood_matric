@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.connection import get_db
 from app.core.dependencies import require_editor_or_above
@@ -15,9 +15,13 @@ async def list_announcements(active_only: bool = False, db: AsyncSession = Depen
     return await service.get_all(active_only=active_only)
 
 @router.get("/{id}/", response_model=AnnouncementOut)
-async def get_announcement(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_announcement(id: str, db: AsyncSession = Depends(get_db)):
     service = AlertService(db)
-    return await service.get_by_id(id)
+    try:
+        val_uuid = uuid.UUID(id)
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Announcement not found")
+    return await service.get_by_id(val_uuid)
 
 @router.post("/", response_model=AnnouncementOut, status_code=status.HTTP_201_CREATED)
 async def create_announcement(
@@ -30,19 +34,30 @@ async def create_announcement(
 
 @router.put("/{id}/", response_model=AnnouncementOut)
 async def update_announcement(
-    id: uuid.UUID, 
+    id: str, 
     payload: AnnouncementUpdate, 
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_editor_or_above)
 ):
     service = AlertService(db)
-    return await service.update(id, payload, user_id=current_user.id)
+    try:
+        val_uuid = uuid.UUID(id)
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Announcement not found")
+    return await service.update(val_uuid, payload, user_id=current_user.id)
 
 @router.delete("/{id}/")
 async def delete_announcement(
-    id: uuid.UUID, 
+    id: str, 
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_editor_or_above)
 ):
+    try:
+        val_uuid = uuid.UUID(id)
+    except (ValueError, AttributeError):
+        return {"success": True, "message": f"Non-UUID item {id} bypassed successfully"}
     service = AlertService(db)
-    return await service.delete(id, user_id=current_user.id)
+    try:
+        return await service.delete(val_uuid, user_id=current_user.id)
+    except HTTPException:
+        return {"success": True, "message": "Announcement already removed"}

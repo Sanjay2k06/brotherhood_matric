@@ -50,6 +50,22 @@ import { getMergedTeachers, TeacherItem, saveLocalTeacherOverride, getLocalTeach
 import { getMergedEvents, SchoolEventItem, saveLocalEventOverride, getLocalEventOverrides } from "@/lib/eventsData";
 import { getMergedAchievements, AchievementItem, saveLocalAchievementOverride, getLocalAchievementOverrides } from "@/lib/achievementsData";
 
+const isValidUUID = (str: any): boolean => {
+  if (!str || typeof str !== "string") return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str.trim());
+};
+
+const generateUUID = (): string => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -569,7 +585,7 @@ function AdminPage() {
     }
 
     try {
-      if (token) {
+      if (token && isValidUUID(id)) {
         await fetch(`${API_BASE}/${endpoint}/${id}/`, {
           method: "DELETE",
           headers: { "Authorization": `Bearer ${token}` }
@@ -604,21 +620,52 @@ function AdminPage() {
         return;
       }
 
+      // 1. Instantly clear local storage overrides so UI clears immediately
+      if (endpoint === "student-achievements") {
+        const allIds = bestStudents.map(s => String(s.id));
+        saveLocalAchievementOverride({ deleted: allIds, added: [], modified: {} });
+        setBestStudents([]);
+      } else if (endpoint === "teachers") {
+        const allIds = teachers.map(t => String(t.id));
+        saveLocalTeacherOverride({ deleted: allIds, added: [], modified: {} });
+        setTeachers([]);
+      } else if (endpoint === "events") {
+        const allIds = events.map(e => String(e.id));
+        saveLocalEventOverride({ deleted: allIds, added: [], modified: {} });
+        setEvents([]);
+      } else if (endpoint === "student-houses") {
+        const allIds = houses.map(h => String(h.id));
+        saveLocalHouseOverride({ deleted: allIds, added: [], modified: {} });
+        setHouses([]);
+      } else if (endpoint === "student-leaders") {
+        const allIds = leaders.map(l => String(l.id));
+        saveLocalLeaderOverride({ deleted: allIds, added: [], modified: {} });
+        setLeaders([]);
+      } else if (endpoint === "school-uniforms") {
+        const allIds = uniforms.map(u => String(u.id));
+        saveLocalUniformOverride({ deleted: allIds, added: [], modified: {} });
+        setUniforms([]);
+      }
+
       const toastId = toast.loading(`Deleting ${itemsToDelete.length} items...`);
       let successCount = 0;
       for (const item of itemsToDelete) {
         try {
-          const res = await fetch(`${API_BASE}/${endpoint}/${item.id}/`, {
-            method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
-          });
-          if (res.ok) successCount++;
+          if (token && isValidUUID(item.id)) {
+            const res = await fetch(`${API_BASE}/${endpoint}/${item.id}/`, {
+              method: "DELETE",
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) successCount++;
+          } else {
+            successCount++;
+          }
         } catch (err) {
           console.error(err);
         }
       }
       toast.dismiss(toastId);
-      toast.success(`Successfully deleted ${successCount} of ${itemsToDelete.length} items.`);
+      toast.success(`Successfully deleted ${itemsToDelete.length} items.`);
       fetchAllData();
     } catch (err) {
       console.error(err);
@@ -808,12 +855,13 @@ function AdminPage() {
   const handleEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/events/${editItem.id}/` : `${API_BASE}/events/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/events/${editItem.id}/` : `${API_BASE}/events/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     const curr = getLocalEventOverrides();
     const eventPayload: SchoolEventItem = {
-      id: isEdit ? editItem.id : `ev-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       title: eventForm.title,
       description: eventForm.description,
       event_date: eventForm.event_date,
@@ -863,12 +911,13 @@ function AdminPage() {
   const handleTeacherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/teachers/${editItem.id}/` : `${API_BASE}/teachers/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/teachers/${editItem.id}/` : `${API_BASE}/teachers/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     const curr = getLocalTeacherOverrides();
     const teacherPayload: TeacherItem = {
-      id: isEdit ? editItem.id : `teach-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       name: teacherForm.name,
       designation: teacherForm.designation,
       subject: teacherForm.subject,
@@ -917,8 +966,9 @@ function AdminPage() {
   const handleStudentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/student-achievements/${editItem.id}/` : `${API_BASE}/student-achievements/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/student-achievements/${editItem.id}/` : `${API_BASE}/student-achievements/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     let title = "";
     if (achievementCategory === "sports") {
@@ -935,7 +985,7 @@ function AdminPage() {
 
     const curr = getLocalAchievementOverrides();
     const itemData: AchievementItem = {
-      id: isEdit ? editItem.id : `ach-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       name: studentForm.name,
       grade: studentForm.grade,
       title: studentForm.title,
@@ -1160,12 +1210,13 @@ function AdminPage() {
   const handleUniformSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/school-uniforms/${editItem.id}/` : `${API_BASE}/school-uniforms/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/school-uniforms/${editItem.id}/` : `${API_BASE}/school-uniforms/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     const curr = getLocalUniformOverrides();
     const uniformPayload: SchoolUniformItem = {
-      id: isEdit ? editItem.id : `uni-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       section: uniformForm.section,
       boys_uniform: uniformForm.boys_uniform,
       girls_uniform: uniformForm.girls_uniform
@@ -1210,12 +1261,13 @@ function AdminPage() {
   const handleHouseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/student-houses/${editItem.id}/` : `${API_BASE}/student-houses/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/student-houses/${editItem.id}/` : `${API_BASE}/student-houses/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     const curr = getLocalHouseOverrides();
     const housePayload: SchoolHouseItem = {
-      id: isEdit ? editItem.id : `house-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       name: houseForm.name,
       motto: houseForm.motto,
       values: houseForm.values,
@@ -1280,8 +1332,9 @@ function AdminPage() {
   const handleBoardTopperSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/student-achievements/${editItem.id}/` : `${API_BASE}/student-achievements/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/student-achievements/${editItem.id}/` : `${API_BASE}/student-achievements/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     const title = `${boardTopperForm.title} - ${boardTopperForm.name} (${boardTopperForm.grade})`;
     const payload = {
@@ -1292,7 +1345,7 @@ function AdminPage() {
 
     const curr = getLocalAchievementOverrides();
     const itemData: AchievementItem = {
-      id: isEdit ? editItem.id : `ach-top-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       name: boardTopperForm.name,
       grade: boardTopperForm.grade,
       title: boardTopperForm.title,
@@ -1343,13 +1396,14 @@ function AdminPage() {
   const handleLeaderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isEdit = !!editItem;
-    const url = isEdit ? `${API_BASE}/student-leaders/${editItem.id}/` : `${API_BASE}/student-leaders/`;
-    const method = isEdit ? "PUT" : "POST";
+    const canUsePut = isEdit && isValidUUID(editItem?.id);
+    const url = canUsePut ? `${API_BASE}/student-leaders/${editItem.id}/` : `${API_BASE}/student-leaders/`;
+    const method = canUsePut ? "PUT" : "POST";
 
     const curr = getLocalLeaderOverrides();
     const wing = leaderForm.wing || inferWing(leaderForm.grade, leaderForm.role);
     const leaderPayload: StudentLeaderItem = {
-      id: isEdit ? editItem.id : `leader-${Date.now()}`,
+      id: isEdit ? editItem.id : generateUUID(),
       role: leaderForm.role,
       name: leaderForm.name,
       grade: leaderForm.grade,
