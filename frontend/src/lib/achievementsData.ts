@@ -295,9 +295,11 @@ export function getMergedAchievements(apiAchievements?: any[]): {
   }
 
   (overrides.added || []).forEach((item) => {
-    const idKey = String(item.id).toLowerCase();
-    if (deletedSet.has(idKey)) return;
-    map.set(idKey, item);
+    const idKey = String(item.id || "").toLowerCase().trim();
+    const nameKey = (item.name || "").toLowerCase().trim();
+    const titleKey = (item.title || "").toLowerCase().trim();
+    if (deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey)) || (titleKey && deletedSet.has(titleKey))) return;
+    map.set(idKey || nameKey || titleKey, item);
   });
 
   const all = Array.from(map.values());

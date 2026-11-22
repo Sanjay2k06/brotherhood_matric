@@ -223,9 +223,10 @@ export function getMergedHouses(apiHouses?: any[]): SchoolHouseItem[] {
   }
 
   (overrides.added || []).forEach((item) => {
-    const idKey = String(item.id).toLowerCase();
-    if (deletedSet.has(idKey)) return;
-    map.set(idKey, item);
+    const idKey = String(item.id || "").toLowerCase().trim();
+    const nameKey = (item.name || "").toLowerCase().trim();
+    if (deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey))) return;
+    map.set(idKey || nameKey, item);
   });
 
   return Array.from(map.values());

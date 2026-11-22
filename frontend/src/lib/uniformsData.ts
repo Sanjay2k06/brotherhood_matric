@@ -105,9 +105,10 @@ export function getMergedUniforms(apiUniforms?: any[]): SchoolUniformItem[] {
 
   // 3. Local adds
   (overrides.added || []).forEach((item) => {
-    const idKey = String(item.id).toLowerCase();
-    if (deletedSet.has(idKey)) return;
-    map.set(idKey, item);
+    const idKey = String(item.id || "").toLowerCase().trim();
+    const secKey = (item.section || "").toLowerCase().trim();
+    if (deletedSet.has(idKey) || (secKey && deletedSet.has(secKey))) return;
+    map.set(idKey || secKey, item);
   });
 
   return Array.from(map.values());

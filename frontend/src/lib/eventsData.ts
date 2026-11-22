@@ -115,9 +115,10 @@ export function getMergedEvents(apiEvents?: any[]): SchoolEventItem[] {
   }
 
   (overrides.added || []).forEach((item) => {
-    const idKey = String(item.id).toLowerCase();
-    if (deletedSet.has(idKey)) return;
-    map.set(idKey, item);
+    const idKey = String(item.id || "").toLowerCase().trim();
+    const titleKey = (item.title || "").toLowerCase().trim();
+    if (deletedSet.has(idKey) || (titleKey && deletedSet.has(titleKey))) return;
+    map.set(idKey || titleKey, item);
   });
 
   return Array.from(map.values()).sort((a, b) => a.event_date.localeCompare(b.event_date));

@@ -511,6 +511,9 @@ function GalleryIndexPage() {
                         alt={folder.name}
                         loading="lazy"
                         decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.src = christmasProg1;
+                        }}
                         className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                       />
 
@@ -640,7 +643,7 @@ function GalleryIndexPage() {
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
-                          e.currentTarget.src = "/images/gallery photos/christmas programme.JPG";
+                          e.currentTarget.src = christmasProg1;
                         }}
                         className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
                       />

@@ -60,10 +60,21 @@ export function getLocalTeacherOverrides(): {
   if (typeof window === "undefined") return { added: [], modified: {}, deleted: [] };
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!raw) return { added: [], modified: {}, deleted: [] };
-    return JSON.parse(raw);
+    if (!raw) return { added: [], modified: {}, deleted: ["sanjay", "mrs. sanjay"] };
+    const parsed = JSON.parse(raw);
+    // Explicitly sanitize out any unwanted test records like Mrs. Sanjay
+    const cleanedAdded = (parsed.added || []).filter((a: TeacherItem) => {
+      const n = (a.name || "").toLowerCase().trim();
+      return !n.includes("sanjay");
+    });
+    const cleanedDeleted = Array.from(new Set([...(parsed.deleted || []), "sanjay", "mrs. sanjay"]));
+    return {
+      added: cleanedAdded,
+      modified: parsed.modified || {},
+      deleted: cleanedDeleted,
+    };
   } catch {
-    return { added: [], modified: {}, deleted: [] };
+    return { added: [], modified: {}, deleted: ["sanjay", "mrs. sanjay"] };
   }
 }
 
@@ -74,10 +85,14 @@ export function saveLocalTeacherOverride(data: {
 }) {
   if (typeof window === "undefined") return;
   const current = getLocalTeacherOverrides();
+  const nextAdded = (data.added !== undefined ? data.added : current.added).filter(
+    (a) => !(a.name || "").toLowerCase().includes("sanjay")
+  );
+  const nextDeleted = Array.from(new Set([...(data.deleted !== undefined ? data.deleted : current.deleted), "sanjay", "mrs. sanjay"]));
   const next = {
-    added: data.added !== undefined ? data.added : current.added,
+    added: nextAdded,
     modified: data.modified !== undefined ? data.modified : current.modified,
-    deleted: data.deleted !== undefined ? data.deleted : current.deleted,
+    deleted: nextDeleted,
   };
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(next));
 }
@@ -85,13 +100,15 @@ export function saveLocalTeacherOverride(data: {
 export function getMergedTeachers(apiTeachers?: any[]): TeacherItem[] {
   const overrides = getLocalTeacherOverrides();
   const deletedSet = new Set((overrides.deleted || []).map((id) => String(id).toLowerCase().trim()));
+  deletedSet.add("sanjay");
+  deletedSet.add("mrs. sanjay");
 
   const map = new Map<string, TeacherItem>();
 
   DEFAULT_TEACHERS.forEach((item) => {
     const idKey = String(item.id).toLowerCase();
     const nameKey = item.name.toLowerCase().trim();
-    if (deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
+    if (nameKey.includes("sanjay") || deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
 
     let merged = { ...item };
     if (overrides.modified[item.id]) {
@@ -104,7 +121,7 @@ export function getMergedTeachers(apiTeachers?: any[]): TeacherItem[] {
     apiTeachers.forEach((apiItem) => {
       const apiId = String(apiItem.id || "");
       const nameKey = (apiItem.name || "").toLowerCase().trim();
-      if (deletedSet.has(apiId.toLowerCase()) || deletedSet.has(nameKey)) return;
+      if (nameKey.includes("sanjay") || deletedSet.has(apiId.toLowerCase()) || deletedSet.has(nameKey)) return;
 
       let matchKey: string | null = null;
       for (const [k, v] of map.entries()) {
@@ -134,9 +151,10 @@ export function getMergedTeachers(apiTeachers?: any[]): TeacherItem[] {
   }
 
   (overrides.added || []).forEach((item) => {
-    const idKey = String(item.id).toLowerCase();
-    if (deletedSet.has(idKey)) return;
-    map.set(idKey, item);
+    const idKey = String(item.id || "").toLowerCase().trim();
+    const nameKey = (item.name || "").toLowerCase().trim();
+    if (nameKey.includes("sanjay") || deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
+    map.set(idKey || nameKey, item);
   });
 
   return Array.from(map.values());

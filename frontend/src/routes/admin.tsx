@@ -399,7 +399,13 @@ function AdminPage() {
       const gallRes = await fetch(`${API_BASE}/gallery-images/`, { headers });
       if (gallRes.ok) {
         const d = await gallRes.json();
-        setGalleryImages(d.results || d);
+        const rawList = Array.isArray(d.results) ? d.results : (Array.isArray(d) ? d : []);
+        const cleanList = rawList.filter((g: any) => {
+          const idStr = String(g.id || "").toLowerCase().trim();
+          const titleStr = (g.title || "").toLowerCase().trim();
+          return !deletedPhotoIds.includes(idStr) && !deletedPhotoIds.includes(titleStr) && titleStr !== "cfgh" && !titleStr.includes("cfgh");
+        });
+        setGalleryImages(cleanList);
       }
 
       // Queries/Submissions
@@ -542,46 +548,110 @@ function AdminPage() {
   };
 
   // DELETE operation helper
-  const handleDelete = async (endpoint: string, id: any) => {
+  const handleDelete = async (endpoint: string, id: any, itemTitleOrName?: string) => {
     if (!confirm("Are you sure you want to delete this content item? This action is permanent.")) return;
+
+    const idStr = String(id || "").toLowerCase().trim();
+    const nameStr = (itemTitleOrName || "").toLowerCase().trim();
 
     // Apply local storage override deletion immediately
     if (endpoint === "student-leaders") {
       const curr = getLocalLeaderOverrides();
-      const nextDeleted = [...curr.deleted, String(id)];
-      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      const nextDeleted = Array.from(new Set([...curr.deleted, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      const nextAdded = curr.added.filter(a => {
+        const aId = String(a.id || "").toLowerCase().trim();
+        const aName = (a.name || "").toLowerCase().trim();
+        return aId !== idStr && (!nameStr || aName !== nameStr);
+      });
       saveLocalLeaderOverride({ deleted: nextDeleted, added: nextAdded });
-      setLeaders(getMergedStudentLeaders([]));
+      setLeaders(prev => prev.filter(item => {
+        const mId = String(item.id || "").toLowerCase().trim();
+        const mName = (item.name || "").toLowerCase().trim();
+        return mId !== idStr && (!nameStr || mName !== nameStr);
+      }));
     } else if (endpoint === "school-uniforms") {
       const curr = getLocalUniformOverrides();
-      const nextDeleted = [...curr.deleted, String(id)];
-      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      const nextDeleted = Array.from(new Set([...curr.deleted, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      const nextAdded = curr.added.filter(a => {
+        const aId = String(a.id || "").toLowerCase().trim();
+        const aSec = (a.section || "").toLowerCase().trim();
+        return aId !== idStr && (!nameStr || aSec !== nameStr);
+      });
       saveLocalUniformOverride({ deleted: nextDeleted, added: nextAdded });
-      setUniforms(getMergedUniforms([]));
+      setUniforms(prev => prev.filter(item => {
+        const mId = String(item.id || "").toLowerCase().trim();
+        const mSec = (item.section || "").toLowerCase().trim();
+        return mId !== idStr && (!nameStr || mSec !== nameStr);
+      }));
     } else if (endpoint === "student-houses") {
       const curr = getLocalHouseOverrides();
-      const nextDeleted = [...curr.deleted, String(id)];
-      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      const nextDeleted = Array.from(new Set([...curr.deleted, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      const nextAdded = curr.added.filter(a => {
+        const aId = String(a.id || "").toLowerCase().trim();
+        const aName = (a.name || "").toLowerCase().trim();
+        return aId !== idStr && (!nameStr || aName !== nameStr);
+      });
       saveLocalHouseOverride({ deleted: nextDeleted, added: nextAdded });
-      setHouses(getMergedHouses([]));
+      setHouses(prev => prev.filter(item => {
+        const mId = String(item.id || "").toLowerCase().trim();
+        const mName = (item.name || "").toLowerCase().trim();
+        return mId !== idStr && (!nameStr || mName !== nameStr);
+      }));
     } else if (endpoint === "teachers") {
       const curr = getLocalTeacherOverrides();
-      const nextDeleted = [...curr.deleted, String(id)];
-      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      const nextDeleted = Array.from(new Set([...curr.deleted, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      const nextAdded = curr.added.filter(a => {
+        const aId = String(a.id || "").toLowerCase().trim();
+        const aName = (a.name || "").toLowerCase().trim();
+        return aId !== idStr && (!nameStr || aName !== nameStr);
+      });
       saveLocalTeacherOverride({ deleted: nextDeleted, added: nextAdded });
-      setTeachers(getMergedTeachers([]));
+      setTeachers(prev => prev.filter(item => {
+        const mId = String(item.id || "").toLowerCase().trim();
+        const mName = (item.name || "").toLowerCase().trim();
+        return mId !== idStr && (!nameStr || mName !== nameStr);
+      }));
     } else if (endpoint === "events") {
       const curr = getLocalEventOverrides();
-      const nextDeleted = [...curr.deleted, String(id)];
-      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      const nextDeleted = Array.from(new Set([...curr.deleted, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      const nextAdded = curr.added.filter(a => {
+        const aId = String(a.id || "").toLowerCase().trim();
+        const aTitle = (a.title || "").toLowerCase().trim();
+        return aId !== idStr && (!nameStr || aTitle !== nameStr);
+      });
       saveLocalEventOverride({ deleted: nextDeleted, added: nextAdded });
-      setEvents(getMergedEvents([]));
+      setEvents(prev => prev.filter(item => {
+        const mId = String(item.id || "").toLowerCase().trim();
+        const mTitle = (item.title || "").toLowerCase().trim();
+        return mId !== idStr && (!nameStr || mTitle !== nameStr);
+      }));
     } else if (endpoint === "student-achievements") {
       const curr = getLocalAchievementOverrides();
-      const nextDeleted = [...curr.deleted, String(id)];
-      const nextAdded = curr.added.filter(a => String(a.id) !== String(id));
+      const nextDeleted = Array.from(new Set([...curr.deleted, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      const nextAdded = curr.added.filter(a => {
+        const aId = String(a.id || "").toLowerCase().trim();
+        const aName = (a.name || a.title || "").toLowerCase().trim();
+        return aId !== idStr && (!nameStr || aName !== nameStr);
+      });
       saveLocalAchievementOverride({ deleted: nextDeleted, added: nextAdded });
-      setBestStudents(getMergedAchievements([]).all);
+      setBestStudents(prev => prev.filter(item => {
+        const mId = String(item.id || "").toLowerCase().trim();
+        const mName = (item.name || item.title || "").toLowerCase().trim();
+        return mId !== idStr && (!nameStr || mName !== nameStr);
+      }));
+    } else if (endpoint === "gallery-images") {
+      const updated = Array.from(new Set([...deletedPhotoIds, String(id), ...(itemTitleOrName ? [itemTitleOrName, nameStr] : [])]));
+      setDeletedPhotoIds(updated);
+      try { localStorage.setItem("brotherhood_deleted_photos", JSON.stringify(updated)); } catch {}
+      setGalleryImages(prev => prev.filter(g => String(g.id) !== idStr && (!nameStr || (g.title || "").toLowerCase().trim() !== nameStr)));
+    } else if (endpoint === "announcements") {
+      setAnnouncements(prev => prev.filter(a => String(a.id) !== idStr));
+    } else if (endpoint === "admission-queries") {
+      setAdmissions(prev => prev.filter(a => String(a.id) !== idStr));
+    } else if (endpoint === "contact-messages") {
+      setContacts(prev => prev.filter(c => String(c.id) !== idStr));
+    } else if (endpoint === "job-applications") {
+      setJobApplications(prev => prev.filter(j => String(j.id) !== idStr));
     }
 
     try {
@@ -622,29 +692,35 @@ function AdminPage() {
 
       // 1. Instantly clear local storage overrides so UI clears immediately
       if (endpoint === "student-achievements") {
-        const allIds = bestStudents.map(s => String(s.id));
+        const allIds = bestStudents.flatMap(s => [String(s.id), (s.name || s.title || "").toLowerCase().trim()]);
         saveLocalAchievementOverride({ deleted: allIds, added: [], modified: {} });
         setBestStudents([]);
       } else if (endpoint === "teachers") {
-        const allIds = teachers.map(t => String(t.id));
+        const allIds = teachers.flatMap(t => [String(t.id), (t.name || "").toLowerCase().trim()]);
         saveLocalTeacherOverride({ deleted: allIds, added: [], modified: {} });
         setTeachers([]);
       } else if (endpoint === "events") {
-        const allIds = events.map(e => String(e.id));
+        const allIds = events.flatMap(e => [String(e.id), (e.title || "").toLowerCase().trim()]);
         saveLocalEventOverride({ deleted: allIds, added: [], modified: {} });
         setEvents([]);
       } else if (endpoint === "student-houses") {
-        const allIds = houses.map(h => String(h.id));
+        const allIds = houses.flatMap(h => [String(h.id), (h.name || "").toLowerCase().trim()]);
         saveLocalHouseOverride({ deleted: allIds, added: [], modified: {} });
         setHouses([]);
       } else if (endpoint === "student-leaders") {
-        const allIds = leaders.map(l => String(l.id));
+        const allIds = leaders.flatMap(l => [String(l.id), (l.name || "").toLowerCase().trim()]);
         saveLocalLeaderOverride({ deleted: allIds, added: [], modified: {} });
         setLeaders([]);
       } else if (endpoint === "school-uniforms") {
-        const allIds = uniforms.map(u => String(u.id));
+        const allIds = uniforms.flatMap(u => [String(u.id), (u.section || "").toLowerCase().trim()]);
         saveLocalUniformOverride({ deleted: allIds, added: [], modified: {} });
         setUniforms([]);
+      } else if (endpoint === "gallery-images") {
+        const allIds = galleryImages.flatMap(g => [String(g.id), (g.title || "").toLowerCase().trim()]);
+        const updated = Array.from(new Set([...deletedPhotoIds, ...allIds]));
+        setDeletedPhotoIds(updated);
+        try { localStorage.setItem("brotherhood_deleted_photos", JSON.stringify(updated)); } catch {}
+        setGalleryImages([]);
       }
 
       const toastId = toast.loading(`Deleting ${itemsToDelete.length} items...`);
@@ -1180,30 +1256,43 @@ function AdminPage() {
     }
   };
 
-  const handleDeleteGalleryImage = async (imgId: any, imgTitle?: string) => {
+  const handleDeleteGalleryImage = async (imgId: any, imgTitle?: string, imgSrc?: string) => {
     if (!confirm(`Are you sure you want to delete this photo${imgTitle ? ` "${imgTitle}"` : ""}? This cannot be undone.`)) return;
+
+    // 1. Immediately record in deletedPhotoIds and local storage
+    const identifiers = [
+      imgId ? String(imgId) : null,
+      imgId ? String(imgId).toLowerCase().trim() : null,
+      imgTitle ? imgTitle.trim() : null,
+      imgTitle ? imgTitle.toLowerCase().trim() : null,
+      imgSrc ? String(imgSrc).trim() : null,
+    ].filter(Boolean) as string[];
+
+    const updated = Array.from(new Set([...deletedPhotoIds, ...identifiers]));
+    setDeletedPhotoIds(updated);
     try {
-      if (imgId) {
+      localStorage.setItem("brotherhood_deleted_photos", JSON.stringify(updated));
+    } catch {}
+
+    // 2. Immediately remove from local state
+    setGalleryImages(prev => prev.filter(img => {
+      const matchId = imgId && String(img.id).toLowerCase().trim() === String(imgId).toLowerCase().trim();
+      const matchTitle = imgTitle && (img.title || "").toLowerCase().trim() === imgTitle.toLowerCase().trim();
+      return !matchId && !matchTitle;
+    }));
+
+    toast.success("Photo deleted successfully!");
+
+    // 3. Sync to backend if valid UUID
+    try {
+      if (imgId && isValidUUID(imgId) && token) {
         await fetch(`${API_BASE}/gallery-images/${imgId}/`, {
           method: "DELETE",
           headers: { "Authorization": `Bearer ${token}` }
         });
       }
-
-      const identifier = String(imgId || imgTitle || "");
-      if (identifier) {
-        const updated = Array.from(new Set([...deletedPhotoIds, identifier, imgTitle || ""]));
-        setDeletedPhotoIds(updated);
-        try {
-          localStorage.setItem("brotherhood_deleted_photos", JSON.stringify(updated));
-        } catch {}
-      }
-
-      toast.success("Photo deleted successfully!");
-      fetchAllData();
     } catch (err) {
-      console.error(err);
-      toast.error("Network error deleting photo.");
+      console.warn("Backend photo delete sync error:", err);
     }
   };
 
@@ -1978,7 +2067,7 @@ function AdminPage() {
                           <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditAnnounce(ann)}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("announcements", ann.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("announcements", ann.id, ann.title)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
@@ -2121,7 +2210,7 @@ function AdminPage() {
                               <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditEvent(ev)}>
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("events", ev.id)}>
+                              <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("events", ev.id, ev.title)}>
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </TableCell>
@@ -2266,7 +2355,7 @@ function AdminPage() {
                             <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditTeacher(teach)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("teachers", teach.id)}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("teachers", teach.id, teach.name)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </TableCell>
@@ -2326,7 +2415,7 @@ function AdminPage() {
                             <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditStudent(stud)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-achievements", stud.id)}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-achievements", stud.id, stud.name || stud.title)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </TableCell>
@@ -2373,7 +2462,7 @@ function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getMergedAchievements([]).boardToppers.map((topper) => (
+                    {bestStudents.filter(s => s.type === "board_topper" || (s.title || "").toLowerCase().includes("topper")).map((topper) => (
                       <TableRow key={topper.id}>
                         <TableCell>
                           {topper.image ? (
@@ -2398,13 +2487,13 @@ function AdminPage() {
                           <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditBoardTopper(topper)}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-achievements", topper.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-achievements", topper.id, topper.name || topper.title)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))}
-                    {getMergedAchievements([]).boardToppers.length === 0 && (
+                    {bestStudents.filter(s => s.type === "board_topper" || (s.title || "").toLowerCase().includes("topper")).length === 0 && (
                       <TableRow>
                         <TableCell colSpan={8} className="text-center text-muted-foreground py-10">No board examination topper records found. Click 'Add Board Exam Topper' above!</TableCell>
                       </TableRow>
@@ -2441,7 +2530,7 @@ function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getMergedAchievements([]).sports.map((stud) => (
+                    {bestStudents.filter(s => s.type === "sports" || (s.title || "").toLowerCase().includes("championship") || (s.title || "").toLowerCase().includes("sports")).map((stud) => (
                       <TableRow key={stud.id}>
                         <TableCell>
                           <span className="inline-block rounded-full px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold">
@@ -2455,13 +2544,13 @@ function AdminPage() {
                           <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditStudent(stud)}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-achievements", stud.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-achievements", stud.id, stud.name || stud.title)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))}
-                    {getMergedAchievements([]).sports.length === 0 && (
+                    {bestStudents.filter(s => s.type === "sports" || (s.title || "").toLowerCase().includes("championship") || (s.title || "").toLowerCase().includes("sports")).length === 0 && (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground py-10">No sports trophies or championships logged yet.</TableCell>
                       </TableRow>
@@ -2506,7 +2595,7 @@ function AdminPage() {
                           <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditUniform(uni)}>
                             <Edit className="h-4.5 w-4.5" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("school-uniforms", uni.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("school-uniforms", uni.id, uni.section)}>
                             <Trash2 className="h-4.5 w-4.5" />
                           </Button>
                         </TableCell>
@@ -2565,7 +2654,7 @@ function AdminPage() {
                           <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditHouse(house)}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-houses", house.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-houses", house.id, house.name)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
@@ -2616,7 +2705,7 @@ function AdminPage() {
                           <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditLeader(lead)}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-leaders", lead.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete("student-leaders", lead.id, lead.name)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
@@ -2900,19 +2989,31 @@ function AdminPage() {
                               src={resolveGalleryImageSrc(photo.src)} 
                               alt={photo.title} 
                               onError={(e) => {
-                                e.currentTarget.src = "/images/gallery photos/christmas programme.JPG";
+                                e.currentTarget.src = resolveGalleryImageSrc("");
                               }}
                               className="h-full w-full object-cover" 
                             />
-                            <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition duration-150 flex flex-col justify-between p-3 text-white">
+                            {/* Always-visible quick delete button for instant removal even if broken */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteGalleryImage(photo.id, photo.title, photo.src);
+                              }}
+                              className="absolute top-1.5 right-1.5 z-20 p-1.5 rounded-full bg-red-600 text-white hover:bg-red-700 shadow-md transition"
+                              title="Delete Photo"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                            <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition duration-150 flex flex-col justify-between p-3 text-white pointer-events-none group-hover:pointer-events-auto">
                               <div className="text-[10px] font-bold text-gold uppercase truncate">{photo.folderName || folderName}</div>
                               <div className="text-xs font-semibold line-clamp-2">{photo.title || "Untitled Photo"}</div>
                               <Button 
                                 size="icon" 
                                 variant="destructive" 
-                                className="h-8 w-8 mt-2 mx-auto rounded-full shadow-lg" 
+                                className="h-8 w-8 mt-2 mx-auto rounded-full shadow-lg pointer-events-auto" 
                                 title="Delete Photo"
-                                onClick={() => handleDeleteGalleryImage(photo.id, photo.title)}
+                                onClick={() => handleDeleteGalleryImage(photo.id, photo.title, photo.src)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -3358,7 +3459,7 @@ function AdminPage() {
                                 <Button size="icon" variant="ghost" className="h-6 w-6 text-primary hover:bg-gold/20" onClick={() => startEditEvent(ev)}>
                                   <Edit className="h-3 w-3" />
                                 </Button>
-                                <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600 hover:bg-red-50" onClick={() => handleDelete("events", ev.id)}>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600 hover:bg-red-50" onClick={() => handleDelete("events", ev.id, ev.title)}>
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
@@ -3385,7 +3486,7 @@ function AdminPage() {
                                 <Button size="icon" variant="ghost" className="h-6 w-6 text-primary hover:bg-gold/20" onClick={() => startEditEvent(ev)}>
                                   <Edit className="h-3 w-3" />
                                 </Button>
-                                <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600 hover:bg-red-50" onClick={() => handleDelete("events", ev.id)}>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 text-red-600 hover:bg-red-50" onClick={() => handleDelete("events", ev.id, ev.title)}>
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
@@ -3470,7 +3571,7 @@ function AdminPage() {
                             <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditEvent(ev)}>
                               <Edit className="h-3 w-3" /> Edit
                             </Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("events", ev.id)}>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("events", ev.id, ev.title)}>
                               <Trash2 className="h-3 w-3" /> Delete
                             </Button>
                           </div>
@@ -3583,7 +3684,7 @@ function AdminPage() {
                             <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditTeacher(teach)}>
                               <Edit className="h-3 w-3" /> Edit
                             </Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("teachers", teach.id)}>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("teachers", teach.id, teach.name)}>
                               <Trash2 className="h-3 w-3" /> Delete
                             </Button>
                           </div>
@@ -3625,7 +3726,7 @@ function AdminPage() {
                           <Button size="sm" variant="secondary" className="rounded-full font-bold text-xs gap-1" onClick={() => startEditGallery(img)}>
                             <Edit className="h-3.5 w-3.5" /> Edit
                           </Button>
-                          <Button size="sm" variant="destructive" className="rounded-full font-bold text-xs gap-1" onClick={() => handleDelete("gallery-images", img.id)}>
+                          <Button size="sm" variant="destructive" className="rounded-full font-bold text-xs gap-1" onClick={() => handleDelete("gallery-images", img.id, img.title)}>
                             <Trash2 className="h-3.5 w-3.5" /> Delete
                           </Button>
                         </div>
@@ -3641,7 +3742,7 @@ function AdminPage() {
               )}
 
               {editorPage === "board-toppers" && (() => {
-                const toppersList = getMergedAchievements([]).boardToppers;
+                const toppersList = bestStudents.filter(s => s.type === "board_topper" || (s.title || "").toLowerCase().includes("topper"));
                 const filteredToppers = toppersList.filter(top => {
                   const s = boardTopperSearch.toLowerCase();
                   const matchSearch = !s || 
@@ -3762,7 +3863,7 @@ function AdminPage() {
                             <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditBoardTopper(topper)}>
                               <Edit className="h-3 w-3" /> Edit
                             </Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("student-achievements", topper.id)}>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("student-achievements", topper.id, topper.name || topper.title)}>
                               <Trash2 className="h-3 w-3" /> Delete
                             </Button>
                           </div>
@@ -3875,7 +3976,7 @@ function AdminPage() {
                                 <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditStudent(stud)}>
                                   <Edit className="h-3 w-3" /> Edit
                                 </Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-achievements", stud.id)}>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-achievements", stud.id, stud.name || stud.title)}>
                                   <Trash2 className="h-3 w-3" /> Delete
                                 </Button>
                               </div>
@@ -3932,7 +4033,7 @@ function AdminPage() {
                           <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2.5" onClick={() => startEditUniform(uni)}>
                             <Edit className="h-3 w-3" /> Edit
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("school-uniforms", uni.id)}>
+                          <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2.5" onClick={() => handleDelete("school-uniforms", uni.id, uni.section)}>
                             <Trash2 className="h-3 w-3" /> Delete
                           </Button>
                         </div>
@@ -4037,7 +4138,7 @@ function AdminPage() {
                               <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditHouse(house)}>
                                 <Edit className="h-3 w-3" /> Edit
                               </Button>
-                              <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-houses", house.id)}>
+                              <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-houses", house.id, house.name)}>
                                 <Trash2 className="h-3 w-3" /> Delete
                               </Button>
                             </div>
@@ -4178,7 +4279,7 @@ function AdminPage() {
                                 <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditLeader(lead)}>
                                   <Edit className="h-3 w-3" /> Edit
                                 </Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-leaders", lead.id)}>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-leaders", lead.id, lead.name)}>
                                   <Trash2 className="h-3 w-3" /> Delete
                                 </Button>
                               </div>
@@ -4237,7 +4338,7 @@ function AdminPage() {
                                 <Button size="sm" variant="ghost" className="h-7 text-xs text-primary hover:bg-gold/20 gap-1 rounded-full px-2" onClick={() => startEditLeader(lead)}>
                                   <Edit className="h-3 w-3" /> Edit
                                 </Button>
-                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-leaders", lead.id)}>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600 hover:bg-red-50 gap-1 rounded-full px-2" onClick={() => handleDelete("student-leaders", lead.id, lead.name)}>
                                   <Trash2 className="h-3 w-3" /> Delete
                                 </Button>
                               </div>

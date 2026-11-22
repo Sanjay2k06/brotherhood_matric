@@ -54,7 +54,7 @@ export const STATIC_IMAGE_MAP: Record<string, string> = {
 };
 
 export function resolveGalleryImageSrc(rawSrc: string): string {
-  if (!rawSrc) return "";
+  if (!rawSrc) return christmasProg1;
   if (rawSrc.startsWith("data:") || rawSrc.startsWith("blob:")) return rawSrc;
 
   // Auto-correct any typo in Render domain or localhost references
@@ -77,7 +77,11 @@ export function resolveGalleryImageSrc(rawSrc: string): string {
 
   // 3. If relative path starting with /images/
   if (cleaned.startsWith("/images/")) {
-    return cleaned;
+    const filenameOnly = decodeURIComponent(cleaned.split("/").pop() || "").toLowerCase();
+    if (STATIC_IMAGE_MAP[filenameOnly]) {
+      return STATIC_IMAGE_MAP[filenameOnly];
+    }
+    return christmasProg1;
   }
 
   // 4. If HTTP URL and on HTTPS site, upgrade to HTTPS or route through BACKEND_URL
@@ -305,9 +309,15 @@ export function getMergedGalleryFolders(
 
   const isDeletedPhoto = (photoIdOrTitleOrSrc: string) => {
     if (!photoIdOrTitleOrSrc) return false;
-    return deletedPhotoIds.some(
-      (d) => d.toLowerCase().trim() === photoIdOrTitleOrSrc.toLowerCase().trim()
-    );
+    const clean = photoIdOrTitleOrSrc.toLowerCase().trim();
+    // Explicitly purge test / invalid photos
+    if (clean === "cfgh" || clean.includes("cfgh") || clean === "kjnhcg a" || clean.includes("kjnhcg")) {
+      return true;
+    }
+    return deletedPhotoIds.some((d) => {
+      const dClean = (d || "").toLowerCase().trim();
+      return dClean === clean || (dClean.length > 2 && clean.includes(dClean));
+    });
   };
 
   const folderMap = new Map<string, GalleryFolderItem>();
@@ -353,7 +363,14 @@ export function getMergedGalleryFolders(
       const fId = toFolderId(rawCategory);
 
       if (isDeletedFolder(rawCategory, fId)) return;
-      if (img.id && isDeletedPhoto(String(img.id))) return;
+      if (
+        (img.id && isDeletedPhoto(String(img.id))) ||
+        (img.title && isDeletedPhoto(img.title)) ||
+        (img.description && isDeletedPhoto(img.description)) ||
+        (img.image && isDeletedPhoto(img.image))
+      ) {
+        return;
+      }
 
       const resolvedSrc = resolveGalleryImageSrc(img.image);
 
@@ -405,6 +422,16 @@ export function getMergedGalleryFolders(
       }
     });
   }
+
+  // 4. Ensure every folder's photo list strictly purges deleted photos
+  folderMap.forEach((folder) => {
+    folder.photos = folder.photos.filter((p) => 
+      !isDeletedPhoto(String(p.id || "")) &&
+      !isDeletedPhoto(p.title || "") &&
+      !isDeletedPhoto(p.desc || "") &&
+      !isDeletedPhoto(p.src || "")
+    );
+  });
 
   return Array.from(folderMap.values());
 }
