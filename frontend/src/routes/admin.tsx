@@ -16,7 +16,7 @@ import {
   Lock, User, Mail, Calendar, Upload, Plus, Edit, Trash2, Check, X, 
   Sparkles, Award, Users, Image as ImageIcon, Bell, MessageSquare, Briefcase, FileText, LayoutDashboard, LogOut, Trophy, Megaphone,
   Shirt, Flag, UserCheck, Home, BookOpen, GraduationCap, Search, Filter,
-  Folder, FolderOpen, FolderPlus, ArrowLeft, ChevronRight
+  Folder, FolderOpen, FolderPlus, ArrowLeft, ChevronRight, Star, Clock
 } from "lucide-react";
 import { toast } from "sonner";
 import FlowingMenu from "@/components/FlowingMenu";
