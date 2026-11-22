@@ -233,8 +233,8 @@ export function getMergedAchievements(apiAchievements?: any[]): {
 
   DEFAULT_ACHIEVEMENTS.forEach((item) => {
     const idKey = String(item.id).toLowerCase();
-    const nameKey = item.name.toLowerCase().trim();
-    if (deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
+    const nameKey = (item.name || "").toLowerCase().trim();
+    if (deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey))) return;
 
     let merged = { ...item };
     if (overrides.modified[item.id]) {
@@ -250,11 +250,13 @@ export function getMergedAchievements(apiAchievements?: any[]): {
       const rawDesc = apiItem.description || "";
       const nameKey = rawTitle.toLowerCase().trim();
 
-      if (deletedSet.has(apiId.toLowerCase()) || deletedSet.has(nameKey)) return;
+      if (deletedSet.has(apiId.toLowerCase()) || (nameKey && deletedSet.has(nameKey))) return;
 
       let matchKey: string | null = null;
       for (const [k, v] of map.entries()) {
-        if (k === apiId.toLowerCase() || v.name.toLowerCase().trim() === nameKey || v.title.toLowerCase().trim() === nameKey) {
+        const vName = (v.name || "").toLowerCase().trim();
+        const vTitle = (v.title || "").toLowerCase().trim();
+        if (k === apiId.toLowerCase() || (nameKey && (vName === nameKey || vTitle === nameKey))) {
           matchKey = k;
           break;
         }

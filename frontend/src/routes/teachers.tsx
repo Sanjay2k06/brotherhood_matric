@@ -307,9 +307,9 @@ function TeachersPage() {
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
         return (
-          member.name.toLowerCase().includes(q) ||
+          (member.name || "").toLowerCase().includes(q) ||
           (member.qualification && member.qualification.toLowerCase().includes(q)) ||
-          dept.name.toLowerCase().includes(q)
+          (dept.name || "").toLowerCase().includes(q)
         );
       });
 

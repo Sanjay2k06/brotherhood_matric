@@ -88,7 +88,7 @@ export function getMergedEvents(apiEvents?: any[]): SchoolEventItem[] {
 
       let matchKey: string | null = null;
       for (const [k, v] of map.entries()) {
-        if (k === apiId.toLowerCase() || v.title.toLowerCase().trim() === titleKey) {
+        if (k === apiId.toLowerCase() || (v.title && v.title.toLowerCase().trim() === titleKey)) {
           matchKey = k;
           break;
         }

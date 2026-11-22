@@ -108,7 +108,7 @@ export function getMergedTeachers(apiTeachers?: any[]): TeacherItem[] {
 
       let matchKey: string | null = null;
       for (const [k, v] of map.entries()) {
-        if (k === apiId.toLowerCase() || v.name.toLowerCase().trim() === nameKey) {
+        if (k === apiId.toLowerCase() || (v.name && v.name.toLowerCase().trim() === nameKey)) {
           matchKey = k;
           break;
         }

@@ -1010,7 +1010,7 @@ function AdminPage() {
       // 3. Remove folderName and slug from deletedFolderIds if present
       const slug = toFolderId(folderName);
       const updatedDeleted = deletedFolderIds.filter(d => 
-        d.toLowerCase() !== folderName.toLowerCase() && d.toLowerCase() !== slug
+        (d || "").toLowerCase() !== (folderName || "").toLowerCase() && (d || "").toLowerCase() !== slug
       );
       setDeletedFolderIds(updatedDeleted);
       try {
@@ -1038,7 +1038,7 @@ function AdminPage() {
       const slug = toFolderId(folderName);
       const imagesToDelete = galleryImages.filter(img => {
         const cat = (img.category || "").trim().toLowerCase();
-        return cat === folderName.toLowerCase() || cat === folderId.toLowerCase() || cat === slug;
+        return cat === (folderName || "").toLowerCase() || cat === (folderId || "").toLowerCase() || cat === slug;
       });
 
       await Promise.all(
@@ -1508,8 +1508,8 @@ function AdminPage() {
   const startEditStudent = (item: any) => {
     setEditItem(item);
     
-    const titleLower = item.title.toLowerCase();
-    const descLower = item.description.toLowerCase();
+    const titleLower = (item?.title || "").toLowerCase();
+    const descLower = (item?.description || item?.reason || "").toLowerCase();
     
     let category: "best_student" | "board_topper" | "sports" = "best_student";
     
@@ -1519,8 +1519,8 @@ function AdminPage() {
                     titleLower.includes("board") ||
                     descLower.includes("score") ||
                     descLower.includes("marks") ||
-                    item.description.includes("/ 600") ||
-                    item.description.includes("100/");
+                    (item?.description || "").includes("/ 600") ||
+                    (item?.description || "").includes("100/");
                     
     if (titleLower.includes("best student")) {
       category = "best_student";
@@ -1532,21 +1532,21 @@ function AdminPage() {
     
     setAchievementCategory(category);
     
-    const parts = item.title.split(" - ");
+    const parts = (item?.title || "").split(" - ");
     if (category === "sports") {
       setStudentForm({
         title: parts[0] || "",
-        name: parts[1] || "",
-        grade: "",
-        reason: item.description,
-        image: item.image || ""
+        name: parts[1] || item?.name || "",
+        grade: item?.grade || "",
+        reason: item?.description || item?.reason || "",
+        image: item?.image || ""
       });
     } else {
       const awardTitle = parts[0] || "";
       const nameWithGrade = parts[1] || "";
       const nameParts = nameWithGrade.split(" (");
-      const name = nameParts[0] || "";
-      const grade = nameParts[1] ? nameParts[1].replace(")", "") : "";
+      const name = item?.name || nameParts[0] || item?.title || "";
+      const grade = item?.grade || (nameParts[1] ? nameParts[1].replace(")", "") : "");
       
       setStudentForm({
         title: awardTitle,
@@ -2174,19 +2174,19 @@ function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bestStudents.filter(s => s.title.toLowerCase().includes("best student")).map((stud) => {
-                      const parts = stud.title.split(" - ");
+                    {bestStudents.filter(s => (s.title || "").toLowerCase().includes("best student")).map((stud) => {
+                      const parts = (stud.title || "").split(" - ");
                       const awardTitle = parts[0] || "Best Student";
                       const nameWithGrade = parts[1] || "";
                       const nameParts = nameWithGrade.split(" (");
-                      const name = nameParts[0] || stud.title;
-                      const grade = nameParts[1] ? nameParts[1].replace(")", "") : "";
+                      const name = stud.name || nameParts[0] || stud.title || "Student";
+                      const grade = stud.grade || (nameParts[1] ? nameParts[1].replace(")", "") : "");
                       return (
                         <TableRow key={stud.id}>
                           <TableCell className="font-semibold">{awardTitle}</TableCell>
                           <TableCell className="font-medium">{name}</TableCell>
                           <TableCell className="font-semibold text-primary">{grade}</TableCell>
-                          <TableCell className="max-w-xs truncate">{stud.description}</TableCell>
+                          <TableCell className="max-w-xs truncate">{stud.description || stud.reason}</TableCell>
                           <TableCell className="text-right space-x-1.5">
                             <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditStudent(stud)}>
                               <Edit className="h-4 w-4" />
@@ -2198,7 +2198,7 @@ function AdminPage() {
                         </TableRow>
                       );
                     })}
-                    {bestStudents.filter(s => s.title.toLowerCase().includes("best student")).length === 0 && (
+                    {bestStudents.filter(s => (s.title || "").toLowerCase().includes("best student")).length === 0 && (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground py-10">No Best Student records found.</TableCell>
                       </TableRow>
@@ -2235,31 +2235,31 @@ function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bestStudents.filter(s => !s.title.toLowerCase().includes("best student")).map((stud) => {
-                      const titleLower = stud.title.toLowerCase();
-                      const descLower = stud.description.toLowerCase();
+                    {bestStudents.filter(s => !(s.title || "").toLowerCase().includes("best student")).map((stud) => {
+                      const titleLower = (stud.title || "").toLowerCase();
+                      const descLower = (stud.description || stud.reason || "").toLowerCase();
                       const isBoard = titleLower.includes("rank") || 
                                       titleLower.includes("topper") || 
                                       titleLower.includes("centum") ||
                                       titleLower.includes("board") ||
                                       descLower.includes("score") ||
                                       descLower.includes("marks") ||
-                                      stud.description.includes("/ 600") ||
-                                      stud.description.includes("100/");
+                                      (stud.description || "").includes("/ 600") ||
+                                      (stud.description || "").includes("100/");
                       
-                      const parts = stud.title.split(" - ");
+                      const parts = (stud.title || "").split(" - ");
                       if (isBoard) {
                         const rank = parts[0] || "Topper";
                         const nameWithGrade = parts[1] || "";
                         const nameParts = nameWithGrade.split(" (");
-                        const name = nameParts[0] || stud.title;
-                        const grade = nameParts[1] ? nameParts[1].replace(")", "") : "";
+                        const name = stud.name || nameParts[0] || stud.title || "Student";
+                        const grade = stud.grade || (nameParts[1] ? nameParts[1].replace(")", "") : "");
                         return (
                           <TableRow key={stud.id}>
                             <TableCell><span className="inline-block rounded-full px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold">Academic Result</span></TableCell>
                             <TableCell className="font-semibold">{rank} (Class: {grade})</TableCell>
                             <TableCell>{name}</TableCell>
-                            <TableCell className="font-semibold text-primary">{stud.description}</TableCell>
+                            <TableCell className="font-semibold text-primary">{stud.score || stud.description || stud.reason}</TableCell>
                             <TableCell className="text-right space-x-1.5">
                               <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditStudent(stud)}>
                                 <Edit className="h-4 w-4" />
@@ -2271,14 +2271,14 @@ function AdminPage() {
                           </TableRow>
                         );
                       } else {
-                        const eventTitle = parts[0] || stud.title;
-                        const awardName = parts[1] || "Achievement Award";
+                        const eventTitle = parts[0] || stud.title || "Sports Achievement";
+                        const awardName = parts[1] || stud.name || "Achievement Award";
                         return (
                           <TableRow key={stud.id}>
                             <TableCell><span className="inline-block rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold">Sports/Co-curricular</span></TableCell>
                             <TableCell className="font-semibold">{eventTitle}</TableCell>
                             <TableCell>{awardName}</TableCell>
-                            <TableCell className="text-muted-foreground">{stud.description}</TableCell>
+                            <TableCell className="text-muted-foreground">{stud.description || stud.reason}</TableCell>
                             <TableCell className="text-right space-x-1.5">
                               <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-gold/10 hover:text-gold" onClick={() => startEditStudent(stud)}>
                                 <Edit className="h-4 w-4" />
@@ -2291,7 +2291,7 @@ function AdminPage() {
                         );
                       }
                     })}
-                    {bestStudents.filter(s => !s.title.toLowerCase().includes("best student")).length === 0 && (
+                    {bestStudents.filter(s => !(s.title || "").toLowerCase().includes("best student")).length === 0 && (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground py-10">No board results or sports achievements logged.</TableCell>
                       </TableRow>
@@ -2527,7 +2527,7 @@ function AdminPage() {
                     <CardContent className="px-0 pb-0">
                       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         {allDisplayFolders
-                          .filter(f => !galleryFolderSearch || f.name.toLowerCase().includes(galleryFolderSearch.toLowerCase()) || f.description.toLowerCase().includes(galleryFolderSearch.toLowerCase()))
+                          .filter(f => !galleryFolderSearch || (f.name || "").toLowerCase().includes(galleryFolderSearch.toLowerCase()) || (f.description || "").toLowerCase().includes(galleryFolderSearch.toLowerCase()))
                           .map((folder) => {
                             const coverImg = resolveGalleryImageSrc(folder.photos[0]?.src || "/images/gallery photos/christmas programme.JPG");
                             return (
@@ -2639,7 +2639,7 @@ function AdminPage() {
 
               // LEVEL 2: INSIDE FOLDER VIEW
               const currentFolder = allDisplayFolders.find(
-                f => f.name.toLowerCase() === selectedGalleryFolder.toLowerCase() || f.id === toFolderId(selectedGalleryFolder)
+                f => (f.name || "").toLowerCase() === (selectedGalleryFolder || "").toLowerCase() || (selectedGalleryFolder && f.id === toFolderId(selectedGalleryFolder))
               );
               const folderName = currentFolder?.name || selectedGalleryFolder;
               const folderPhotos = currentFolder?.photos || [];

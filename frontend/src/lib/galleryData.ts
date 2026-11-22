@@ -316,11 +316,11 @@ export function getMergedGalleryFolders(
   DEFAULT_GALLERY_FOLDERS.forEach((df) => {
     if (!isDeletedFolder(df.name, df.id)) {
       const folderPhotos = INITIAL_GALLERY_PHOTOS
-        .filter((p) => p.folderId === df.id || p.folderName.toLowerCase() === df.name.toLowerCase())
-        .filter((p) => !isDeletedPhoto(String(p.id || "")) && !isDeletedPhoto(p.title) && !isDeletedPhoto(p.src))
+        .filter((p) => p.folderId === df.id || (p.folderName || "").toLowerCase() === (df.name || "").toLowerCase())
+        .filter((p) => !isDeletedPhoto(String(p.id || "")) && !isDeletedPhoto(p.title || "") && !isDeletedPhoto(p.src || ""))
         .map((p) => ({ ...p }));
 
-      folderMap.set(df.name.toLowerCase().trim(), {
+      folderMap.set((df.name || "").toLowerCase().trim(), {
         id: df.id,
         name: df.name,
         description: df.description,
@@ -378,7 +378,7 @@ export function getMergedGalleryFolders(
           const pFilename = (p.src || "").split("/").pop()?.toLowerCase();
           return (
             (filename && pFilename && (pFilename.includes(filename) || filename.includes(pFilename))) ||
-            p.title.toLowerCase() === photoItem.title.toLowerCase() ||
+            ((p.title || "").toLowerCase() === (photoItem.title || "").toLowerCase() && Boolean(p.title)) ||
             p.src === photoItem.src
           );
         });

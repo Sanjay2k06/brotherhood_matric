@@ -82,7 +82,7 @@ export function getMergedUniforms(apiUniforms?: any[]): SchoolUniformItem[] {
 
       let matchKey: string | null = null;
       for (const [k, v] of map.entries()) {
-        if (k === apiId.toLowerCase() || v.section.toLowerCase().trim() === secKey) {
+        if (k === apiId.toLowerCase() || (v.section && v.section.toLowerCase().trim() === secKey)) {
           matchKey = k;
           break;
         }

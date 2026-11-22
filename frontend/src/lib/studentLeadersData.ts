@@ -405,7 +405,7 @@ export function getMergedStudentLeaders(apiLeaders?: any[]): StudentLeaderItem[]
       // Find if matches existing default by name or id
       let matchKey: string | null = null;
       for (const [k, v] of leaderMap.entries()) {
-        if (k === apiId.toLowerCase() || v.name.toLowerCase().trim() === nameKey) {
+        if (k === apiId.toLowerCase() || (v.name && v.name.toLowerCase().trim() === nameKey)) {
           matchKey = k;
           break;
         }
