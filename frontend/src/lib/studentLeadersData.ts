@@ -432,13 +432,39 @@ export function getMergedStudentLeaders(apiLeaders?: any[]): StudentLeaderItem[]
     });
   }
 
-  // 3. Add locally added items
+  // 3. Add locally added items with deduplication against existing items
   (overrides.added || []).forEach((item) => {
-    const idKey = String(item.id).toLowerCase().trim();
-    const nameKey = item.name.toLowerCase().trim();
-    if (deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
-    leaderMap.set(idKey, item);
+    const idKey = String(item.id || "").toLowerCase().trim();
+    const nameKey = (item.name || "").toLowerCase().trim();
+    if (deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey))) return;
+
+    let matchKey: string | null = null;
+    for (const [k, v] of leaderMap.entries()) {
+      if (k === idKey || (v.name && v.name.toLowerCase().trim() === nameKey)) {
+        matchKey = k;
+        break;
+      }
+    }
+
+    if (matchKey) {
+      const existing = leaderMap.get(matchKey)!;
+      leaderMap.set(matchKey, { ...existing, ...item, id: existing.id || item.id });
+    } else {
+      leaderMap.set(idKey || nameKey, item);
+    }
   });
 
-  return Array.from(leaderMap.values());
+  // 4. Final strict deduplication pass by name and role
+  const uniqueLeaders: StudentLeaderItem[] = [];
+  const seenKeys = new Set<string>();
+
+  for (const leader of leaderMap.values()) {
+    const dedupKey = `${(leader.name || "").toLowerCase().trim()}|${(leader.role || "").toLowerCase().trim()}`;
+    if (!seenKeys.has(dedupKey)) {
+      seenKeys.add(dedupKey);
+      uniqueLeaders.push(leader);
+    }
+  }
+
+  return uniqueLeaders;
 }

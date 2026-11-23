@@ -108,8 +108,34 @@ export function getMergedUniforms(apiUniforms?: any[]): SchoolUniformItem[] {
     const idKey = String(item.id || "").toLowerCase().trim();
     const secKey = (item.section || "").toLowerCase().trim();
     if (deletedSet.has(idKey) || (secKey && deletedSet.has(secKey))) return;
-    map.set(idKey || secKey, item);
+
+    let matchKey: string | null = null;
+    for (const [k, v] of map.entries()) {
+      if (k === idKey || (v.section && v.section.toLowerCase().trim() === secKey)) {
+        matchKey = k;
+        break;
+      }
+    }
+
+    if (matchKey) {
+      const existing = map.get(matchKey)!;
+      map.set(matchKey, { ...existing, ...item, id: existing.id || item.id });
+    } else {
+      map.set(idKey || secKey, item);
+    }
   });
 
-  return Array.from(map.values());
+  // Final deduplication pass by section name
+  const uniqueUniforms: SchoolUniformItem[] = [];
+  const seenSections = new Set<string>();
+
+  for (const uni of map.values()) {
+    const s = (uni.section || "").toLowerCase().trim();
+    if (s && !seenSections.has(s)) {
+      seenSections.add(s);
+      uniqueUniforms.push(uni);
+    }
+  }
+
+  return uniqueUniforms;
 }

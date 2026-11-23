@@ -226,8 +226,34 @@ export function getMergedHouses(apiHouses?: any[]): SchoolHouseItem[] {
     const idKey = String(item.id || "").toLowerCase().trim();
     const nameKey = (item.name || "").toLowerCase().trim();
     if (deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey))) return;
-    map.set(idKey || nameKey, item);
+
+    let matchKey: string | null = null;
+    for (const [k, v] of map.entries()) {
+      if (k === idKey || (v.name && v.name.toLowerCase().trim() === nameKey)) {
+        matchKey = k;
+        break;
+      }
+    }
+
+    if (matchKey) {
+      const existing = map.get(matchKey)!;
+      map.set(matchKey, { ...existing, ...item, id: existing.id || item.id });
+    } else {
+      map.set(idKey || nameKey, item);
+    }
   });
 
-  return Array.from(map.values());
+  // Final deduplication pass by house name
+  const uniqueHouses: SchoolHouseItem[] = [];
+  const seenHouses = new Set<string>();
+
+  for (const h of map.values()) {
+    const n = (h.name || "").toLowerCase().trim();
+    if (n && !seenHouses.has(n)) {
+      seenHouses.add(n);
+      uniqueHouses.push(h);
+    }
+  }
+
+  return uniqueHouses;
 }

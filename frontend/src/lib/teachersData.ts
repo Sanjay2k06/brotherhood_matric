@@ -153,9 +153,35 @@ export function getMergedTeachers(apiTeachers?: any[]): TeacherItem[] {
   (overrides.added || []).forEach((item) => {
     const idKey = String(item.id || "").toLowerCase().trim();
     const nameKey = (item.name || "").toLowerCase().trim();
-    if (nameKey.includes("sanjay") || deletedSet.has(idKey) || deletedSet.has(nameKey)) return;
-    map.set(idKey || nameKey, item);
+    if (nameKey.includes("sanjay") || deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey))) return;
+
+    let matchKey: string | null = null;
+    for (const [k, v] of map.entries()) {
+      if (k === idKey || (v.name && v.name.toLowerCase().trim() === nameKey)) {
+        matchKey = k;
+        break;
+      }
+    }
+
+    if (matchKey) {
+      const existing = map.get(matchKey)!;
+      map.set(matchKey, { ...existing, ...item, id: existing.id || item.id });
+    } else {
+      map.set(idKey || nameKey, item);
+    }
   });
 
-  return Array.from(map.values());
+  // Final deduplication pass by teacher name
+  const uniqueTeachers: TeacherItem[] = [];
+  const seenNames = new Set<string>();
+
+  for (const teach of map.values()) {
+    const n = (teach.name || "").toLowerCase().trim();
+    if (n && !seenNames.has(n)) {
+      seenNames.add(n);
+      uniqueTeachers.push(teach);
+    }
+  }
+
+  return uniqueTeachers;
 }

@@ -118,8 +118,34 @@ export function getMergedEvents(apiEvents?: any[]): SchoolEventItem[] {
     const idKey = String(item.id || "").toLowerCase().trim();
     const titleKey = (item.title || "").toLowerCase().trim();
     if (deletedSet.has(idKey) || (titleKey && deletedSet.has(titleKey))) return;
-    map.set(idKey || titleKey, item);
+
+    let matchKey: string | null = null;
+    for (const [k, v] of map.entries()) {
+      if (k === idKey || (v.title && v.title.toLowerCase().trim() === titleKey)) {
+        matchKey = k;
+        break;
+      }
+    }
+
+    if (matchKey) {
+      const existing = map.get(matchKey)!;
+      map.set(matchKey, { ...existing, ...item, id: existing.id || item.id });
+    } else {
+      map.set(idKey || titleKey, item);
+    }
   });
 
-  return Array.from(map.values()).sort((a, b) => a.event_date.localeCompare(b.event_date));
+  // Final deduplication pass by title and event_date
+  const uniqueEvents: SchoolEventItem[] = [];
+  const seenEvents = new Set<string>();
+
+  for (const ev of map.values()) {
+    const key = `${(ev.title || "").toLowerCase().trim()}|${ev.event_date || ""}`;
+    if (!seenEvents.has(key)) {
+      seenEvents.add(key);
+      uniqueEvents.push(ev);
+    }
+  }
+
+  return uniqueEvents.sort((a, b) => a.event_date.localeCompare(b.event_date));
 }

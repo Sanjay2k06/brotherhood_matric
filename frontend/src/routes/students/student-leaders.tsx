@@ -443,14 +443,22 @@ function StudentLeadersPage() {
   ];
   const seniorPrefects = seniorLeaders.filter(l => l.category === "Prefect" || l.role.toLowerCase().includes("prefect"));
 
-  // Any custom leaders without a designated section
-  const customLeaders = allMergedLeaders.filter(
-    (l) => !primaryCouncil.some(p => p.id === l.id) &&
-           !primaryHouseGroups.some(g => g.members.some(m => m.id === l.id)) &&
-           !seniorCouncil.some(s => s.id === l.id) &&
-           !seniorHouseGroups.some(g => g.members.some(m => m.id === l.id)) &&
-           !seniorPrefects.some(p => p.id === l.id)
-  );
+  // Any custom leaders without a designated section (matched strictly by both ID and Name)
+  const isRenderedElsewhere = (leader: StudentLeaderItem) => {
+    const n = (leader.name || "").toLowerCase().trim();
+    const id = String(leader.id || "");
+    const match = (item: any) => String(item.id || "") === id || (item.name || "").toLowerCase().trim() === n;
+
+    return (
+      primaryCouncil.some(match) ||
+      primaryHouseGroups.some(g => g.members.some(match)) ||
+      seniorCouncil.some(match) ||
+      seniorHouseGroups.some(g => g.members.some(match)) ||
+      seniorPrefects.some(match)
+    );
+  };
+
+  const customLeaders = allMergedLeaders.filter((l) => !isRenderedElsewhere(l));
 
   return (
     <div className="bg-[#fcfdfa] text-[#1c2e24] min-h-screen">

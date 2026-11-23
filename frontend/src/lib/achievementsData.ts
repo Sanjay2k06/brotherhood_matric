@@ -299,14 +299,44 @@ export function getMergedAchievements(apiAchievements?: any[]): {
     const nameKey = (item.name || "").toLowerCase().trim();
     const titleKey = (item.title || "").toLowerCase().trim();
     if (deletedSet.has(idKey) || (nameKey && deletedSet.has(nameKey)) || (titleKey && deletedSet.has(titleKey))) return;
-    map.set(idKey || nameKey || titleKey, item);
+
+    let matchKey: string | null = null;
+    for (const [k, v] of map.entries()) {
+      const vName = (v.name || "").toLowerCase().trim();
+      const vTitle = (v.title || "").toLowerCase().trim();
+      if (k === idKey || (nameKey && vName === nameKey && (!titleKey || vTitle === titleKey))) {
+        matchKey = k;
+        break;
+      }
+    }
+
+    if (matchKey) {
+      const existing = map.get(matchKey)!;
+      map.set(matchKey, { ...existing, ...item, id: existing.id || item.id });
+    } else {
+      map.set(idKey || nameKey || titleKey, item);
+    }
   });
 
-  const all = Array.from(map.values());
+  // Final deduplication pass
+  const uniqueAchievements: AchievementItem[] = [];
+  const seenKeys = new Set<string>();
+
+  for (const ach of map.values()) {
+    const n = (ach.name || "").toLowerCase().trim();
+    const t = (ach.title || "").toLowerCase().trim();
+    const typ = (ach.type || "").toLowerCase().trim();
+    const dedupKey = `${n}|${t}|${typ}`;
+    if (!seenKeys.has(dedupKey)) {
+      seenKeys.add(dedupKey);
+      uniqueAchievements.push(ach);
+    }
+  }
+
   return {
-    all,
-    bestStudents: all.filter((a) => a.type === "best_student"),
-    boardToppers: all.filter((a) => a.type === "board_topper"),
-    sports: all.filter((a) => a.type === "sports"),
+    all: uniqueAchievements,
+    bestStudents: uniqueAchievements.filter((a) => a.type === "best_student"),
+    boardToppers: uniqueAchievements.filter((a) => a.type === "board_topper"),
+    sports: uniqueAchievements.filter((a) => a.type === "sports"),
   };
 }
